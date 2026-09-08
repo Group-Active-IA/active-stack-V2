@@ -15,6 +15,7 @@ var knownToggles = map[string]bool{
 	"engram":        true,
 	"tdd":           true,
 	"governance":    true,
+	"evidence":      true,
 }
 
 // Compose assembles the sdd-orchestrator block for the given variant and
@@ -27,6 +28,7 @@ var knownToggles = map[string]bool{
 //  2. Subtractive: if "delegation" NOT active → remove <!-- active-stack:sdd-delegation --> section
 //  3. Subtractive: if "model-routing" NOT active → remove <!-- active-stack:sdd-model-assignments --> section
 //  4. Additive: if "governance" active → append assets/governance.md
+//     4b. Additive: if "evidence" active → append assets/evidence-report.md
 //  5. Additive: if "engram" active → append assets/engram-protocol.md
 //  6. Additive: if "tdd" active → append inline TDD flag + assets/strict-tdd.md
 //
@@ -35,7 +37,7 @@ func Compose(toggles []string, variantKey string) (string, error) {
 	// Validate all toggles first.
 	for _, t := range toggles {
 		if !knownToggles[t] {
-			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance)", t)
+			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence)", t)
 		}
 	}
 
@@ -73,6 +75,17 @@ func Compose(toggles []string, variantKey string) (string, error) {
 			return "", fmt.Errorf("config compose: %w", err)
 		}
 		additives = append(additives, gov)
+	}
+
+	// Step 4b: typed reporting. Before engram and TDD because it frames how every
+	// other section's output should come back: a summary that reaches the reader
+	// untyped is a summary the reader cannot weigh.
+	if active["evidence"] {
+		ev, err := loadFragment("evidence-report.md")
+		if err != nil {
+			return "", fmt.Errorf("config compose: %w", err)
+		}
+		additives = append(additives, ev)
 	}
 
 	// Step 5: engram.
