@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Group-Active-IA/active-stack/internal/harness/config/permissions"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/verify"
 )
@@ -292,10 +293,13 @@ func TestCheckForPermissionsHarness_Pass(t *testing.T) {
 		Type: model.HarnessConfig,
 	}
 
-	// Write a settings JSON that contains the permissions key.
+	// Write a settings JSON as the installer writes it: the permissions key
+	// AND the security floor. A fixture with only the key used to pass here,
+	// which is exactly the hole C-32 closed — see the section at the bottom.
 	settings := map[string]interface{}{
 		"permissions": map[string]interface{}{
 			"allow": []string{"Read"},
+			"deny":  permissions.SecurityFloorDeny(),
 		},
 	}
 	data, _ := json.Marshal(settings)
@@ -355,17 +359,10 @@ func TestCheckPermissionsOpenCodeSingularKey(t *testing.T) {
 
 	// Write an opencode.json-style settings file with "permission" (singular),
 	// exactly as the permissions installer writes for OpenCode.
-	settings := map[string]interface{}{
-		"permission": map[string]interface{}{
-			"bash": map[string]interface{}{"*": "allow"},
-			"read": map[string]interface{}{"*": "allow"},
-		},
-	}
-	data, err := json.Marshal(settings)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(fa.SettingsPath(homeDir), data, 0o644); err != nil {
+	// Raw JSON, not a map: opencode is last-match-wins, so the deny floor has
+	// to come after the wildcard and Go maps do not preserve key order.
+	settings := `{"permission":{"read":"allow","bash":{"*":"allow","rm -rf /*":"deny"}}}`
+	if err := os.WriteFile(fa.SettingsPath(homeDir), []byte(settings), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -396,7 +393,7 @@ func TestCheckPermissionsClaudePluralKey(t *testing.T) {
 	settings := map[string]interface{}{
 		"permissions": map[string]interface{}{
 			"defaultMode": "acceptEdits",
-			"deny":        []string{"Bash(rm -rf /)"},
+			"deny":        permissions.SecurityFloorDeny(),
 		},
 	}
 	data, err := json.Marshal(settings)
@@ -740,4 +737,206 @@ func TestCheckForSkillHarness_MultipleAdapters(t *testing.T) {
 	if report.Ready {
 		t.Error("Ready = true, want false when opencode SKILL.md is missing")
 	}
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// C-32: el piso de seguridad tiene que estar APLICADO, no sólo nombrado
+//
+// Hasta el 2026-09-08 checkPermissions parseaba el settings a
+// map[string]json.RawMessage y sólo miraba que la clave existiera. Un
+// settings.json de Claude con "permissions": {"deny": []} o un opencode.json
+// con "permission": {"bash": {"*": "allow"}} pasaban el verify en verde con el
+// piso de denegación vaciado. El harness permissions es el único que el
+// instalador declara NO desactivable: si el verify no mira el contenido, la
+// única garantía no negociable del stack no está verificada por nadie.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// permissionsHarness is the harness under test in this section.
+func permissionsHarnessFixture() model.Harness {
+	return model.Harness{ID: "permissions", Type: model.HarnessConfig}
+}
+
+// writeSettings writes raw JSON to the adapter's settings path.
+func writeSettings(t *testing.T, fa fakeAdapter, homeDir, body string) {
+	t.Helper()
+	if err := os.WriteFile(fa.SettingsPath(homeDir), []byte(body), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// assertPermissionsCheckFails runs the permissions checks and requires at least
+// one hard failure whose message contains wantInMsg.
+func assertPermissionsCheckFails(t *testing.T, fa fakeAdapter, homeDir, wantInMsg string) {
+	t.Helper()
+	checks := verify.ChecksForHarness(permissionsHarnessFixture(), []verify.Adapter{fa}, homeDir)
+	if len(checks) == 0 {
+		t.Fatal("expected at least one check for permissions harness")
+	}
+	results := runChecks(t, checks)
+	for _, r := range results {
+		if r.Status == verify.CheckStatusFailed {
+			if !strings.Contains(r.Error, wantInMsg) {
+				t.Errorf("check %q failed with error = %q, want it to mention %q", r.ID, r.Error, wantInMsg)
+			}
+			return
+		}
+	}
+	t.Fatalf("expected the permissions check to FAIL: the security floor is not applied, but verify reported %+v", results)
+}
+
+// assertPermissionsCheckPasses runs the permissions checks and requires all to pass.
+func assertPermissionsCheckPasses(t *testing.T, fa fakeAdapter, homeDir string) {
+	t.Helper()
+	checks := verify.ChecksForHarness(permissionsHarnessFixture(), []verify.Adapter{fa}, homeDir)
+	if len(checks) == 0 {
+		t.Fatal("expected at least one check for permissions harness")
+	}
+	for _, r := range runChecks(t, checks) {
+		if r.Status != verify.CheckStatusPassed {
+			t.Errorf("check %q: status = %q, error = %q, want passed", r.ID, r.Status, r.Error)
+		}
+	}
+}
+
+// claudeSettingsWithDeny renders a Claude settings.json with the given deny list.
+func claudeSettingsWithDeny(t *testing.T, deny []string) string {
+	t.Helper()
+	body, err := json.Marshal(map[string]any{
+		"permissions": map[string]any{
+			"defaultMode": "default",
+			"deny":        deny,
+		},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return string(body)
+}
+
+// Claude — el piso vaciado a mano tiene que dar rojo.
+func TestCheckPermissionsClaudeRejectsEmptiedDenyFloor(t *testing.T) {
+	homeDir := t.TempDir()
+	fa := newFakeAdapter(t, homeDir, model.AgentClaude)
+	writeSettings(t, fa, homeDir, claudeSettingsWithDeny(t, []string{}))
+	assertPermissionsCheckFails(t, fa, homeDir, "Read(.env)")
+}
+
+// Claude — el piso ausente por completo (clave "deny" no escrita) tiene que dar rojo.
+func TestCheckPermissionsClaudeRejectsMissingDenyKey(t *testing.T) {
+	homeDir := t.TempDir()
+	fa := newFakeAdapter(t, homeDir, model.AgentClaude)
+	writeSettings(t, fa, homeDir, `{"permissions":{"defaultMode":"bypassPermissions","allow":["Bash"]}}`)
+	assertPermissionsCheckFails(t, fa, homeDir, "deny")
+}
+
+// Claude — que le saquen UNA regla del piso también tiene que dar rojo,
+// y el error tiene que nombrar exactamente cuál falta.
+func TestCheckPermissionsClaudeRejectsPartialDenyFloor(t *testing.T) {
+	full := permissions.SecurityFloorDeny()
+	for i, dropped := range full {
+		t.Run(dropped, func(t *testing.T) {
+			partial := make([]string, 0, len(full)-1)
+			partial = append(partial, full[:i]...)
+			partial = append(partial, full[i+1:]...)
+
+			homeDir := t.TempDir()
+			fa := newFakeAdapter(t, homeDir, model.AgentClaude)
+			writeSettings(t, fa, homeDir, claudeSettingsWithDeny(t, partial))
+			assertPermissionsCheckFails(t, fa, homeDir, dropped)
+		})
+	}
+}
+
+// Claude — el piso completo (lo que escribe el instalador) tiene que dar verde,
+// incluso con reglas extra del usuario (el piso es un mínimo, no un igual).
+func TestCheckPermissionsClaudeAcceptsFloorPlusExtras(t *testing.T) {
+	homeDir := t.TempDir()
+	fa := newFakeAdapter(t, homeDir, model.AgentClaude)
+	deny := append(permissions.SecurityFloorDeny(), "Bash(curl:*)")
+	writeSettings(t, fa, homeDir, claudeSettingsWithDeny(t, deny))
+	assertPermissionsCheckPasses(t, fa, homeDir)
+}
+
+// OpenCode — bash sin ninguna regla del piso tiene que dar rojo.
+func TestCheckPermissionsOpenCodeRejectsEmptiedBashFloor(t *testing.T) {
+	homeDir := t.TempDir()
+	fa := newFakeAdapter(t, homeDir, model.AgentOpenCode)
+	writeSettings(t, fa, homeDir, `{"permission":{"bash":{"*":"allow"},"read":"allow"}}`)
+	assertPermissionsCheckFails(t, fa, homeDir, "rm -rf /*")
+}
+
+// OpenCode — el piso presente pero SOMBREADO por un comodín posterior.
+// opencode evalúa last-match-wins: un "*": "allow" después del deny lo anula.
+// Sintácticamente la regla está; semánticamente no aplica. Tiene que dar rojo.
+func TestCheckPermissionsOpenCodeRejectsFloorShadowedByLaterWildcard(t *testing.T) {
+	homeDir := t.TempDir()
+	fa := newFakeAdapter(t, homeDir, model.AgentOpenCode)
+	writeSettings(t, fa, homeDir, `{"permission":{"bash":{"rm -rf /*":"deny","*":"allow"}}}`)
+	assertPermissionsCheckFails(t, fa, homeDir, "rm -rf /*")
+}
+
+// OpenCode — el piso en el orden correcto (comodín primero, deny último)
+// tiene que dar verde.
+func TestCheckPermissionsOpenCodeAcceptsDenyLast(t *testing.T) {
+	homeDir := t.TempDir()
+	fa := newFakeAdapter(t, homeDir, model.AgentOpenCode)
+	writeSettings(t, fa, homeDir, `{"permission":{"bash":{"*":"ask","go test *":"allow","rm -rf /*":"deny"}}}`)
+	assertPermissionsCheckPasses(t, fa, homeDir)
+}
+
+// El contrato de verdad: lo que el instalador escribe, en cualquier tier y para
+// cualquier agente, tiene que pasar el verify. Ata el check al instalador real
+// en vez de a un fixture escrito a mano que puede derivar.
+func TestCheckPermissionsAcceptsRealInstallerOutput(t *testing.T) {
+	agents := []model.Agent{model.AgentClaude, model.AgentOpenCode}
+	tiers := []model.PermissionTier{model.TierEstricto, model.TierBalanceado, model.TierBypass}
+
+	for _, agent := range agents {
+		for _, tier := range tiers {
+			t.Run(string(agent)+"/"+string(tier), func(t *testing.T) {
+				homeDir := t.TempDir()
+				fa := newFakeAdapter(t, homeDir, agent)
+
+				if _, err := permissions.Install(homeDir, []permissions.PermissionsAdapter{fa}, tier); err != nil {
+					t.Fatalf("permissions.Install: %v", err)
+				}
+				assertPermissionsCheckPasses(t, fa, homeDir)
+			})
+		}
+	}
+}
+
+// OpenCode — el sombreado PARCIAL. Una regla posterior mas angosta que se
+// solapa con el piso tambien lo anula, y es la forma mas probable de romperlo:
+// alguien agregando una linea al final del archivo a mano. Bajo last-match-wins
+// `rm -rf /home/proyectos` matchea el deny del piso Y el allow posterior, y
+// gana el posterior: el piso deja de aplicar para todo /home.
+func TestCheckPermissionsOpenCodeRejectsFloorShadowedByNarrowerLaterRule(t *testing.T) {
+	homeDir := t.TempDir()
+	fa := newFakeAdapter(t, homeDir, model.AgentOpenCode)
+	writeSettings(t, fa, homeDir, `{"permission":{"bash":{"*":"ask","rm -rf /*":"deny","rm -rf /home/*":"allow"}}}`)
+	assertPermissionsCheckFails(t, fa, homeDir, "rm -rf /home/*")
+}
+
+// OpenCode — el sombreado en la direccion contraria: el piso es angosto y la
+// regla posterior es mas ancha. Tambien lo anula.
+func TestCheckPermissionsOpenCodeRejectsFloorShadowedByBroaderLaterRule(t *testing.T) {
+	homeDir := t.TempDir()
+	fa := newFakeAdapter(t, homeDir, model.AgentOpenCode)
+	writeSettings(t, fa, homeDir, `{"permission":{"bash":{"*":"ask","rm -rf /home/*":"deny","rm -rf /*":"allow"}}}`)
+	// El piso real de opencode se sigue exigiendo aparte, asi que este fixture
+	// falla igual por "rm -rf /*" ausente. Lo que importa aca es que tambien
+	// exista el caso simetrico en el test del predicado (glob_internal_test.go).
+	assertPermissionsCheckFails(t, fa, homeDir, "rm -rf /*")
+}
+
+// OpenCode — una regla posterior que NO se solapa con el piso tiene que dar
+// VERDE. El check no puede prohibirle al usuario agregar reglas propias: solo
+// las que anulan el piso. Sin este test, un predicado que devuelva siempre true
+// pasaria por bueno.
+func TestCheckPermissionsOpenCodeAcceptsUnrelatedLaterRule(t *testing.T) {
+	homeDir := t.TempDir()
+	fa := newFakeAdapter(t, homeDir, model.AgentOpenCode)
+	writeSettings(t, fa, homeDir, `{"permission":{"bash":{"*":"ask","rm -rf /*":"deny","git status":"allow"}}}`)
+	assertPermissionsCheckPasses(t, fa, homeDir)
 }

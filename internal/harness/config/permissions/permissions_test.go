@@ -971,3 +971,47 @@ func TestGeminiVSCodeUnaffectedByTier(t *testing.T) {
 		}
 	}
 }
+
+// TestOpencodeBashFloorIsDeniedInEveryTier ata la lista que exporta
+// OpencodeBashFloorDeny() al overlay que el instalador realmente escribe.
+// Sin este test la lista sería una tercera copia del piso: si alguien saca
+// "rm -rf /*" de un tier, internal/verify seguiría exigiendo una regla que ya
+// no se escribe (falso rojo), o peor, alguien "arregla" el falso rojo vaciando
+// la lista y el verify vuelve a no mirar nada.
+func TestOpencodeBashFloorIsDeniedInEveryTier(t *testing.T) {
+	floor := permissions.OpencodeBashFloorDeny()
+	if len(floor) == 0 {
+		t.Fatal("OpencodeBashFloorDeny() is empty: opencode would have no verifiable security floor")
+	}
+
+	for _, tier := range []model.PermissionTier{model.TierEstricto, model.TierBalanceado, model.TierBypass} {
+		t.Run(string(tier), func(t *testing.T) {
+			home := t.TempDir()
+			if _, err := permissions.Install(home, []permissions.PermissionsAdapter{openCodeAdapter()}, tier); err != nil {
+				t.Fatalf("Install() error = %v", err)
+			}
+			raw, err := os.ReadFile(filepath.Join(home, ".config", "opencode", "opencode.json"))
+			if err != nil {
+				t.Fatalf("read opencode.json: %v", err)
+			}
+			pairs, err := extractBashOrderedPairs(raw)
+			if err != nil {
+				t.Fatalf("extractBashOrderedPairs: %v", err)
+			}
+			for _, want := range floor {
+				found := false
+				for _, p := range pairs {
+					if p[0] == want {
+						found = true
+						if p[1] != "deny" {
+							t.Errorf("bash[%q] = %q in tier %s, want \"deny\"", want, p[1], tier)
+						}
+					}
+				}
+				if !found {
+					t.Errorf("bash floor rule %q is not written for tier %s: OpencodeBashFloorDeny() has drifted from composeOpencodeOverlay", want, tier)
+				}
+			}
+		})
+	}
+}

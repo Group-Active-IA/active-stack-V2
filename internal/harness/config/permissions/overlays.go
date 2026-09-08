@@ -35,6 +35,29 @@ func SecurityFloorDeny() []string {
 	return out
 }
 
+// opencodeBashFloorDeny is the opencode counterpart of securityFloorDeny: the
+// bash patterns that composeOpencodeOverlay denies in EVERY tier (estricto,
+// balanceado and bypass). opencode has no cross-tool deny-list — its floor is
+// expressed as pattern-object entries inside "permission.bash" — so the two
+// floors are different sets on purpose. Do NOT copy Claude's rules here: an
+// agent only has the floor its installer actually writes.
+//
+// Kept honest by TestOpencodeBashFloorIsDeniedInEveryTier, which reads back the
+// composed overlay for each tier instead of trusting this list.
+var opencodeBashFloorDeny = []string{
+	"rm -rf /*",
+}
+
+// OpencodeBashFloorDeny returns a copy of the opencode bash deny floor.
+// Exported so internal/verify can check the installed opencode.json against the
+// same list the installer writes, instead of hardcoding a second copy that can
+// drift away from this one.
+func OpencodeBashFloorDeny() []string {
+	out := make([]string, len(opencodeBashFloorDeny))
+	copy(out, opencodeBashFloorDeny)
+	return out
+}
+
 // ── Claude Code overlay composition ─────────────────────────────────────────
 
 // claudePermissionsShape is the struct that serializes to the Claude Code
