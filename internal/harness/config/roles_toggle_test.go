@@ -18,19 +18,23 @@ package config_test
 //
 // DOS COSAS QUE ESTE ARCHIVO CUIDA, porque el fragmento ya las afirmó de más:
 //
-//   - La fase `verify` NO EXISTE en este bloque. El ciclo documentado es
-//     explore → propose → apply → archive; "verify" aparece una sola vez en el
-//     base y es la fila "Read 1-3 files to decide/verify" de la tabla de
-//     delegación. Asignarle el piso de revisión a una fase que el orquestador no
-//     puede convocar es un piso que no corre nunca.
-//   - El único lanzamiento que el bloque documenta es
+//   - **CAMBIÓ**: la fase `verify` sí existe. Cuando se escribió este archivo el
+//     bloque documentaba explore → propose → apply → archive y la única
+//     aparición de "verify" era la fila "Read 1-3 files to decide/verify" de la
+//     tabla de delegación; asignarle el piso de revisión a una fase que el
+//     orquestador no podía convocar habría sido un piso que no corre nunca. Pero
+//     la fase existía afuera: `openspec init` instala `/opsx:verify` y la skill
+//     `openspec-verify-change`. Lo que faltaba era que el bloque la nombrara, no
+//     que la fase apareciera. Nombrada la fase, el piso vuelve a `verify`, que
+//     es su lugar, y el parche que lo tenía estacionado en `apply` se retira.
+//   - El único lanzamiento que el bloque documenta sigue siendo
 //     Agent({description, model, prompt}). Tres claves, ninguna es una lista de
 //     herramientas. "No es una instrucción, es qué herramientas recibe" era
 //     falso: la frase sólo puede viajar dentro del prompt, o sea, como la
-//     instrucción que decía no ser.
+//     instrucción que decía no ser. Ese límite NO cambió.
 //
-// Por eso varios de estos tests asertan el MECANISMO y no el vocabulario, y uno
-// asserta que la afirmación de más NO vuelva.
+// Por eso varios de estos tests asertan el MECANISMO y no el vocabulario, y dos
+// assertan que afirmaciones de más NO vuelvan.
 // ──────────────────────────────────────────────────────────────────────────────
 
 import (
@@ -102,20 +106,19 @@ func rolesSection(t *testing.T, headingPrefix string) string {
 // Parsing instead of substring-matching is what makes the mapping test a test:
 // the previous version asserted the five phase words were spelled somewhere, so
 // emptying every "who is convened" cell left it green.
+// It delegates to the shared markdown table parser in verify_phase_test.go and
+// flattens each row, which is safe HERE because every consumer below asks only
+// "does this row mention X anywhere". It was NOT safe in the copy this function
+// used to carry: that one flattened inside the parser, so a caller that needed
+// one specific column could not get it and silently compared the whole row
+// instead. One parser now, and the flattening happens at the call site that
+// wants it.
 func rolesPhaseRows(t *testing.T) map[string]string {
 	t.Helper()
-	rows := map[string]string{}
-	for _, line := range strings.Split(rolesFragment(t), "\n") {
-		line = strings.TrimSpace(line)
-		if !strings.HasPrefix(line, "|") {
-			continue
-		}
-		cells := strings.Split(strings.Trim(line, "|"), "|")
-		if len(cells) < 2 {
-			continue
-		}
-		phase := strings.TrimSpace(cells[0])
-		rows[phase] = strings.Join(cells[1:], " ")
+	parsed, _ := tableRows(rolesFragment(t))
+	rows := make(map[string]string, len(parsed))
+	for phase, cells := range parsed {
+		rows[phase] = rowText(cells)
 	}
 	if len(rows) == 0 {
 		t.Fatal("the roles fragment has no phase table at all")
@@ -192,8 +195,9 @@ func TestCompose_RolesToggle_EachRoleHasAnObservableDone(t *testing.T) {
 // were spelled, which is orthography, not mapping.
 func TestCompose_RolesToggle_MapsTheOPSXPhases(t *testing.T) {
 	rows := rolesPhaseRows(t)
-	// The cycle this block documents: explore → propose → apply → archive.
-	for _, phase := range []string{"explore", "propose", "apply", "archive"} {
+	// The phases that convene somebody. `apply` is deliberately not among them:
+	// see TestCompose_RolesToggle_ApplyConvenesNobodyOnPurpose.
+	for _, phase := range []string{"explore", "propose", "verify", "archive"} {
 		row, ok := rows[phase]
 		if !ok {
 			t.Errorf("the phase table has no row for %q", phase)
@@ -212,39 +216,84 @@ func TestCompose_RolesToggle_MapsTheOPSXPhases(t *testing.T) {
 	}
 }
 
-// TestCompose_RolesToggle_DoesNotStaffAPhaseThatDoesNotExist asserts the fragment
-// does not hand the mandatory review to `verify`.
+// TestCompose_RolesToggle_StaffsVerifyBecauseThePhaseNowExists is the successor
+// of TestCompose_RolesToggle_DoesNotStaffAPhaseThatDoesNotExist, and it asserts
+// the OPPOSITE of what that test asserted.
 //
-// `verify` is not a phase of this block: there is no /opsx:verify command, no
-// verify skill, and no verify row in the model table. Its single appearance in
-// the base is "Read 1-3 files to decide/verify" inside the delegation table.
-// Assigning the floor there is a floor that never runs, so the row must say so
-// in those words and the reviewer pass must live in a phase that exists.
-func TestCompose_RolesToggle_DoesNotStaffAPhaseThatDoesNotExist(t *testing.T) {
+// POR QUÉ CAMBIÓ LA PROPIEDAD. The old test existed to stop somebody staffing a
+// phase the orchestrator could not convene: a floor parked where nothing reaches
+// it looks like a floor and runs never. That reasoning was correct and the guard
+// was worth having. What changed is the world, not the test's taste: `openspec
+// init --tools claude` installs `/opsx:verify` and the `openspec-verify-change`
+// skill, and this block now names the phase in all five places that enumerate
+// the cycle. The phase always existed in the tool; what was missing was the
+// block telling the agent so.
+//
+// So the guard inverts. `verify` must now carry the mandatory QA and the
+// reviewer pass — the two things the previous commit had to park in `apply` —
+// and `apply` must have given them back.
+func TestCompose_RolesToggle_StaffsVerifyBecauseThePhaseNowExists(t *testing.T) {
 	rows := rolesPhaseRows(t)
-	if row, ok := rows["verify"]; ok {
-		if !strings.Contains(row, "does not exist in this block") {
-			t.Error("the phase table keeps a `verify` row without saying that the phase " +
-				"does not exist in this block: work assigned there is never convened")
-		}
-		for _, role := range theSevenRoles {
-			if strings.Contains(row, role) {
-				t.Errorf("the `verify` row assigns %q to a phase the orchestrator cannot "+
-					"convene: that reviewer never runs", role)
-			}
-		}
+	verify, ok := rows["verify"]
+	if !ok {
+		t.Fatal("the phase table has no `verify` row: the phase exists in the cycle " +
+			"and the roster assigns nobody to it")
 	}
+	if !strings.Contains(verify, "qa") {
+		t.Error("the mandatory QA is not in `verify`: it is the phase whose whole job " +
+			"is checking the implementation, and it is where the floor belongs")
+	}
+	if !strings.Contains(verify, "reviewer") {
+		t.Error("the reviewer pass is not in `verify`: the pass was only ever in `apply` " +
+			"because `verify` was not reachable from this block, and now it is")
+	}
+	// And the patch is gone: `apply` no longer holds the pass it was lent.
 	apply, ok := rows["apply"]
 	if !ok {
 		t.Fatal("the phase table has no `apply` row")
 	}
-	if !strings.Contains(apply, "qa") {
-		t.Error("the mandatory QA is not in `apply`, the last phase this block can " +
-			"actually convene: it was parked in a phase that does not exist")
+	if strings.Contains(apply, "reviewer") {
+		t.Error("`apply` still runs the reviewer pass: with `verify` reachable the pass " +
+			"belongs there, and running it twice is the redundancy the roster refuses")
 	}
-	if !strings.Contains(apply, "reviewer") {
-		t.Error("the reviewer pass is not in `apply`: the whole no-edit-tools regime " +
-			"hangs off a phase that is never reached")
+}
+
+// TestCompose_RolesToggle_ApplyConvenesNobodyOnPurpose asserts the emptied
+// `apply` row says why it is empty.
+//
+// This fragment's own rule is that a role not convened is a decision and gets
+// written down. A row that simply lost its content reads as an oversight, and
+// the next person to read it puts the reviewers back.
+func TestCompose_RolesToggle_ApplyConvenesNobodyOnPurpose(t *testing.T) {
+	rows := rolesPhaseRows(t)
+	apply, ok := rows["apply"]
+	if !ok {
+		t.Fatal("the phase table has no `apply` row")
+	}
+	if !strings.Contains(apply, "still moving") {
+		t.Error("the `apply` row does not say why it convenes nobody: reviewing a diff " +
+			"that is still being written is the reason, and an unexplained empty row " +
+			"reads as an omission somebody will helpfully fix")
+	}
+}
+
+// TestCompose_RolesToggle_DoesNotClaimVerifyIsUnreachable is the guard on the
+// retired claim.
+//
+// The sentence below was true when it was written and is false now. A false
+// statement about what the agent can reach is worse than a missing one: it tells
+// the orchestrator not to try.
+func TestCompose_RolesToggle_DoesNotClaimVerifyIsUnreachable(t *testing.T) {
+	body := rolesFragment(t)
+	for _, banned := range []string{
+		"does not exist in this block",
+		"there is no `/opsx:verify` command",
+	} {
+		if strings.Contains(body, banned) {
+			t.Errorf("the roles fragment still claims %q. `openspec init` installs "+
+				"/opsx:verify and openspec-verify-change, and this block now lists the "+
+				"phase in all five places that enumerate the cycle", banned)
+		}
 	}
 }
 

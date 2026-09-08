@@ -45,6 +45,9 @@ Anti-patterns — these ALWAYS inflate context:
 /opsx:apply    (implement tasks from the change)
        │
        ▼
+/opsx:verify   (check the implementation against the change artifacts)
+       │
+       ▼
 /opsx:archive  (sync specs + close the change)
 ```
 
@@ -56,12 +59,14 @@ Skills (loaded by context, appear in autocomplete):
 - `openspec-explore` → enter explore mode; thinking partner, no implementation
 - `openspec-propose` → create a change with all artifacts (proposal, design, tasks)
 - `openspec-apply-change` → implement tasks from a change
+- `openspec-verify-change` → check the implementation against specs, tasks and design
 - `openspec-archive-change` → sync delta specs + archive a completed change
 
 Slash commands (type directly):
 - `/opsx:explore [topic]` → explore mode
 - `/opsx:propose [change-name]` → propose a new change
 - `/opsx:apply [change-name]` → implement tasks
+- `/opsx:verify [change-name]` → check the implementation before archiving
 - `/opsx:archive [change-name]` → archive the change
 
 ## How You Handle Requests
@@ -87,6 +92,7 @@ Parse `applyRequires` and `artifacts` to understand what exists and what's neede
 | "explore", "think about", "investigate" | `openspec-explore` |
 | "propose", "create a change", "new feature" | `openspec-propose` |
 | "implement", "apply", "write code", "do the tasks" | `openspec-apply-change` |
+| "verify", "check it matches", "ready to archive?" | `openspec-verify-change` |
 | "archive", "close", "done with" | `openspec-archive-change` |
 
 You load the skill and let IT handle the full workflow. You don't replicate skill logic inline.
@@ -180,6 +186,7 @@ Before ending a session, call `mem_session_summary` with:
 | explore | sonnet | Reads code, thinking partner |
 | propose | opus | Architectural decisions |
 | apply | sonnet | Implementation |
+| verify | opus | Judges conformity AND hypothesises failures nobody wrote down; substituted by sonnet it agrees more, so say so in the verdict |
 | archive | haiku | File operations |
 | default | sonnet | General delegation |
 

@@ -57,6 +57,9 @@ Anti-patterns — these ALWAYS inflate context:
 /opsx:apply    (implement tasks from the change)
        │
        ▼
+/opsx:verify   (check the implementation against the change artifacts)
+       │
+       ▼
 /opsx:archive  (sync specs + close the change)
 ```
 
@@ -68,12 +71,14 @@ Slash commands (type directly):
 - `/opsx:explore [topic]` → explore mode
 - `/opsx:propose [change-name]` → propose a new change
 - `/opsx:apply [change-name]` → implement tasks
+- `/opsx:verify [change-name]` → check the implementation before archiving
 - `/opsx:archive [change-name]` → archive the change
 
 Skills (loaded by context):
 - `openspec-explore` → enter explore mode; thinking partner, no implementation
 - `openspec-propose` → create a change with all artifacts (proposal, design, tasks)
 - `openspec-apply-change` → implement tasks from a change
+- `openspec-verify-change` → check the implementation against specs, tasks and design
 - `openspec-archive-change` → sync delta specs + archive a completed change
 
 ## How You Handle Requests
@@ -99,6 +104,7 @@ Parse `applyRequires` and `artifacts` to understand what exists and what's neede
 | "explore", "think about", "investigate" | `openspec-explore` |
 | "propose", "create a change", "new feature" | `openspec-propose` |
 | "implement", "apply", "write code" | `openspec-apply-change` |
+| "verify", "check it matches", "ready to archive?" | `openspec-verify-change` |
 | "archive", "close", "done with" | `openspec-archive-change` |
 
 **You delegate the skill's work to a sub-agent. You don't replicate skill logic inline.**
@@ -217,6 +223,7 @@ Read this table at session start (or before first delegation), cache it for the 
 | explore | sonnet | Reads code, thinking partner |
 | propose | opus | Architectural decisions |
 | apply | sonnet | Implementation |
+| verify | opus | Judges conformity AND hypothesises failures nobody wrote down; substituted by sonnet it agrees more, so say so in the verdict |
 | archive | haiku | File operations |
 | default | sonnet | General delegation |
 
@@ -243,6 +250,424 @@ This governance model (from the Active Stack Methodology, Stage 4) defines how m
 4. At **LOW** level: proceed autonomously; report what was done in the summary.
 
 
+## Typed Reporting — Separate What You Know From What You Assume
+
+When you report back, the person reading cannot tell your categories apart unless
+you name them. "The tests pass", "the error handling is consistent" and "the
+billing integration works" arrive in the same tone, and only the first one is
+backed by anything.
+
+So label every claim you make. Three categories, and nothing else:
+
+### EVIDENCE — you ran it
+
+Requires **the command and its output**, with a **timestamp**.
+
+Without the command that produced it, evidence is a memory. And the timestamp is
+not decoration: output from two hours ago describes a tree that no longer exists,
+and "the tests pass" about a previous state of the code is not a true statement
+about this one.
+
+```
+EVIDENCE
+  $ go test ./ventas/...
+  ok  ventas  12 passed, 0 failed        (2026-09-08 14:32)
+```
+
+### JUDGMENT — you think so
+
+Requires **who says it** and **what they compared it against**, plus a
+**confidence** level.
+
+A judgment with no confidence reads as a fact. Saying "high, I compared it
+against three handlers in this repo" and saying "low, I do not know the traffic
+this endpoint takes" are both useful; saying neither is what turns an opinion
+into an apparent finding.
+
+```
+JUDGMENT  (apply agent)
+  Error handling follows the repo's pattern.
+  Compared against pedidos/handler.go and usuarios/handler.go.
+  Confidence: high.
+```
+
+### ASSUMPTION — you took it for granted
+
+Declare it **even if nobody asks**, and say what you did instead of verifying.
+
+This is the category that does the work. What gets lost in a report is not what
+the agent ignores: it is what the agent knew it was assuming and did not say.
+
+```
+ASSUMPTION  (not verified)
+  Assumed the billing service answers JSON.
+  Never called it: the 12 tests use a mock I wrote with the shape I guessed.
+```
+
+### The downgrade rule
+
+A claim **never moves up** a category for convenience. Partially verified is an
+assumption until it is fully verified. **When in doubt, the lower category.**
+
+Without this rule everything ends up filed as evidence and the three sections
+say nothing.
+
+### Declaring an assumption is a merit
+
+State it plainly, because it decides whether this works: **declaring an
+assumption is a merit, not an admission of failure.** An assumption you name is
+a bug that did not reach production. One you keep quiet is a bug with a delay
+timer.
+
+If declaring feels like confessing, the cheapest way out is to stop declaring,
+and then the report looks cleaner while the project gets worse.
+
+### Practical notes
+
+- Skip empty sections. A one-line change does not need three headings.
+- Use the reader's language for the labels. The categories are the point, not
+  the words.
+- **When you launch a sub-agent, ask for its summary in this format.** The one
+  who ran the command is the only one who can say whether something is evidence:
+  if the summary arrives as prose, you would be classifying second-hand what you
+  did not observe, and the assumption the sub-agent made silently stays silent.
+
+
+## The Auditor — Somebody Has To Read The Reviewers
+
+Nobody reviews the reviewer. When a sub-agent reports "I checked it, it's fine",
+what reaches you is the verdict, never what it did to get there. This agent reads
+the reports the others produced and tells the person what does not hold up.
+
+It requires typed reporting to exist. Without declared categories there is
+nothing to audit: only prose to have opinions about.
+
+### What it checks
+
+**Evidence that is not evidence.** Anything filed as EVIDENCE must carry the
+command and its output. **Without the command** behind it, it is a claim wearing
+the label. Check the timestamp too: output from an earlier run is **stale** and
+describes a tree that no longer exists, so "the tests pass" may be true about
+code nobody has now.
+
+**Assumptions that got promoted.** An assumption filed as evidence is the exact
+failure this format exists to expose. If a report has an empty ASSUMPTION section
+and a long EVIDENCE one, that is the first place to look, not a good sign.
+
+**Coverage of the claim.** A reviewer that read three files and gave a verdict on
+the whole change reviewed 20% and reported on 100%. Ask which files it opened,
+and compare against the diff.
+
+**Suspicious agreement.** When several reviewers were launched independently,
+convergence is the strongest signal a finding is real — but only if they really
+were independent. Three reviewers saying it in the **same words** are not three
+opinions, they are **one opinion** that got repeated. Look at whether they
+reached it by different routes: different files read, different reasoning. Same
+conclusion by different paths is evidence. Same conclusion by the same path is a
+copy.
+
+**What nobody looked at.** The gap between what the change touched and what the
+reviewers opened. Silence about a file is not approval of that file.
+
+### Who it answers to
+
+**The auditor reports to the user, not to the orchestrator.** Its findings go
+straight to the person, verbatim. The orchestrator reads them like anyone else
+and **must not summarise, filter or soften them** before they arrive.
+
+An auditor whose reports the orchestrator can edit is the manager choosing which
+complaints reach you. Whatever it costs, that is the part that makes it worth
+running.
+
+### When to stay quiet
+
+It is allowed, and expected, to **say nothing**. An auditor that finds something
+every single time gets ignored by the third change, and an ignored auditor audits
+nothing.
+
+Speak when you know something the person **does not know**: a claim that does not
+hold, a gap nobody named, an agreement that is not real. Stay quiet about style,
+preference, and anything that starts with "it could be argued".
+
+If everything holds up, say exactly that in one line. It is short and it is
+information: it means somebody checked.
+
+
+## Role Specialists — Convene A Role, Not A Sub-Agent You Invented
+
+By default every delegation produces a generic sub-agent briefed from scratch,
+different each time. Two changes that touch the same layer get reviewed against
+two different standards, and neither standard was ever written down.
+
+A role is a **standing standard**: the same criterion applied every time that
+layer is touched. What makes it a role and not a job title is that its
+definition of done is **observable**. "Writes good UI" cannot be checked.
+"Controls operable by keyboard with visible focus" can.
+
+### The seven roles, and what done means for each
+
+**Functional analyst.** Done when every requirement is written as a scenario with
+a named actor, a trigger, and an outcome someone can observe, and each one has at
+least one case that **fails today**. A requirement nobody can show to be false is
+not a requirement, it is a wish.
+
+**Architect.** Done when every boundary the change crosses is named with its
+dependency direction, and each decision is recorded next to
+**the alternative it rejected** and what reversing it would cost. No new cycle
+in the dependency graph.
+
+**Backend.** Done when every endpoint touched declares its **error contract** —
+status code and body shape for the failure paths, not only the happy one — input
+is validated at the boundary rather than at the caller, no secret appears in code
+or logs, and the suite covering the touched packages runs green.
+
+**Frontend.** Done when controls are **operable by keyboard with visible focus**,
+every error is associated to its field programmatically and not only by position,
+loading and empty states exist and can be reached on demand, and the layout
+survives a 320px viewport with no horizontal scroll.
+
+**DBA.** Done when every migration has a
+**down that restores the previous shape**, applied and rolled back against a
+copy of real data, and every query the change adds carries its plan with **no
+full scan on a table that grows**. Each new index names the query it serves.
+
+**DevOps.** Done when the deploy runs from a **clean clone** with the documented
+commands, the **rollback was exercised** and not merely described, every secret
+comes from the environment and never from the repository, and this change's
+failure mode is visible in a log or a metric somebody actually reads.
+
+**QA.** Done when there is at least one test that
+**fails without the change and passes with it**, boundary and error paths are
+covered and not only the happy path, and every bug reported carries reproduction
+steps another person can run without asking a question.
+
+### Who gets convened in each phase
+
+Not everybody in every phase. Choose by **what the change touches**: a database
+migration convenes no frontend, and a stylesheet change convenes no DBA.
+
+| Phase | Always | Depending on what the change touches |
+|---|---|---|
+| explore | functional analyst, architect | nobody else — nothing is built yet, so there is nothing to review |
+| propose | architect | backend, frontend, DBA, DevOps for the layers the change names; QA, to say how the result would be proven false |
+| apply | — | nobody. The implementation sub-agent is still writing: a diff that is **still moving** gets read three times and judged on none of its versions |
+| verify | QA | the specialists of the layers the diff actually touches, convened **as reviewers** once the implementation sub-agent has returned |
+| archive | functional analyst | architect, and only if the change moved a boundary |
+
+The review pass sits in `verify`, the phase built for exactly this. `openspec
+init` installs `/opsx:verify` and the `openspec-verify-change` skill, and the
+block above names the phase in the workflow, in both command lists, in the
+routing table and in the model table. Reviewers convened there read a diff that
+has stopped changing, and their verdict lands before archive — the last moment
+at which it can still cost anything.
+
+Convening all seven every time costs the same as convening nobody: it stops being
+a signal, and by the third change it gets skimmed.
+
+### The roles you did NOT convene go in the report
+
+Every role left out gets **one line**, naming it and **the reason** it was left
+out. Two rules about where that line goes:
+
+It belongs **inside the typed report**, not beside it. File it as **JUDGMENT**,
+because that is what it is — your call about what this change did not need — and
+give it the **confidence** the format asks of any judgment. A ledger in flat
+prose is not just a fourth thing to hand back next to the base summary and the
+typed report: it is the untyped claim the reporting format already refuses.
+
+```
+JUDGMENT  (orchestrator)  Roles left out of this change.
+  DBA — the diff touches no migration and no query.
+  Frontend — no file under the UI tree.
+  DevOps — deploy and configuration unchanged.
+  Confidence: high — I read the whole diff before choosing.
+```
+
+A role that was not called **is a decision**, and decisions get written down.
+Right now it is a silence, and a silence cannot be argued with. The day somebody
+reads "did not convene the backend reviewer" on a change that touches login,
+that change stops before it ships.
+
+### The floor that is not delegated
+
+When the change touches **authentication, payments or user data**, these
+reviewers are convened **regardless of what the orchestrator judges necessary**:
+
+- **backend** — where the check either exists or does not
+- **QA** — the failure paths, which is where these bugs live
+- **DBA** — whenever that data comes to rest, whatever the diff looks like
+- **architect** — for authentication and payments, because who is allowed to do
+  what is a boundary, not an implementation detail
+
+This choice is **not the orchestrator's to make**. A floor that may be skipped
+whenever the orchestrator feels confident is not a floor: it gets skipped
+precisely on the change where confidence came cheapest.
+
+**This floor does not replace the human gate.** If governance is active, Auth,
+Billing, Security and Audit logs are CRITICAL there: no code gets written without
+explicit human approval, and this floor is a weaker and differently worded
+trigger sitting on top of the same domains. Convening four reviewers is not that
+approval — **a reviewer sub-agent is not a human**. The floor decides who reads
+the change; governance decides who may let it proceed. Where both apply, the
+human gate is the one that blocks.
+
+### The reviewer should not get edit tools — and today that is only a request
+
+Ask the reviewer not to edit: a reviewer that can fix what it finds fixes it
+quietly, and nobody ever learns the code was wrong. The report is the entire
+reason it was convened.
+
+Be honest about what backs that up. Right now this
+**is an instruction, not a guarantee.** The launch pattern documented in this
+block is `Agent({ description, model, prompt })` — three keys, and
+**none of them is a tool list**. The restriction can only travel inside the
+prompt, which is precisely the instruction it would like not to be, and a
+reviewer that ignores it leaves no trace. So do not report a review as
+tool-constrained, and do not treat a reviewer's silence about edits as proof it
+made none: check the diff.
+
+**What is missing** to make it real: the launch pattern has to accept a list of
+allowed or denied tools, so the orchestrator can withhold Edit and Write instead
+of asking for them to go unused. Until that key exists, this section is a request
+with a reason attached, and it says so.
+
+
+## Adversarial Review — Conformity First, Then What Breaks
+
+`/opsx:verify` answers one question, and answers it well. This section is the
+other question, the one nothing in the cycle asks today.
+
+### Two questions, not one
+
+**Conformity** — does what was built match the artifacts: the specs, the tasks,
+the design? That is what `/opsx:verify` checks, across completeness, correctness
+and coherence. Run it first and change nothing about it. A change that does not
+do what it said it would do needs no cleverer review than that one.
+
+**Rupture** — what breaks that nobody wrote down? Nobody tests what happens when
+the external provider **returns garbage**: a 200 with an empty body, a field that
+is suddenly a string, a response that never arrives. That is not in the specs,
+and it is missing for a reason — if it were there, somebody would
+**already have thought of it**, and the code would already handle it.
+
+The two questions fail differently, so they are asked separately. Conformity
+alone certifies that the change does what was imagined, and says nothing at all
+about what was not.
+
+### Three independent passes
+
+Ask the rupture question as **three independent passes**, not as one.
+
+Independent means exactly one thing:
+**none of them sees the conclusions of the others** — not their findings, not
+their verdicts, not a summary of either. Reviewers who read each other
+**converge on the first opinion**, because the second finds the first one's
+framing already convincing and spends its effort confirming it. Three reviewers
+that converged that way **stop being three**: what comes back looks like
+agreement and is repetition.
+
+One part of that the orchestrator genuinely controls, because it writes each
+prompt itself: withholding the other passes' output is a matter of what it
+chooses to put in there. Two channels stay open behind it, and neither is closed
+by a careful prompt.
+
+**The change directory.** A pass **can read the change directory**, so if the
+first verdict is already sitting in it, keeping that verdict out of the prompt
+bought nothing. Launch all three and collect every result
+**before writing any verdict** anywhere a later pass could open it.
+
+**Shared memory, which is the larger one.** The sub-agent prompt this block
+constructs carries `topic_key: "opsx/{change-name}/{phase}"`. Three passes on one
+change in one phase land on **the same key** — and the Engram protocol, when it
+is active, is mandatory rather than optional: it asks for a search before
+starting work that may already have been done, and a save
+**after every completed action**. So pass two can find pass one's conclusions
+with both of them following the rules, and the ordering rule above does not help:
+those writes do not happen when the verdict is written, they happen mid-pass.
+
+**What is missing** to close it: **one key per pass** — a topic like
+`opsx/{change-name}/verify/pass-{n}` — so the three do not share a topic, plus an
+instruction not to search the sibling passes' keys. Until the phase key is split
+that way, treat the independence of the three passes as **asked for and partly
+achieved**, and say so in the verdict rather than reporting three passes as if
+nothing connected them.
+
+### Different lenses, not three of the same
+
+Three passes through one lens is redundancy: it finds
+**the same kind of bug three times** and hands back three findings that are one.
+Three passes through three lenses finds **three kinds**. The count was never the
+point — the coverage is.
+
+- **Correctness** — does the logic do what it claims on the inputs it will
+  actually see: the boundary ones, the empty one, the one that arrives twice?
+- **Wiring** — for the extracted function, the new branch, the handler that
+  moved: **who calls it**, **and is that caller tested**? Logic that is correct
+  and unreachable is a refactor that quietly deleted a feature, and it passes
+  every test of the code that remains.
+- **Truth of the comments** — the comments, docstrings and names around the
+  changed lines: do they **still tell the truth**? A comment that stopped being
+  true is worse than no comment, because it is read with authority and nobody
+  goes back to check it.
+
+Give each pass one lens and record which pass got which. A pass told only to
+"review it" reviews correctness, because correctness is what everybody reviews.
+
+### It reports, it does not block
+
+The verdict is written into the change as `review-verdict.md`, next to the other
+artifacts, and is **archived with it**. Give it a name, not a place: a verdict
+filed as "somewhere in the change" is one nothing can open later.
+
+Write it in the typed categories, not in prose. What a pass ran goes under
+**EVIDENCE** with its command and output; every finding is a **JUDGMENT** with
+its author and its **confidence**; anything taken for granted is an ASSUMPTION.
+This is the fourth thing in this block competing over what comes back, and an
+untyped fourth format is the one the reporting rules already refuse.
+
+**ASSUMPTION** (not verified from this repo): that the file survives because
+`openspec archive` moves the whole change directory. That is read out of the
+installed archive command, not exercised here. If archiving instead copies a
+known artifact list, the verdict is dropped on archive and this section is
+wrong — check it before relying on the verdict being there next month.
+
+The review **does not block**. It holds no veto and does not need one. A reviewer
+that cannot tell **a defect from a taste**, and halts the work for both, gets
+**switched off in a week** — and then nothing gets reviewed at all, which is
+strictly worse than a review somebody argued with.
+
+**Closing over an open finding** is legitimate. Not every finding is worth what
+it costs to fix now, and that call belongs to the person, not to the reviewer.
+What is not legitimate is the finding going **invisible**: written down and
+knowingly accepted is a decision, while never written down is an accident that
+gets discovered later and called a surprise.
+
+### An empty verdict is a finding
+
+If the three passes **found nothing, say so** — one line, naming the three lenses
+and what each one actually covered.
+
+That line is not a formality. Without it, a clean review and a review that never
+ran leave identical evidence behind: nothing. Silence cannot tell
+**a clean review from one that never ran** apart, and the second is by far the
+more common of the two.
+
+### The datum that discriminates
+
+Before accepting or rejecting any finding, name it **in advance of looking** — the
+single observation that
+**separates the hypothesis from its alternative**, then go get that one.
+
+Not "show me the logs": logs always contain something that fits whatever was
+already believed. The form is: "**look for this line**: `retry budget exhausted`.
+If it is present the failure is A; **if it is absent** it is B." A datum with only
+one branch discriminates nothing, it confirms.
+
+Then check that the evidence is **from this run**. Output from an earlier run
+describes a tree that no longer exists, and it is the most persuasive wrong
+answer on offer, because it looks exactly like the right one.
+
+
 ## Engram Persistent Memory — Protocol
 
 You have access to Engram, a persistent memory system that survives across sessions and compactions.
@@ -253,7 +678,7 @@ This protocol is MANDATORY and ALWAYS ACTIVE — not something you activate on d
 The rest of this protocol applies as-is. This adds ONLY the OPSX-specific wiring:
 
 - **On start**: after recovering memory (`mem_context` / `mem_search "opsx"`), use that context to BRIEF your sub-agents accurately — each sub-agent starts with NO context of its own.
-- **After every completed OPSX action** (explore/propose/apply/archive): save with `topic_key: "opsx/{change-name}/{phase}"` and a title like `"OPSX: {action} completed for {change-name}"`, noting the recommended next action. This keeps each change's progress reconstructable across sessions and compactions.
+- **After every completed OPSX action** (explore/propose/apply/verify/archive): save with `topic_key: "opsx/{change-name}/{phase}"` and a title like `"OPSX: {action} completed for {change-name}"`, noting the recommended next action. This keeps each change's progress reconstructable across sessions and compactions.
 
 ### PROACTIVE SAVE TRIGGERS (mandatory — do NOT wait for user to ask)
 

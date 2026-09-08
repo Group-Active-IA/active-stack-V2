@@ -8,7 +8,7 @@ This protocol is MANDATORY and ALWAYS ACTIVE — not something you activate on d
 The rest of this protocol applies as-is. This adds ONLY the OPSX-specific wiring:
 
 - **On start**: after recovering memory (`mem_context` / `mem_search "opsx"`), use that context to BRIEF your sub-agents accurately — each sub-agent starts with NO context of its own.
-- **After every completed OPSX action** (explore/propose/apply/archive): save with `topic_key: "opsx/{change-name}/{phase}"` and a title like `"OPSX: {action} completed for {change-name}"`, noting the recommended next action. This keeps each change's progress reconstructable across sessions and compactions.
+- **After every completed OPSX action** (explore/propose/apply/verify/archive): save with `topic_key: "opsx/{change-name}/{phase}"` and a title like `"OPSX: {action} completed for {change-name}"`, noting the recommended next action. This keeps each change's progress reconstructable across sessions and compactions.
 
 ### PROACTIVE SAVE TRIGGERS (mandatory — do NOT wait for user to ask)
 

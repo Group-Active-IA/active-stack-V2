@@ -39,7 +39,7 @@ func writeGolden(t *testing.T, name, content string) {
 // TestCompose_AllToggles verifies that with all toggles active the composed
 // output is deterministic and matches the golden file.
 func TestCompose_AllToggles(t *testing.T) {
-	toggles := []string{"delegation", "model-routing", "engram", "tdd", "governance"}
+	toggles := config.KnownToggles()
 	got, err := config.Compose(toggles, "claude")
 	if err != nil {
 		t.Fatalf("Compose error: %v", err)
@@ -63,7 +63,7 @@ func TestCompose_AllToggles(t *testing.T) {
 // TestCompose_AllToggles_opencode verifies that with all toggles active the
 // composed output for the opencode variant is deterministic and matches the golden file.
 func TestCompose_AllToggles_opencode(t *testing.T) {
-	toggles := []string{"delegation", "model-routing", "engram", "tdd", "governance"}
+	toggles := config.KnownToggles()
 	got, err := config.Compose(toggles, "opencode")
 	if err != nil {
 		t.Fatalf("Compose error: %v", err)
@@ -229,5 +229,37 @@ func TestCompose_BaseAlwaysPresent(t *testing.T) {
 	}
 	if !strings.Contains(out, "OPSX Orchestrator Instructions") {
 		t.Error("base is always present even with no toggles")
+	}
+}
+
+// TestKnownToggles_MatchesWhatComposeAccepts asserts the exported list is the
+// real catalogue and not a second copy of it that drifts.
+//
+// The whole point of KnownToggles is that the golden tests stop hardcoding a
+// list. If it is itself a hardcoded list nobody checks, the problem moved
+// rather than went away: this pins it to Compose's own validation and to the
+// catalog the TUI installs from.
+func TestKnownToggles_MatchesWhatComposeAccepts(t *testing.T) {
+	known := config.KnownToggles()
+	if len(known) == 0 {
+		t.Fatal("KnownToggles is empty")
+	}
+	seen := map[string]bool{}
+	for _, tg := range known {
+		if seen[tg] {
+			t.Errorf("KnownToggles lists %q twice", tg)
+		}
+		seen[tg] = true
+		if _, err := config.Compose([]string{tg}, "claude"); err != nil {
+			t.Errorf("KnownToggles lists %q and Compose rejects it: %v", tg, err)
+		}
+	}
+	// Every toggle the shipped catalog offers must be in the list, or "all
+	// toggles" is once again a subset wearing the name of the whole.
+	for _, tg := range orchestratorToggles(t) {
+		if !seen[tg] {
+			t.Errorf("the catalog offers %q and KnownToggles omits it: the golden "+
+				"tests would compose without it and call the result 'all toggles'", tg)
+		}
 	}
 }

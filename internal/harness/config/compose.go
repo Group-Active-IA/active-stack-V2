@@ -18,6 +18,21 @@ var knownToggles = map[string]bool{
 	"evidence":      true,
 	"auditor":       true,
 	"roles":         true,
+	"review":        true,
+}
+
+// KnownToggles returns every recognised toggle name, in composition order.
+//
+// It exists so a test can say "all toggles" and mean all of them. The golden
+// tests used to hardcode five names, so the four toggles added after them were
+// never composed together: their assembly ORDER — argued for in the comments
+// below — was fixed by nothing, and no golden ever showed the fragments
+// side by side. A hardcoded list drifts silently every time the catalogue grows.
+func KnownToggles() []string {
+	return []string{
+		"delegation", "model-routing", "governance", "evidence",
+		"auditor", "roles", "review", "engram", "tdd",
+	}
 }
 
 // Compose assembles the sdd-orchestrator block for the given variant and
@@ -33,6 +48,7 @@ var knownToggles = map[string]bool{
 //     4b. Additive: if "evidence" active → append assets/evidence-report.md
 //     4c. Additive: if "auditor" active → append assets/auditor.md
 //     4d. Additive: if "roles" active → append assets/roles.md
+//     4e. Additive: if "review" active → append assets/review.md
 //  5. Additive: if "engram" active → append assets/engram-protocol.md
 //  6. Additive: if "tdd" active → append inline TDD flag + assets/strict-tdd.md
 //
@@ -41,7 +57,7 @@ func Compose(toggles []string, variantKey string) (string, error) {
 	// Validate all toggles first.
 	for _, t := range toggles {
 		if !knownToggles[t] {
-			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence, auditor, roles)", t)
+			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence, auditor, roles, review)", t)
 		}
 	}
 
@@ -111,6 +127,18 @@ func Compose(toggles []string, variantKey string) (string, error) {
 			return "", fmt.Errorf("config compose: %w", err)
 		}
 		additives = append(additives, rl)
+	}
+
+	// Step 4e: adversarial review. Last of the review family, and after roles on
+	// purpose: roles decides WHO is convened, this decides HOW a review runs and
+	// what it may not do with what it finds. Reversing them would define the
+	// procedure before there is anybody to follow it.
+	if active["review"] {
+		rv, err := loadFragment("review.md")
+		if err != nil {
+			return "", fmt.Errorf("config compose: %w", err)
+		}
+		additives = append(additives, rv)
 	}
 
 	// Step 5: engram.

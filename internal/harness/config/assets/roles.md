@@ -55,15 +55,16 @@ migration convenes no frontend, and a stylesheet change convenes no DBA.
 |---|---|---|
 | explore | functional analyst, architect | nobody else — nothing is built yet, so there is nothing to review |
 | propose | architect | backend, frontend, DBA, DevOps for the layers the change names; QA, to say how the result would be proven false |
-| apply | QA | the specialists of the layers the diff actually touches, convened **as reviewers** once the implementation sub-agent has returned |
-| verify | — | **this phase does not exist in this block yet.** Nothing is assigned here |
+| apply | — | nobody. The implementation sub-agent is still writing: a diff that is **still moving** gets read three times and judged on none of its versions |
+| verify | QA | the specialists of the layers the diff actually touches, convened **as reviewers** once the implementation sub-agent has returned |
 | archive | functional analyst | architect, and only if the change moved a boundary |
 
-The review pass sits in `apply` because `apply` is the last phase this block can
-actually convene. The cycle documented here is explore → propose → apply →
-archive: there is no `/opsx:verify` command, no verify skill, and no verify row
-in the model table. A floor parked in a phase nobody can reach looks like a floor
-and runs never.
+The review pass sits in `verify`, the phase built for exactly this. `openspec
+init` installs `/opsx:verify` and the `openspec-verify-change` skill, and the
+block above names the phase in the workflow, in both command lists, in the
+routing table and in the model table. Reviewers convened there read a diff that
+has stopped changing, and their verdict lands before archive — the last moment
+at which it can still cost anything.
 
 Convening all seven every time costs the same as convening nobody: it stops being
 a signal, and by the third change it gets skimmed.
