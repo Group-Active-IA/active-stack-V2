@@ -111,6 +111,36 @@ func installOne(homeDir string, adapter PermissionsAdapter, tier model.Permissio
 	return writeResult.Changed, settingsPath, nil
 }
 
+// mergeCodexTOMLFile writes codex's permission keys for the given tier.
+//
+// NO DENY FLOOR, AND THAT IS THE HONEST STATE (2026-09-08). Claude gets
+// securityFloorDeny and opencode gets opencodeBashFloorDeny in every tier;
+// codex gets no equivalent in any tier, and least of all in bypass, where
+// approval_policy = "never" plus sandbox_mode = "danger-full-access" is total
+// access with no counterweight at all.
+//
+// What was looked for, and what was found: the entire codex permission surface
+// this repo knows is approval_policy, sandbox_mode and [sandbox_workspace_write]
+// — three knobs that grade HOW MUCH is permitted. None of them denies a named
+// command or path the way Claude's deny-list or opencode's pattern-objects do.
+// The design doc records the same shape: its tier table gives bypass
+// "Additional configuration: none"
+// (docs/superpowers/specs/2026-07-01-codex-agent-support-design.md:134-138).
+// internal/filemerge can already write any top-level key, table value or whole
+// section, so the writer is not the limit — there is simply no key to write.
+//
+// Whether codex ADMITS some deny construct that nothing here happens to
+// document is UNDETERMINED: codex is not installed on the machine that wrote
+// this, and no checked-in artifact answers it. So no key was guessed. A key
+// codex ignores would be WORSE than none, because internal/verify would read it
+// back off disk and report a floor that does not exist — the same failure the
+// verify check was narrowed for on 2026-09-08, when "security floor applied"
+// was demoted to "permissions key present" for exactly this agent
+// (internal/verify/harness_checks.go:183-187).
+//
+// To close this for real, someone has to verify a candidate key against a
+// running codex and then write it here WITH the tier-by-tier test. Until then
+// the gap is documented, not simulated.
 func mergeCodexTOMLFile(path string, tier model.PermissionTier) (filemerge.WriteResult, error) {
 	raw, err := osReadFile(path)
 	if err != nil {

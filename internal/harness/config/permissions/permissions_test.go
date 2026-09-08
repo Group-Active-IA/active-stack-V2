@@ -362,7 +362,16 @@ func TestInstallCursorNoOp(t *testing.T) {
 	}
 }
 
-func TestInstallCodexNoOp(t *testing.T) {
+// TestInstallCodexWithoutSettingsPathIsNoOp covers the empty-SettingsPath
+// branch, NOT codex. codexAdapter() is a stub with no settings path, so Install
+// returns before ever reaching mergeCodexTOMLFile.
+//
+// Renamed 2026-09-08: it used to be called TestInstallCodexNoOp, which read as
+// "the installer does not touch codex". That stopped being true the day
+// mergeCodexTOMLFile was added — codex gets approval_policy, sandbox_mode and
+// network_access written on every install (see codex_test.go). A green test
+// with a name that outlived its subject is a claim nobody rechecks.
+func TestInstallCodexWithoutSettingsPathIsNoOp(t *testing.T) {
 	home := t.TempDir()
 
 	result, err := permissions.Install(home, []permissions.PermissionsAdapter{codexAdapter()}, model.TierBalanceado)
@@ -370,10 +379,10 @@ func TestInstallCodexNoOp(t *testing.T) {
 		t.Fatalf("Install() error = %v", err)
 	}
 	if result.Changed {
-		t.Fatal("Codex: expected Changed=false (no-op)")
+		t.Fatal("Codex sin SettingsPath: expected Changed=false (no-op)")
 	}
 	if len(result.Files) != 0 {
-		t.Fatalf("Codex: expected Files=[], got %v", result.Files)
+		t.Fatalf("Codex sin SettingsPath: expected Files=[], got %v", result.Files)
 	}
 }
 

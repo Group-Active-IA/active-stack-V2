@@ -13,7 +13,10 @@ const (
 	// git diff). The recommended starting point.
 	TierBalanceado PermissionTier = "balanceado"
 	// TierBypass: defaultMode = "bypassPermissions" — full autonomy opt-in.
-	// The security floor deny-list still applies (C-21).
+	// Claude and opencode still get their own deny floor in this tier (C-21).
+	// codex does NOT: its config.toml exposes no deny construct this repo can
+	// write, so bypass on codex is access with nothing under it. Corrected
+	// 2026-09-08 — see permissions.mergeCodexTOMLFile.
 	TierBypass PermissionTier = "bypass"
 )
 

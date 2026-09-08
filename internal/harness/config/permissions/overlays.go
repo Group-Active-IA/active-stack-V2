@@ -7,9 +7,19 @@ import (
 )
 
 // securityFloorDeny is the single source of truth for the C-21 deny rules that
-// apply to ALL tiers (including bypass). Claude Code evaluates deny → ask → allow,
-// so deny ALWAYS wins regardless of defaultMode. This slice must NEVER be modified
-// by tier composition — it is the floor that makes the security guarantee real.
+// CLAUDE CODE receives in all three of its tiers, bypass included. Claude
+// evaluates deny → ask → allow, so deny ALWAYS wins regardless of defaultMode.
+// This slice must NEVER be modified by tier composition — it is what makes the
+// security guarantee real for Claude, and TestSecurityFloorInAllClaudeTiers
+// reads the composed overlay back to keep that true.
+//
+// SCOPE, corrected 2026-09-08: this comment used to say the floor "applies to
+// ALL tiers (including bypass)" with no subject, and it read as a promise about
+// the whole installer. It is not one. opencode has a different floor of its own
+// (opencodeBashFloorDeny). codex has NO floor, in any tier — see
+// mergeCodexTOMLFile in install.go for what was looked for and why nothing was
+// invented. gemini and vscode carry none either. An agent has the floor its own
+// installer writes, and nothing more.
 //
 // The five rules are the normative contract tested in permissions_test.go.
 // The implementation is a superset (extra rules are allowed per design.md §D2).
