@@ -7,25 +7,89 @@ import (
 )
 
 func MergeJSONObjects(baseJSON []byte, overlayJSON []byte) ([]byte, error) {
-	base, err := unmarshalJSONObject(baseJSON)
+	base, err := decodeOrderedOrEmpty(baseJSON)
 	if err != nil {
 		// Malformed base is treated as {} — overlay prevalence is safe and
 		// preferable to aborting the install.
-		base = map[string]any{}
+		base = newOrderedObject()
 	}
 
-	overlay, err := unmarshalJSONObject(overlayJSON)
+	overlay, err := decodeOrderedOrEmpty(overlayJSON)
 	if err != nil {
 		return nil, fmt.Errorf("unmarshal overlay json: %w", err)
 	}
 
-	merged := mergeObjects(base, overlay)
-	encoded, err := json.MarshalIndent(merged, "", "  ")
+	merged := mergeOrdered(base, overlay)
+
+	// Marshal first, then Indent: MarshalIndent does not reach a custom
+	// MarshalJSON, so indenting has to happen on the produced bytes.
+	encoded, err := json.Marshal(merged)
 	if err != nil {
 		return nil, fmt.Errorf("marshal merged json: %w", err)
 	}
+	var pretty bytes.Buffer
+	if err := json.Indent(&pretty, encoded, "", "  "); err != nil {
+		return nil, fmt.Errorf("indent merged json: %w", err)
+	}
 
-	return append(encoded, '\n'), nil
+	return append(pretty.Bytes(), '\n'), nil
+}
+
+// mergeOrdered merges overlay into base preserving key order.
+//
+// Same rules as the map version, plus one that carries security weight: a key
+// the overlay introduces lands AFTER everything the base already had. opencode
+// evaluates last-match-wins, so the deny floor only holds while it is the last
+// thing that matches.
+func mergeOrdered(base, overlay *orderedObject) *orderedObject {
+	result := newOrderedObject()
+	for _, key := range base.keys {
+		value, _ := base.get(key)
+		result.set(key, value)
+	}
+
+	for _, key := range overlay.keys {
+		overlayValue, _ := overlay.get(key)
+
+		// Replace sentinel: use the sentinel's value verbatim, no deep merge.
+		if replacement, isSentinel := asOrderedSentinel(overlayValue); isSentinel {
+			result.set(key, replacement)
+			continue
+		}
+
+		baseValue, exists := result.get(key)
+		if !exists {
+			// Recurse into overlay objects even with no base value, so nested
+			// __replace__ sentinels are unwrapped before reaching the output.
+			if overlayObj, isObj := overlayValue.(*orderedObject); isObj {
+				result.set(key, mergeOrdered(newOrderedObject(), overlayObj))
+			} else {
+				result.set(key, overlayValue)
+			}
+			continue
+		}
+
+		baseObj, baseIsObj := baseValue.(*orderedObject)
+		overlayObj, overlayIsObj := overlayValue.(*orderedObject)
+		if baseIsObj && overlayIsObj {
+			result.set(key, mergeOrdered(baseObj, overlayObj))
+			continue
+		}
+
+		result.set(key, overlayValue)
+	}
+
+	return result
+}
+
+// asOrderedSentinel reports whether value is {"__replace__": X} and returns X.
+func asOrderedSentinel(value any) (any, bool) {
+	obj, ok := value.(*orderedObject)
+	if !ok || len(obj.keys) != 1 || obj.keys[0] != replacesentinel {
+		return nil, false
+	}
+	replacement, _ := obj.get(replacesentinel)
+	return replacement, true
 }
 
 func unmarshalJSONObject(raw []byte) (map[string]any, error) {
