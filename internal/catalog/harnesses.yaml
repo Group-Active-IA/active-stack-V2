@@ -53,7 +53,7 @@ harnesses:
     description: { es: "Configura el orquestador SDD con piezas componibles.", en: "Configures the SDD orchestrator with composable pieces." }
     long_description: { es: "El bloque de instrucciones que convierte al agente en un orquestador SDD: coordina, delega y decide en vez de ejecutar todo inline. Se compone a partir de toggles modulares (TDD, Engram, model-routing, delegación, governance) y se inyecta con markers idempotentes en el `CLAUDE.md`/`AGENTS.md` del agente, así que reinstalar no duplica el bloque. Elegilo si querés el flujo de coordinación completo—sub-agentes por fase, ruteo de modelos, memoria persistente y niveles de autonomía por dominio. Si preferís un agente plano sin orquestación, dejalo afuera.", en: "The instruction block that turns the agent into an SDD orchestrator: it coordinates, delegates, and decides instead of doing everything inline. It's composed from modular toggles (TDD, Engram, model-routing, delegation, governance) and injected with idempotent markers into the agent's `CLAUDE.md`/`AGENTS.md`, so reinstalling never duplicates the block. Choose it if you want the full coordination flow—per-phase sub-agents, model routing, persistent memory, and per-domain autonomy levels. If you prefer a flat agent with no orchestration, leave it out." }
     type: config
-    toggles: [tdd, engram, model-routing, delegation, governance, evidence, auditor]
+    toggles: [tdd, engram, model-routing, delegation, governance, evidence, auditor, roles]
     install_modes: [lite, full]
     agents: [claude, codex, opencode]
 

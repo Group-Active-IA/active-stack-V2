@@ -17,6 +17,7 @@ var knownToggles = map[string]bool{
 	"governance":    true,
 	"evidence":      true,
 	"auditor":       true,
+	"roles":         true,
 }
 
 // Compose assembles the sdd-orchestrator block for the given variant and
@@ -30,6 +31,8 @@ var knownToggles = map[string]bool{
 //  3. Subtractive: if "model-routing" NOT active → remove <!-- active-stack:sdd-model-assignments --> section
 //  4. Additive: if "governance" active → append assets/governance.md
 //     4b. Additive: if "evidence" active → append assets/evidence-report.md
+//     4c. Additive: if "auditor" active → append assets/auditor.md
+//     4d. Additive: if "roles" active → append assets/roles.md
 //  5. Additive: if "engram" active → append assets/engram-protocol.md
 //  6. Additive: if "tdd" active → append inline TDD flag + assets/strict-tdd.md
 //
@@ -38,7 +41,7 @@ func Compose(toggles []string, variantKey string) (string, error) {
 	// Validate all toggles first.
 	for _, t := range toggles {
 		if !knownToggles[t] {
-			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence, auditor)", t)
+			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence, auditor, roles)", t)
 		}
 	}
 
@@ -97,6 +100,17 @@ func Compose(toggles []string, variantKey string) (string, error) {
 			return "", fmt.Errorf("config compose: %w", err)
 		}
 		additives = append(additives, au)
+	}
+
+	// Step 4d: role specialists. After the auditor and before engram: it decides
+	// WHO gets convened, so it must sit downstream of the rules that say how any
+	// of them must report back.
+	if active["roles"] {
+		rl, err := loadFragment("roles.md")
+		if err != nil {
+			return "", fmt.Errorf("config compose: %w", err)
+		}
+		additives = append(additives, rl)
 	}
 
 	// Step 5: engram.
