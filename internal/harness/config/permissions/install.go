@@ -116,12 +116,30 @@ func mergeCodexTOMLFile(path string, tier model.PermissionTier) (filemerge.Write
 	if err != nil {
 		return filemerge.WriteResult{}, err
 	}
-	approval, sandbox := "on-request", "workspace-write"
+	// network is written in EVERY tier, not just balanceado. Until 2026-09-08 it
+	// was written only there, and UpsertTOMLTableValues does not remove what it
+	// is not asked to write: installing balanceado and then bypass left
+	// network_access = false behind, a restriction from a tier that was gone.
+	// Same class of bug as Claude's sticky allow-list — a tier that skips a key
+	// inherits the previous tier's answer for it.
+	//
+	// Every tier writes false, bypass included, and that is deliberate.
+	// UNVERIFIED ASSUMPTION (2026-09-08): under sandbox_mode =
+	// "danger-full-access" this key is believed to be inert, because the sandbox
+	// it configures is off. Nothing in this repo proves it, so the value does not
+	// lean on it — the asymmetry decides. If the key is inert, false costs
+	// nothing; if it is not, true would open network access nobody asked for.
+	//
+	// It also PERSISTS on disk. Someone who later runs codex with
+	// --sandbox workspace-write would inherit whatever is written here from a
+	// tier that no longer governs that dimension — exactly the stale-value
+	// pattern this fix exists to kill.
+	approval, sandbox, network := "on-request", "workspace-write", "false"
 	switch tier.Normalize() {
 	case model.TierEstricto:
-		approval, sandbox = "untrusted", "read-only"
+		approval, sandbox, network = "untrusted", "read-only", "false"
 	case model.TierBypass:
-		approval, sandbox = "never", "danger-full-access"
+		approval, sandbox, network = "never", "danger-full-access", "false"
 	}
 	merged, err := filemerge.UpsertTOMLTopLevel(string(raw), map[string]string{
 		"approval_policy": fmt.Sprintf("%q", approval),
@@ -130,13 +148,11 @@ func mergeCodexTOMLFile(path string, tier model.PermissionTier) (filemerge.Write
 	if err != nil {
 		return filemerge.WriteResult{}, err
 	}
-	if tier.Normalize() == model.TierBalanceado {
-		merged, err = filemerge.UpsertTOMLTableValues(merged, "sandbox_workspace_write", map[string]string{
-			"network_access": "false",
-		})
-		if err != nil {
-			return filemerge.WriteResult{}, err
-		}
+	merged, err = filemerge.UpsertTOMLTableValues(merged, "sandbox_workspace_write", map[string]string{
+		"network_access": network,
+	})
+	if err != nil {
+		return filemerge.WriteResult{}, err
 	}
 	return filemerge.WriteFileAtomic(path, []byte(merged), 0o644)
 }

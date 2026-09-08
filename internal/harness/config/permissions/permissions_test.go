@@ -486,10 +486,14 @@ func TestComposeClaudeOverlayByTier(t *testing.T) {
 		name            string
 		tier            model.PermissionTier
 		wantDefaultMode string
-		wantAllowList   bool // true = allow-list should be present
+		// wantAllowList significaba "la clave allow esta presente". Desde el
+		// 2026-09-08 la clave esta SIEMPRE presente, porque omitirla dejaba viva
+		// la allow-list del tier anterior; ahora significa "la lista tiene
+		// entradas". Ver TestClaudeTierDowngradeDropsPreviousAllowList.
+		wantAllowList bool
 	}{
 		{
-			name:            "estricto produces default, no allow-list",
+			name:            "estricto produces default with an empty allow-list",
 			tier:            model.TierEstricto,
 			wantDefaultMode: "default",
 			wantAllowList:   false,
@@ -539,17 +543,22 @@ func TestComposeClaudeOverlayByTier(t *testing.T) {
 				t.Errorf("defaultMode = %q, want %q", mode, tt.wantDefaultMode)
 			}
 
-			_, hasAllow := perms["allow"]
-			if hasAllow != tt.wantAllowList {
-				t.Errorf("allow-list present=%v, want %v", hasAllow, tt.wantAllowList)
+			// La clave tiene que existir en TODOS los tiers: es lo unico que pisa
+			// la allow-list del tier anterior.
+			rawAllow, hasAllow := perms["allow"]
+			if !hasAllow {
+				t.Fatalf("allow key missing for tier %s", tt.tier)
+			}
+			allowList, ok := rawAllow.([]any)
+			if !ok {
+				t.Fatalf("allow is not a list: %#v", rawAllow)
+			}
+			if (len(allowList) > 0) != tt.wantAllowList {
+				t.Errorf("allow-list has %d entries, want non-empty=%v", len(allowList), tt.wantAllowList)
 			}
 
 			// Balanceado allow-list must contain at least Bash(go test:*).
 			if tt.wantAllowList {
-				allowList, ok := perms["allow"].([]any)
-				if !ok {
-					t.Fatal("allow is not a list")
-				}
 				found := false
 				for _, a := range allowList {
 					if a == "Bash(go test:*)" {

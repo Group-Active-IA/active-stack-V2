@@ -20,9 +20,12 @@ func TestInstallCodexPermissionTiers(t *testing.T) {
 		tier model.PermissionTier
 		want []string
 	}{
-		{model.TierEstricto, []string{`approval_policy = "untrusted"`, `sandbox_mode = "read-only"`}},
+		// network_access lo escribia solo balanceado y por eso sobrevivia al
+		// cambio de tier (2026-09-08). Los tres tiers lo declaran ahora, y los
+		// tres esperan false: ver el comentario en mergeCodexTOMLFile.
+		{model.TierEstricto, []string{`approval_policy = "untrusted"`, `sandbox_mode = "read-only"`, `network_access = false`}},
 		{model.TierBalanceado, []string{`approval_policy = "on-request"`, `sandbox_mode = "workspace-write"`, `network_access = false`}},
-		{model.TierBypass, []string{`approval_policy = "never"`, `sandbox_mode = "danger-full-access"`}},
+		{model.TierBypass, []string{`approval_policy = "never"`, `sandbox_mode = "danger-full-access"`, `network_access = false`}},
 	}
 	for _, tt := range tests {
 		t.Run(string(tt.tier), func(t *testing.T) {

@@ -62,9 +62,16 @@ func OpencodeBashFloorDeny() []string {
 
 // claudePermissionsShape is the struct that serializes to the Claude Code
 // "permissions" block in settings.json.
+//
+// Allow deliberately has NO omitempty. MergeJSONObjects only adds or overwrites
+// keys — it never deletes one — so a key the overlay omits survives from
+// whatever was installed before. On 2026-09-08 that meant installing balanceado
+// and then estricto left balanceado's allow-list alive: the user hardened their
+// config and kept auto-approving Read, Edit and Bash(go test:*). A tier is only
+// a tier if it declares every key it owns, including the ones it wants empty.
 type claudePermissionsShape struct {
 	DefaultMode string   `json:"defaultMode"`
-	Allow       []string `json:"allow,omitempty"`
+	Allow       []string `json:"allow"`
 	Deny        []string `json:"deny"`
 }
 
@@ -98,10 +105,13 @@ func composeClaudeOverlay(tier model.PermissionTier) []byte {
 	switch tier {
 	case model.TierEstricto:
 		shape.Permissions.DefaultMode = "default"
-		// No allow-list for estricto — agent must ask for everything not denied.
+		// Empty, not absent: an explicit [] overwrites the previous tier's list.
+		shape.Permissions.Allow = []string{}
 	case model.TierBypass:
 		shape.Permissions.DefaultMode = "bypassPermissions"
-		// No allow-list needed — bypassPermissions auto-approves everything not denied.
+		// bypassPermissions auto-approves everything not denied, so the list is
+		// redundant — but it still has to be emitted to clear the old one.
+		shape.Permissions.Allow = []string{}
 	default: // TierBalanceado (and any unknown after normalize)
 		shape.Permissions.DefaultMode = "default"
 		shape.Permissions.Allow = claudeAllowList
@@ -160,7 +170,17 @@ func (b orderedBashBlock) MarshalJSON() ([]byte, error) {
 }
 
 // opencodePermissionShape is the top-level opencode "permission" object.
-// Fields use omitempty so unset keys don't pollute the output.
+// Fields use omitempty because the zero value is the empty string, which is not
+// a legal opencode verb — writing "external_directory": "" would be worse than
+// omitting it.
+//
+// The catch, found on 2026-09-08: omitempty plus a merge that never deletes keys
+// means a key only ONE tier sets stays on disk after switching to a tier that
+// does not. external_directory was set to "deny" by estricto alone, so going
+// estricto → balanceado kept denying external directories forever. Every tier
+// must therefore set EVERY field of this struct explicitly, and
+// TestOpencodeTiersDeclareTheSameKeys is what keeps that true when a field is
+// added.
 type opencodePermissionShape struct {
 	Read              string           `json:"read,omitempty"`
 	Edit              string           `json:"edit,omitempty"`
@@ -215,14 +235,15 @@ func composeOpencodeOverlay(tier model.PermissionTier) []byte {
 	case model.TierBypass:
 		// Everything → allow; only the most catastrophic commands denied LAST.
 		shape.Permission = opencodePermissionShape{
-			Read:      "allow",
-			Edit:      "allow",
-			Glob:      "allow",
-			Grep:      "allow",
-			List:      "allow",
-			Webfetch:  "allow",
-			Websearch: "allow",
-			LSP:       "allow",
+			Read:              "allow",
+			Edit:              "allow",
+			Glob:              "allow",
+			Grep:              "allow",
+			List:              "allow",
+			ExternalDirectory: "allow",
+			Webfetch:          "allow",
+			Websearch:         "allow",
+			LSP:               "allow",
 			Bash: orderedBashBlock{
 				{Key: "*", Value: "allow"},
 				// Catastrophic deny floor LAST (last-wins guarantee).
@@ -234,14 +255,15 @@ func composeOpencodeOverlay(tier model.PermissionTier) []byte {
 	default: // TierBalanceado (and zero-value after normalize)
 		// Safe operations auto-allowed; deny floor LAST in bash.
 		shape.Permission = opencodePermissionShape{
-			Read:      "allow",
-			Edit:      "ask",
-			Glob:      "allow",
-			Grep:      "allow",
-			List:      "allow",
-			Webfetch:  "ask",
-			Websearch: "ask",
-			LSP:       "allow",
+			Read:              "allow",
+			Edit:              "ask",
+			Glob:              "allow",
+			Grep:              "allow",
+			List:              "allow",
+			ExternalDirectory: "ask",
+			Webfetch:          "ask",
+			Websearch:         "ask",
+			LSP:               "allow",
 			Bash: orderedBashBlock{
 				{Key: "*", Value: "ask"},
 				// Safe operations allowed.
