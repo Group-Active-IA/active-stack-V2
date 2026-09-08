@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/Group-Active-IA/active-stack/internal/model"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // ── Task 5.2: anyTierCapable ─────────────────────────────────────────────────
@@ -106,7 +106,7 @@ func TestScreenPermissionsAppearsForCustomWithTierCapableAgent(t *testing.T) {
 	m.Selection.Mode = model.ModeCustom
 	m.AvailableHarnesses = []model.Harness{
 		{ID: "h1", Name: "H1", Type: model.HarnessExternal,
-			External: &model.External{Method: "npm"},
+			External:     &model.External{Method: "npm"},
 			InstallModes: []model.InstallMode{model.ModeFull}},
 	}
 

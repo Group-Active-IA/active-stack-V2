@@ -25,13 +25,13 @@ import (
 // commandsDir controls the resolved directory; set to "" to test skip behavior.
 type fakeAdapter struct {
 	agent       model.Agent
-	commandsDir string   // empty → skip
+	commandsDir string // empty → skip
 	variantKey  string
 }
 
-func (f fakeAdapter) Agent() model.Agent                  { return f.agent }
-func (f fakeAdapter) CommandsDir(_ string) string         { return f.commandsDir }
-func (f fakeAdapter) VariantKey() string                  { return f.variantKey }
+func (f fakeAdapter) Agent() model.Agent          { return f.agent }
+func (f fakeAdapter) CommandsDir(_ string) string { return f.commandsDir }
+func (f fakeAdapter) VariantKey() string          { return f.variantKey }
 
 // makeCommandsFS returns a minimal fstest.MapFS that contains both the Claude
 // and OpenCode command variants at the expected asset paths.
@@ -70,8 +70,8 @@ func TestInstaller_WritesCommandFileForAdapter(t *testing.T) {
 		name       string
 		agentAgent model.Agent
 		variant    string
-		assetPath  string  // path inside CommandsFS
-		expectRel  string  // relative path under commandsDir
+		assetPath  string // path inside CommandsFS
+		expectRel  string // relative path under commandsDir
 	}{
 		{
 			name:       "claude",

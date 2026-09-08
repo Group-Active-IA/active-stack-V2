@@ -6,11 +6,11 @@ import (
 	"reflect"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/Group-Active-IA/active-stack/internal/install"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/pipeline"
 	"github.com/Group-Active-IA/active-stack/internal/system"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // TestGateTUI_MissingDep_DoesNotStartProgress verifies that when a required

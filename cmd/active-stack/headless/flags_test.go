@@ -18,7 +18,7 @@ func TestParseInstallFlags(t *testing.T) {
 	tests := []struct {
 		name        string
 		args        []string
-		wantTUI     bool   // true means headless=false (launch TUI)
+		wantTUI     bool // true means headless=false (launch TUI)
 		wantErr     bool
 		wantMode    model.InstallMode
 		wantAgents  []model.Agent
@@ -100,18 +100,18 @@ func TestParseInstallFlags(t *testing.T) {
 		},
 		// ── --yes / -y ─────────────────────────────────────────────────────
 		{
-			name:    "--yes flag",
-			args:    []string{"--mode", "lite", "--yes"},
-			wantTUI: false,
+			name:     "--yes flag",
+			args:     []string{"--mode", "lite", "--yes"},
+			wantTUI:  false,
 			wantMode: model.ModeLite,
-			wantYes: true,
+			wantYes:  true,
 		},
 		{
-			name:    "-y short flag",
-			args:    []string{"--mode", "lite", "-y"},
-			wantTUI: false,
+			name:     "-y short flag",
+			args:     []string{"--mode", "lite", "-y"},
+			wantTUI:  false,
 			wantMode: model.ModeLite,
-			wantYes: true,
+			wantYes:  true,
 		},
 		// ── --home override ────────────────────────────────────────────────
 		{

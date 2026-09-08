@@ -3,8 +3,8 @@ package tui
 import (
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/Group-Active-IA/active-stack/internal/backup"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // TestBackups_DeleteShowsConfirmation verifies 'd' enters the delete

@@ -16,9 +16,9 @@ type fakeAdapter struct {
 	delivery model.ConfigDelivery
 }
 
-func (f fakeAdapter) Agent() model.Agent              { return f.agent }
+func (f fakeAdapter) Agent() model.Agent                     { return f.agent }
 func (f fakeAdapter) InstructionsPath(homeDir string) string { return f.path }
-func (f fakeAdapter) VariantKey() string               { return f.variant }
+func (f fakeAdapter) VariantKey() string                     { return f.variant }
 func (f fakeAdapter) SettingsPath(homeDir string) string     { return f.settings }
 func (f fakeAdapter) ConfigDelivery() model.ConfigDelivery   { return f.delivery }
 

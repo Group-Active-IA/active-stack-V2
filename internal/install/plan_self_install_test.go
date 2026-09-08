@@ -63,8 +63,8 @@ func TestBuildPlan_SelfInstallPresent(t *testing.T) {
 	defer restoreExt()
 
 	opts := install.Options{
-		HomeDir:      homeDir,
-		Registry:     reg,
+		HomeDir:       homeDir,
+		Registry:      reg,
 		NoSelfInstall: false, // default ON
 	}
 	plan, err := install.BuildPlan(cat, install.Intent{
@@ -105,8 +105,8 @@ func TestBuildPlan_SelfInstallAbsent(t *testing.T) {
 	defer restoreExt()
 
 	opts := install.Options{
-		HomeDir:      homeDir,
-		Registry:     reg,
+		HomeDir:       homeDir,
+		Registry:      reg,
 		NoSelfInstall: true,
 	}
 	plan, err := install.BuildPlan(cat, install.Intent{
@@ -138,8 +138,8 @@ func TestBuildPlan_SelfInstallAfterHarnessSteps(t *testing.T) {
 	defer restoreExt()
 
 	opts := install.Options{
-		HomeDir:      homeDir,
-		Registry:     reg,
+		HomeDir:       homeDir,
+		Registry:      reg,
 		NoSelfInstall: false,
 	}
 	plan, err := install.BuildPlan(cat, install.Intent{
@@ -192,8 +192,8 @@ func TestBuildPlan_SnapshotIncludesSelfInstallPath(t *testing.T) {
 	defer restoreBinDir()
 
 	opts := install.Options{
-		HomeDir:      homeDir,
-		Registry:     reg,
+		HomeDir:       homeDir,
+		Registry:      reg,
 		NoSelfInstall: false,
 		Profile:       system.PlatformProfile{OS: "linux"},
 	}
@@ -245,8 +245,8 @@ func TestBuildPlan_SnapshotNoSelfInstallPath(t *testing.T) {
 	defer restoreBinDir()
 
 	opts := install.Options{
-		HomeDir:      homeDir,
-		Registry:     reg,
+		HomeDir:       homeDir,
+		Registry:      reg,
 		NoSelfInstall: true,
 	}
 	plan, err := install.BuildPlan(cat, install.Intent{

@@ -286,7 +286,8 @@ func TestInstallMCP_NoAdapters(t *testing.T) {
 
 // TestBuildMCPOverlay_ClaudeProject asserts that buildMCPOverlay returns the
 // correct overlay for a model.MCP with Command, Args, and Env:
-//   {"mcpServers": {"<Name>": {"command": ..., "args": [...], "env": {...}}}}
+//
+//	{"mcpServers": {"<Name>": {"command": ..., "args": [...], "env": {...}}}}
 //
 // No hardcoded server name constants — the overlay key is MCP.Name.
 func TestBuildMCPOverlay_ClaudeProject(t *testing.T) {
@@ -428,7 +429,8 @@ func TestBuildMCPOverlay_IdempotentMerge(t *testing.T) {
 
 // TestBuildStdioOverlay_SeparateFile asserts that buildStdioOverlay for a
 // StrategySeparateFile adapter returns the bare server object at the top level:
-//   {"command":..., "args":[...]}
+//
+//	{"command":..., "args":[...]}
 func TestBuildStdioOverlay_SeparateFile(t *testing.T) {
 	mcp := model.MCP{Name: "engram", Command: "engram", Args: []string{"mcp"}}
 	adapter := &fakeAdapter{agent: model.AgentClaude, strategy: StrategySeparateFile}
@@ -451,7 +453,8 @@ func TestBuildStdioOverlay_SeparateFile(t *testing.T) {
 // TestBuildStdioOverlay_MergeIntoSettings_Generic asserts that
 // buildStdioOverlay for a generic StrategyMergeIntoSettings (non-OpenCode)
 // adapter wraps the server object in the __replace__ sentinel:
-//   {"mcpServers": {"<name>": {"__replace__": {"type":"stdio","command":...,"args":[...]}}}}
+//
+//	{"mcpServers": {"<name>": {"__replace__": {"type":"stdio","command":...,"args":[...]}}}}
 //
 // Updated: the server object is now wrapped in {"__replace__": ...} so that
 // MergeJSONObjects replaces any stale base entry atomically (no orphan "url").
@@ -484,7 +487,8 @@ func TestBuildStdioOverlay_MergeIntoSettings_Generic(t *testing.T) {
 
 // TestBuildStdioOverlay_OpenCode asserts that buildStdioOverlay for an
 // OpenCode adapter wraps the localEntry in the __replace__ sentinel:
-//   {"mcp": {"<name>": {"__replace__": {"type":"local","command":...,"args":[...],"enabled":true}}}}
+//
+//	{"mcp": {"<name>": {"__replace__": {"type":"local","command":...,"args":[...],"enabled":true}}}}
 //
 // Updated: localEntry is now wrapped in {"__replace__": ...} so that
 // MergeJSONObjects replaces any stale remote entry atomically (no orphan keys).

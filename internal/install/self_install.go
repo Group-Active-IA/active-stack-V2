@@ -39,9 +39,9 @@ type selfInstallStep struct {
 	sourcePath string
 	// goos is the target OS (injected for cross-platform tests).
 	// When empty, defaults to runtime.GOOS.
-	goos       string
+	goos string
 	// manifest is the snapshot manifest pointer set by setManifest.
-	manifest   *backup.Manifest
+	manifest *backup.Manifest
 	// onProgress receives warning events on graceful degradation.
 	onProgress pipeline.ProgressFunc
 }

@@ -48,10 +48,10 @@ func (f *fakeCatalog) ForAgent(a model.Agent) []model.Harness {
 // ─────────────────────────────────────────────────────────────────
 
 type fakeAdapter struct {
-	agent       model.Agent
-	homeDir     string
-	delivery    model.ConfigDelivery
-	variantKey  string // defaults to "claude" when empty
+	agent      model.Agent
+	homeDir    string
+	delivery   model.ConfigDelivery
+	variantKey string // defaults to "claude" when empty
 }
 
 func (a fakeAdapter) Agent() model.Agent                     { return a.agent }

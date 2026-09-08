@@ -49,7 +49,7 @@ func RequiredDependencies(harnesses []model.Harness, profile PlatformProfile) []
 				switch h.Source.Method {
 				case "clone":
 					add("git")
-				// embed → no runtime deps
+					// embed → no runtime deps
 				}
 			}
 

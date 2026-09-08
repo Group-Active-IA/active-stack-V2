@@ -20,11 +20,11 @@ import (
 func newFakeAdapter(t *testing.T, homeDir string, agent model.Agent) fakeAdapter {
 	t.Helper()
 	return fakeAdapter{
-		agent:           agent,
-		skillsDir:       filepath.Join(homeDir, "skills"),
+		agent:            agent,
+		skillsDir:        filepath.Join(homeDir, "skills"),
 		instructionsPath: filepath.Join(homeDir, "CLAUDE.md"),
-		settingsPath:    filepath.Join(homeDir, "settings.json"),
-		mcpConfigPath:   filepath.Join(homeDir, "mcp", "server.json"),
+		settingsPath:     filepath.Join(homeDir, "settings.json"),
+		mcpConfigPath:    filepath.Join(homeDir, "mcp", "server.json"),
 	}
 }
 
@@ -421,8 +421,8 @@ func TestCheckPermissionsClaudePluralKey(t *testing.T) {
 // not a hardcoded string. This covers D4 (self-describing failure message).
 func TestCheckPermissionsFailureMentionsCorrectKey(t *testing.T) {
 	tests := []struct {
-		name        string
-		agent       model.Agent
+		name         string
+		agent        model.Agent
 		settingsJSON string
 		wantKeyInMsg string
 	}{
@@ -577,7 +577,7 @@ func TestCheckForExternalHarness_MCP_Pass(t *testing.T) {
 	}
 
 	fa := fakeAdapter{
-		agent:        model.AgentClaude,
+		agent:         model.AgentClaude,
 		mcpConfigPath: filepath.Join(mcpDir, "server.json"),
 	}
 
@@ -629,7 +629,7 @@ func TestCheckForExternalHarness_MCP_FailInvalidJSON(t *testing.T) {
 	}
 
 	fa := fakeAdapter{
-		agent:        model.AgentClaude,
+		agent:         model.AgentClaude,
 		mcpConfigPath: filepath.Join(mcpDir, "server.json"),
 	}
 
@@ -662,7 +662,7 @@ func TestCheckForExternalHarness_SoftCheckProducesWarningNotFailure(t *testing.T
 	homeDir := t.TempDir()
 
 	fa := fakeAdapter{
-		agent:        model.AgentClaude,
+		agent:         model.AgentClaude,
 		mcpConfigPath: filepath.Join(homeDir, "mcp", "engram.json"),
 	}
 

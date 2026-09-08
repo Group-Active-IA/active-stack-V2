@@ -143,7 +143,7 @@ type markerRemovalStep struct {
 	manifest *backup.Manifest
 }
 
-func (s *markerRemovalStep) ID() string { return "marker:" + s.h.ID }
+func (s *markerRemovalStep) ID() string                     { return "marker:" + s.h.ID }
 func (s *markerRemovalStep) setManifest(m *backup.Manifest) { s.manifest = m }
 
 func (s *markerRemovalStep) Run() error {
@@ -193,7 +193,7 @@ type skillRemovalStep struct {
 	manifest *backup.Manifest
 }
 
-func (s *skillRemovalStep) ID() string { return "skill-removal:" + s.h.ID }
+func (s *skillRemovalStep) ID() string                     { return "skill-removal:" + s.h.ID }
 func (s *skillRemovalStep) setManifest(m *backup.Manifest) { s.manifest = m }
 
 func (s *skillRemovalStep) Run() error {
@@ -234,7 +234,7 @@ type commandRemovalStep struct {
 	manifest *backup.Manifest
 }
 
-func (s *commandRemovalStep) ID() string { return "command-removal:" + s.h.ID }
+func (s *commandRemovalStep) ID() string                     { return "command-removal:" + s.h.ID }
 func (s *commandRemovalStep) setManifest(m *backup.Manifest) { s.manifest = m }
 
 func (s *commandRemovalStep) Run() error {
@@ -275,7 +275,7 @@ type permissionsRemovalStep struct {
 	manifest *backup.Manifest
 }
 
-func (s *permissionsRemovalStep) ID() string { return "permissions-removal:" + s.h.ID }
+func (s *permissionsRemovalStep) ID() string                     { return "permissions-removal:" + s.h.ID }
 func (s *permissionsRemovalStep) setManifest(m *backup.Manifest) { s.manifest = m }
 
 func (s *permissionsRemovalStep) Run() error {
@@ -335,8 +335,8 @@ type externalSkipStep struct {
 	h model.Harness
 }
 
-func (s *externalSkipStep) ID() string  { return "external-skip:" + s.h.ID }
-func (s *externalSkipStep) Run() error  { return nil }
+func (s *externalSkipStep) ID() string { return "external-skip:" + s.h.ID }
+func (s *externalSkipStep) Run() error { return nil }
 
 type codexMCPRemovalStep struct {
 	h        model.Harness

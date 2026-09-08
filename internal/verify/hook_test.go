@@ -77,7 +77,7 @@ func TestBuildHookReturnsNilWhenOnlySoftWarnings(t *testing.T) {
 	}
 
 	fa := fakeAdapter{
-		agent:        model.AgentClaude,
+		agent:         model.AgentClaude,
 		mcpConfigPath: filepath.Join(homeDir, "mcp", "engram.json"),
 	}
 

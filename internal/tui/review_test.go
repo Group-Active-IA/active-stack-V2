@@ -4,10 +4,10 @@ import (
 	"errors"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/Group-Active-IA/active-stack/internal/install"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/pipeline"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // fakeCatalog satisfies install.Catalog for testing.
@@ -79,8 +79,8 @@ func fakeBuildPlanError(msg string) func(install.Catalog, install.Intent, instal
 // fakeStep is a minimal pipeline.Step for testing.
 type fakeStep struct{ id string }
 
-func (s *fakeStep) ID() string  { return s.id }
-func (s *fakeStep) Run() error  { return nil }
+func (s *fakeStep) ID() string { return s.id }
+func (s *fakeStep) Run() error { return nil }
 
 // TestReviewShowsResolvedPlanInOrder verifies that entering review calls
 // BuildPlan and populates ResolvedIDs in topological order.

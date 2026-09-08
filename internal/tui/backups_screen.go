@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/Group-Active-IA/active-stack/internal/backup"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // backupAction represents the current action being performed on a backup.
@@ -20,11 +20,11 @@ const (
 
 // backupsState holds the per-screen state for ScreenBackups.
 type backupsState struct {
-	manifests      []backup.Manifest
-	action         backupAction
-	actionTarget   int    // index into manifests of the item being acted on
-	renameInput    string // accumulated rename input (simple char-by-char)
-	lastMsg        string // result message (success/error)
+	manifests    []backup.Manifest
+	action       backupAction
+	actionTarget int    // index into manifests of the item being acted on
+	renameInput  string // accumulated rename input (simple char-by-char)
+	lastMsg      string // result message (success/error)
 }
 
 // enterBackups transitions the model to ScreenBackups and loads the manifest list.

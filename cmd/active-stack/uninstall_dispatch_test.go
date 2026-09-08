@@ -22,9 +22,11 @@ import (
 // Updated in the HarnessCommand bugfix to add CommandsDir and VariantKey.
 type uninstallDispatchAdapter struct{ agent model.Agent }
 
-func (a uninstallDispatchAdapter) Agent() model.Agent                     { return a.agent }
-func (a uninstallDispatchAdapter) InstructionsPath(homeDir string) string { return homeDir + "/CLAUDE.md" }
-func (a uninstallDispatchAdapter) SkillsDir(homeDir string) string        { return homeDir + "/skills" }
+func (a uninstallDispatchAdapter) Agent() model.Agent { return a.agent }
+func (a uninstallDispatchAdapter) InstructionsPath(homeDir string) string {
+	return homeDir + "/CLAUDE.md"
+}
+func (a uninstallDispatchAdapter) SkillsDir(homeDir string) string { return homeDir + "/skills" }
 func (a uninstallDispatchAdapter) SettingsPath(homeDir string) string {
 	return homeDir + "/settings.json"
 }

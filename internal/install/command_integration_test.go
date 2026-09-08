@@ -43,14 +43,18 @@ type integrationCommandAdapter struct {
 	commandsDir string
 }
 
-func (a integrationCommandAdapter) Agent() model.Agent                  { return a.agent }
-func (a integrationCommandAdapter) InstructionsPath(h string) string    { return h + "/instr.md" }
-func (a integrationCommandAdapter) SkillsDir(h string) string           { return h + "/skills" }
-func (a integrationCommandAdapter) CommandsDir(_ string) string         { return a.commandsDir }
-func (a integrationCommandAdapter) SettingsPath(h string) string        { return h + "/settings.json" }
-func (a integrationCommandAdapter) MCPConfigPath(h, s string) string    { return h + "/mcp/" + s + ".json" }
-func (a integrationCommandAdapter) MCPStrategy() external.MCPStrategy { return external.StrategySeparateFile }
-func (a integrationCommandAdapter) VariantKey() string                  { return a.variantKey }
+func (a integrationCommandAdapter) Agent() model.Agent               { return a.agent }
+func (a integrationCommandAdapter) InstructionsPath(h string) string { return h + "/instr.md" }
+func (a integrationCommandAdapter) SkillsDir(h string) string        { return h + "/skills" }
+func (a integrationCommandAdapter) CommandsDir(_ string) string      { return a.commandsDir }
+func (a integrationCommandAdapter) SettingsPath(h string) string     { return h + "/settings.json" }
+func (a integrationCommandAdapter) MCPConfigPath(h, s string) string {
+	return h + "/mcp/" + s + ".json"
+}
+func (a integrationCommandAdapter) MCPStrategy() external.MCPStrategy {
+	return external.StrategySeparateFile
+}
+func (a integrationCommandAdapter) VariantKey() string { return a.variantKey }
 func (a integrationCommandAdapter) ConfigDelivery() model.ConfigDelivery {
 	return model.ConfigDeliveryInstructions
 }
@@ -145,8 +149,8 @@ func TestCommandInstall_Integration_WritesFilesForBothAgents(t *testing.T) {
 	h := commandHarness()
 	cat := &fakeCatalog{harnesses: []model.Harness{h}}
 	reg := &fakeRegistry{adapters: map[model.Agent]install.AgentAdapter{
-		model.AgentClaude:    claudeAdapter,
-		model.AgentOpenCode:  openCodeAdapter,
+		model.AgentClaude:   claudeAdapter,
+		model.AgentOpenCode: openCodeAdapter,
 	}}
 	intent := install.Intent{
 		Agents: []model.Agent{model.AgentClaude, model.AgentOpenCode},

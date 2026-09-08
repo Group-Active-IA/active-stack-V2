@@ -79,8 +79,9 @@ func (a *Adapter) VariantKey() string {
 // .config/opencode/ — this difference lives here, never in the caller.
 //
 // OpenCode layout by target (D2, confirmed against official docs):
-//   Machine: <homeDir>/.config/opencode/...   (XDG global convention)
-//   Project: <root>/.opencode/...             (project-local convention)
+//
+//	Machine: <homeDir>/.config/opencode/...   (XDG global convention)
+//	Project: <root>/.opencode/...             (project-local convention)
 func (a *Adapter) PathsFor(base string, t model.InstallTarget) model.AgentPaths {
 	var openCodeDir string
 	switch t {

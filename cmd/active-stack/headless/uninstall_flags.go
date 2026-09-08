@@ -56,16 +56,16 @@ func ParseUninstallFlags(args []string) (ParsedUninstallFlags, error) {
 	fs.SetOutput(os.Stderr)
 
 	var (
-		mode             string
-		agent            string
-		custom           string
-		strategy         string
-		restoreManifest  string
-		dryRun           bool
-		yes              bool
-		yShort           bool
-		home             string
-		lang             string
+		mode            string
+		agent           string
+		custom          string
+		strategy        string
+		restoreManifest string
+		dryRun          bool
+		yes             bool
+		yShort          bool
+		home            string
+		lang            string
 	)
 
 	fs.StringVar(&mode, "mode", "", "uninstall mode: lite|full|custom")

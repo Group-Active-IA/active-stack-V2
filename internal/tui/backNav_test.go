@@ -3,8 +3,8 @@ package tui
 import (
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/Group-Active-IA/active-stack/internal/model"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // TestBackNav_EnterStartersSetsPreScreen verifies that selecting Starters from

@@ -1,9 +1,9 @@
 package tui
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/Group-Active-IA/active-stack/internal/install"
 	"github.com/Group-Active-IA/active-stack/internal/pipeline"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // defaultRunPlan executes the install plan inside a goroutine. It wires

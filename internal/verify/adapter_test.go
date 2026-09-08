@@ -10,12 +10,12 @@ import (
 // fakeAdapter is a test double that satisfies verify.Adapter.
 // It proves the interface is minimal and does NOT require importing internal/agents.
 type fakeAdapter struct {
-	agent           model.Agent
-	skillsDir       string
+	agent            model.Agent
+	skillsDir        string
 	instructionsPath string
-	settingsPath    string
-	mcpConfigPath   string
-	delivery        model.ConfigDelivery
+	settingsPath     string
+	mcpConfigPath    string
+	delivery         model.ConfigDelivery
 }
 
 func (a fakeAdapter) Agent() model.Agent                              { return a.agent }
@@ -38,11 +38,11 @@ func TestAdapterInterfaceIsSatisfiedByFake(t *testing.T) {
 // This test is a documentation-level assertion; the real guard is go build.
 func TestAdapterInterfaceIsMinimal(t *testing.T) {
 	fa := fakeAdapter{
-		agent:           model.AgentClaude,
-		skillsDir:       "/home/user/.claude/skills",
+		agent:            model.AgentClaude,
+		skillsDir:        "/home/user/.claude/skills",
 		instructionsPath: "/home/user/.claude/CLAUDE.md",
-		settingsPath:    "/home/user/.claude/settings.json",
-		mcpConfigPath:   "/home/user/.claude/mcp/context7.json",
+		settingsPath:     "/home/user/.claude/settings.json",
+		mcpConfigPath:    "/home/user/.claude/mcp/context7.json",
 	}
 
 	if fa.Agent() != model.AgentClaude {

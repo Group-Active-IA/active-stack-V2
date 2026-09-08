@@ -114,8 +114,8 @@ func TestOrchestratorSkipsNonRollbackStepsDuringRollback(t *testing.T) {
 	// plain step does NOT implement RollbackStep.
 	result := orchestrator.Execute(StagePlan{
 		Apply: []Step{
-			newTestStep("plain-1", &order),              // no Rollback
-			newRollbackStep("rb-2", &order, nil),        // has Rollback
+			newTestStep("plain-1", &order),                        // no Rollback
+			newRollbackStep("rb-2", &order, nil),                  // has Rollback
 			newRollbackStep("fail-3", &order, errors.New("fail")), // fails
 		},
 	})

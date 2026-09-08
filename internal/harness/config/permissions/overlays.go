@@ -192,14 +192,14 @@ func composeOpencodeOverlay(tier model.PermissionTier) []byte {
 	case model.TierBypass:
 		// Everything → allow; only the most catastrophic commands denied LAST.
 		shape.Permission = opencodePermissionShape{
-			Read:     "allow",
-			Edit:     "allow",
-			Glob:     "allow",
-			Grep:     "allow",
-			List:     "allow",
-			Webfetch: "allow",
+			Read:      "allow",
+			Edit:      "allow",
+			Glob:      "allow",
+			Grep:      "allow",
+			List:      "allow",
+			Webfetch:  "allow",
 			Websearch: "allow",
-			LSP:      "allow",
+			LSP:       "allow",
 			Bash: orderedBashBlock{
 				{Key: "*", Value: "allow"},
 				// Catastrophic deny floor LAST (last-wins guarantee).

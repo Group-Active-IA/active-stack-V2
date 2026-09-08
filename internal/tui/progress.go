@@ -1,8 +1,8 @@
 package tui
 
 import (
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/Group-Active-IA/active-stack/internal/pipeline"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // progressMsg is a Bubbletea message carrying a single ProgressEvent emitted

@@ -72,14 +72,26 @@ func (a mcpProjectAdapter) PathsFor(base string, t model.InstallTarget) model.Ag
 // mcpOpenCodeAdapter is a test double for OpenCode (project MCP merges into opencode.json).
 type mcpOpenCodeAdapter struct{}
 
-func (a mcpOpenCodeAdapter) Agent() model.Agent                              { return model.AgentOpenCode }
-func (a mcpOpenCodeAdapter) InstructionsPath(homeDir string) string          { return filepath.Join(homeDir, ".opencode", "AGENTS.md") }
-func (a mcpOpenCodeAdapter) SkillsDir(homeDir string) string                 { return filepath.Join(homeDir, ".opencode", "skills") }
-func (a mcpOpenCodeAdapter) CommandsDir(homeDir string) string               { return filepath.Join(homeDir, ".opencode", "commands") }
-func (a mcpOpenCodeAdapter) SettingsPath(homeDir string) string              { return filepath.Join(homeDir, ".opencode", "opencode.json") }
-func (a mcpOpenCodeAdapter) MCPConfigPath(homeDir, _ string) string          { return filepath.Join(homeDir, ".opencode", "opencode.json") }
-func (a mcpOpenCodeAdapter) MCPStrategy() external.MCPStrategy                { return external.StrategyMergeIntoSettings }
-func (a mcpOpenCodeAdapter) VariantKey() string                              { return "opencode" }
+func (a mcpOpenCodeAdapter) Agent() model.Agent { return model.AgentOpenCode }
+func (a mcpOpenCodeAdapter) InstructionsPath(homeDir string) string {
+	return filepath.Join(homeDir, ".opencode", "AGENTS.md")
+}
+func (a mcpOpenCodeAdapter) SkillsDir(homeDir string) string {
+	return filepath.Join(homeDir, ".opencode", "skills")
+}
+func (a mcpOpenCodeAdapter) CommandsDir(homeDir string) string {
+	return filepath.Join(homeDir, ".opencode", "commands")
+}
+func (a mcpOpenCodeAdapter) SettingsPath(homeDir string) string {
+	return filepath.Join(homeDir, ".opencode", "opencode.json")
+}
+func (a mcpOpenCodeAdapter) MCPConfigPath(homeDir, _ string) string {
+	return filepath.Join(homeDir, ".opencode", "opencode.json")
+}
+func (a mcpOpenCodeAdapter) MCPStrategy() external.MCPStrategy {
+	return external.StrategyMergeIntoSettings
+}
+func (a mcpOpenCodeAdapter) VariantKey() string { return "opencode" }
 func (a mcpOpenCodeAdapter) ConfigDelivery() model.ConfigDelivery {
 	return model.ConfigDeliveryPrimaryAgent
 }
@@ -255,7 +267,7 @@ func TestBuildPlanWithStarter_MCPStep_Rollback_Restores(t *testing.T) {
 
 	var manifestCaptured backup.Manifest
 	restoreSnap := install.SetSnapshotCreate(func(_ string, _ []string) (backup.Manifest, error) {
-		manifestCaptured = backup.Manifest{/* sentinel non-zero */}
+		manifestCaptured = backup.Manifest{ /* sentinel non-zero */ }
 		return manifestCaptured, nil
 	})
 	defer restoreSnap()

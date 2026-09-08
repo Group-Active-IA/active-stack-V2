@@ -132,10 +132,10 @@ type mockTB struct {
 	onFail func()
 }
 
-func (m *mockTB) Helper()                              {}
-func (m *mockTB) Logf(f string, a ...any)              { m.t.Logf(f, a...) }
-func (m *mockTB) Errorf(f string, a ...any)            { m.t.Helper(); m.onFail() }
-func (m *mockTB) Fatalf(f string, a ...any)            { m.t.Helper(); m.onFail() }
+func (m *mockTB) Helper()                   {}
+func (m *mockTB) Logf(f string, a ...any)   { m.t.Logf(f, a...) }
+func (m *mockTB) Errorf(f string, a ...any) { m.t.Helper(); m.onFail() }
+func (m *mockTB) Fatalf(f string, a ...any) { m.t.Helper(); m.onFail() }
 
 // assertSKILLmdExists is adapted to accept a minimal TB for self-testing.
 // (The real assertSKILLmdExists in helpers.go takes *testing.T; this variant
@@ -171,17 +171,17 @@ func TestHermetic_CuratedStarters_FSPostConditions(t *testing.T) {
 	// we only exercise the skill-type harnesses that can actually be hermetically tested.
 
 	tests := []struct {
-		name       string
-		harnesses  []FixtureHarness // skills to test hermetically
+		name      string
+		harnesses []FixtureHarness // skills to test hermetically
 	}{
 		{
 			name: "base",
 			harnesses: []FixtureHarness{
 				{ID: "active-orchestrator", FileURL: ""},     // will be set to fixture repo
-				{ID: "engram", FileURL: ""},              // external — skip in fixture
-				{ID: "openspec", FileURL: ""},            // external — skip in fixture
-				{ID: "context7", FileURL: ""},            // external — skip in fixture
-				{ID: "find-skill", FileURL: ""},          // skill
+				{ID: "engram", FileURL: ""},                  // external — skip in fixture
+				{ID: "openspec", FileURL: ""},                // external — skip in fixture
+				{ID: "context7", FileURL: ""},                // external — skip in fixture
+				{ID: "find-skill", FileURL: ""},              // skill
 				{ID: "test-driven-development", FileURL: ""}, // skill
 			},
 		},

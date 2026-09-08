@@ -52,8 +52,8 @@ func TestBuildIntentFull(t *testing.T) {
 // from the selected harness IDs.
 func TestBuildIntentCustom(t *testing.T) {
 	s := Selection{
-		Agents:         []model.Agent{model.AgentClaude},
-		Mode:           model.ModeCustom,
+		Agents:          []model.Agent{model.AgentClaude},
+		Mode:            model.ModeCustom,
 		CustomHarnesses: []string{"sdd-orchestrator", "engram"},
 	}
 

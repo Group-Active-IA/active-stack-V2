@@ -22,11 +22,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Group-Active-IA/active-stack/cmd/active-stack/headless"
 	"github.com/Group-Active-IA/active-stack/internal/agents/claude"
 	"github.com/Group-Active-IA/active-stack/internal/catalog"
 	"github.com/Group-Active-IA/active-stack/internal/install"
 	"github.com/Group-Active-IA/active-stack/internal/model"
-	"github.com/Group-Active-IA/active-stack/cmd/active-stack/headless"
 )
 
 // ─────────────────────────────────────────────────────────────────

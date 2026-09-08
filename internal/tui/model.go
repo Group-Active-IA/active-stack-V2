@@ -6,13 +6,13 @@ import (
 	"runtime"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/Group-Active-IA/active-stack/cmd/active-stack/headless"
 	"github.com/Group-Active-IA/active-stack/internal/install"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/pipeline"
 	"github.com/Group-Active-IA/active-stack/internal/system"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 )
 
 // ModelDeps holds the injected dependencies for the TUI model.
@@ -69,12 +69,12 @@ var hubItems = []hubItem{
 
 // Hub item indices (single source of truth).
 const (
-	hubInstall  = 0
-	hubStarters = 1
-	hubBackups  = 2
+	hubInstall   = 0
+	hubStarters  = 1
+	hubBackups   = 2
 	hubUninstall = 3
-	hubUpdate   = 4
-	hubQuit     = 5
+	hubUpdate    = 4
+	hubQuit      = 5
 )
 
 // Model is the top-level Bubbletea model for the install flow.
@@ -84,7 +84,7 @@ type Model struct {
 	Selection Selection
 
 	// Available* fields are resolved at construction from deps.
-	AvailableAgents   []model.Agent
+	AvailableAgents    []model.Agent
 	AvailableHarnesses []model.Harness // populated on ScreenCustomPicker entry
 
 	// Review state.
@@ -99,8 +99,8 @@ type Model struct {
 	ExecutionResult pipeline.ExecutionResult
 
 	// Hub navigation state.
-	prevScreen Screen  // set when entering a child screen from the hub
-	hubNotice  string  // inline message on hub (e.g. "coming soon")
+	prevScreen Screen // set when entering a child screen from the hub
+	hubNotice  string // inline message on hub (e.g. "coming soon")
 
 	// Backups screen state.
 	backups backupsState
@@ -206,7 +206,6 @@ func (m Model) handleKey(key tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 	case ScreenWelcome:
 		return m.handleWelcomeKey(key)
-
 
 	case ScreenDetection:
 		switch key.Type {
@@ -449,7 +448,7 @@ func (m Model) startInstall() (tea.Model, tea.Cmd) {
 	}
 
 	// Launch the runner goroutine.
-	bridge := m.bridge // capture for goroutine
+	bridge := m.bridge             // capture for goroutine
 	sendFn := func(msg tea.Msg) {} // placeholder — real send set by Program
 	_ = sendFn
 	go m.deps.RunPlanFn(plan, bridge, nil)

@@ -18,14 +18,14 @@ import (
 // RED: this test fails because ParseStarterAddFlags does not exist yet.
 func TestParseStarterAddFlags(t *testing.T) {
 	tests := []struct {
-		name         string
-		args         []string
-		wantErr      bool
-		wantID       string
-		wantProject  string // empty = skip (default cwd is not predictable)
-		wantDryRun   bool
-		wantYes      bool
-		wantAgents   []model.Agent // nil = skip (don't check)
+		name        string
+		args        []string
+		wantErr     bool
+		wantID      string
+		wantProject string // empty = skip (default cwd is not predictable)
+		wantDryRun  bool
+		wantYes     bool
+		wantAgents  []model.Agent // nil = skip (don't check)
 	}{
 		// ── Happy path: id + explicit --project ────────────────────────────────
 		{

@@ -115,18 +115,18 @@ func ParseInstallFlags(args []string) (ParsedFlags, error) {
 	fs.SetOutput(os.Stderr)
 
 	var (
-		headless      bool
-		mode          string
-		agent         string
-		custom        string
-		tier          string
-		dryRun        bool
-		yes           bool
-		yShort        bool
-		home          string
-		noSelfInstall bool
+		headless          bool
+		mode              string
+		agent             string
+		custom            string
+		tier              string
+		dryRun            bool
+		yes               bool
+		yShort            bool
+		home              string
+		noSelfInstall     bool
 		windowsEventsFile string
-		lang          string
+		lang              string
 	)
 
 	fs.BoolVar(&headless, "headless", false, "non-interactive install; implied by --mode or --agent")
@@ -245,13 +245,13 @@ func ParseInstallFlags(args []string) (ParsedFlags, error) {
 	}
 
 	return ParsedFlags{
-		TUI:           false,
-		DryRun:        dryRun,
-		Yes:           yes,
-		HomeDir:       homeDir,
-		NoSelfInstall: noSelfInstall,
+		TUI:               false,
+		DryRun:            dryRun,
+		Yes:               yes,
+		HomeDir:           homeDir,
+		NoSelfInstall:     noSelfInstall,
 		WindowsEventsFile: windowsEventsFile,
-		Lang:          resolvedLang,
+		Lang:              resolvedLang,
 		Intent: install.Intent{
 			Mode:   installMode,
 			Agents: agents,

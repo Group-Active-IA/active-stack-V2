@@ -133,9 +133,11 @@ func (r routingUninstallReg) Get(agent model.Agent) (uninstall.AgentAdapter, boo
 // Updated in the HarnessCommand bugfix to add CommandsDir and VariantKey.
 type routingUninstallAdapter struct{ agent model.Agent }
 
-func (a routingUninstallAdapter) Agent() model.Agent                     { return a.agent }
-func (a routingUninstallAdapter) InstructionsPath(homeDir string) string { return homeDir + "/CLAUDE.md" }
-func (a routingUninstallAdapter) SkillsDir(homeDir string) string        { return homeDir + "/skills" }
+func (a routingUninstallAdapter) Agent() model.Agent { return a.agent }
+func (a routingUninstallAdapter) InstructionsPath(homeDir string) string {
+	return homeDir + "/CLAUDE.md"
+}
+func (a routingUninstallAdapter) SkillsDir(homeDir string) string { return homeDir + "/skills" }
 func (a routingUninstallAdapter) SettingsPath(homeDir string) string {
 	return homeDir + "/settings.json"
 }

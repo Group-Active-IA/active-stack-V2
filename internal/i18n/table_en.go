@@ -40,11 +40,11 @@ var tableEN = map[string]string{
 	"windows.dryrun.listed":  "Dry-run step listed.",
 
 	// component.fallback.* — component-description fallbacks.
-	"component.fallback.security":     "Basic protection for safer setup. This is always installed.",
-	"component.fallback.external":     "Downloads and configures an external tool.",
-	"component.fallback.config":       "Applies recommended configuration.",
-	"component.fallback.skill":        "Adds guided workflow helpers.",
-	"component.fallback.generic_fmt":  "Installs %s.",
+	"component.fallback.security":    "Basic protection for safer setup. This is always installed.",
+	"component.fallback.external":    "Downloads and configures an external tool.",
+	"component.fallback.config":      "Applies recommended configuration.",
+	"component.fallback.skill":       "Adds guided workflow helpers.",
+	"component.fallback.generic_fmt": "Installs %s.",
 
 	// mode.{lite,full,custom}.{label,desc,long} — install-mode options.
 	"mode.lite.label": "Quick",

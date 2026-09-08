@@ -7,8 +7,8 @@ import (
 	"testing"
 
 	"github.com/Group-Active-IA/active-stack/internal/backup"
-	extinstaller "github.com/Group-Active-IA/active-stack/internal/harness/external"
 	perminstaller "github.com/Group-Active-IA/active-stack/internal/harness/config/permissions"
+	extinstaller "github.com/Group-Active-IA/active-stack/internal/harness/external"
 	skillinstaller "github.com/Group-Active-IA/active-stack/internal/harness/skill"
 	"github.com/Group-Active-IA/active-stack/internal/install"
 	"github.com/Group-Active-IA/active-stack/internal/model"

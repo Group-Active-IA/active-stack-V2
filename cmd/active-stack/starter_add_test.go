@@ -21,7 +21,7 @@ import (
 // fake, but executor_test is in package headless_test — we need one here in main).
 type starterAddTestAdapter struct{ agent model.Agent }
 
-func (a starterAddTestAdapter) Agent() model.Agent             { return a.agent }
+func (a starterAddTestAdapter) Agent() model.Agent               { return a.agent }
 func (a starterAddTestAdapter) InstructionsPath(d string) string { return d + "/CLAUDE.md" }
 func (a starterAddTestAdapter) SkillsDir(d string) string        { return d + "/skills" }
 func (a starterAddTestAdapter) CommandsDir(d string) string      { return d + "/commands" }
@@ -30,7 +30,7 @@ func (a starterAddTestAdapter) MCPConfigPath(d, s string) string { return d + "/
 func (a starterAddTestAdapter) MCPStrategy() extinstaller.MCPStrategy {
 	return extinstaller.StrategySeparateFile
 }
-func (a starterAddTestAdapter) VariantKey() string               { return string(a.agent) }
+func (a starterAddTestAdapter) VariantKey() string { return string(a.agent) }
 func (a starterAddTestAdapter) ConfigDelivery() model.ConfigDelivery {
 	return model.ConfigDeliveryInstructions
 }

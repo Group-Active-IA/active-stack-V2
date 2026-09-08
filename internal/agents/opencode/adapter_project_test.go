@@ -12,9 +12,10 @@ import (
 // the correct paths when the install target is Project.
 //
 // OpenCode project layout (D2, confirmed against official docs):
-//   <root>/.opencode/skills          (NOT <root>/.config/opencode/skills)
-//   <root>/.opencode/AGENTS.md
-//   <root>/.opencode/opencode.json
+//
+//	<root>/.opencode/skills          (NOT <root>/.config/opencode/skills)
+//	<root>/.opencode/AGENTS.md
+//	<root>/.opencode/opencode.json
 //
 // The machine layout uses ~/.config/opencode/ (XDG convention).
 // The project layout uses <root>/.opencode/ (project-local convention).

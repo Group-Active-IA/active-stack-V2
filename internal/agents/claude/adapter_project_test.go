@@ -13,9 +13,10 @@ import (
 // the correct non-MCP paths when the install target is Project.
 //
 // Claude project layout (D2):
-//   <root>/.claude/skills
-//   <root>/.claude/CLAUDE.md
-//   <root>/.claude/settings.json
+//
+//	<root>/.claude/skills
+//	<root>/.claude/CLAUDE.md
+//	<root>/.claude/settings.json
 func TestClaudeAdapter_ProjectTarget_Paths(t *testing.T) {
 	a := claude.NewAdapter()
 	root := "/project/myapp"

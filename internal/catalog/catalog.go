@@ -15,8 +15,8 @@ var rawCatalog []byte
 
 // Catalog is the parsed, validated set of available harnesses and starters.
 type Catalog struct {
-	Harnesses []model.Harness  `yaml:"harnesses"`
-	Starters  []model.Starter  `yaml:"starters"`
+	Harnesses []model.Harness `yaml:"harnesses"`
+	Starters  []model.Starter `yaml:"starters"`
 
 	index        map[string]model.Harness
 	starterIndex map[string]model.Starter

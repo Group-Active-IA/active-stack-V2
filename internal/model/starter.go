@@ -36,8 +36,8 @@ type MCP struct {
 //   - Harnesses:   list of harness IDs from the catalog that this starter directly bundles.
 //   - Includes:    list of other starter IDs this starter composes (composable via includes).
 //   - MCPs:        project-scope MCP entries. Each MCP carries a local (stdio) server entry
-//                  written to the correct per-agent, per-target path (C-28).
-//                  (TBD) Remote/HTTP/SSE transport shape deferred — see MCP comment.
+//     written to the correct per-agent, per-target path (C-28).
+//     (TBD) Remote/HTTP/SSE transport shape deferred — see MCP comment.
 type Starter struct {
 	ID          string        `yaml:"id"`
 	Name        string        `yaml:"name"`

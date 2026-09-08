@@ -15,7 +15,7 @@ type claudeAdapter struct {
 	path string
 }
 
-func (c claudeAdapter) Agent() model.Agent              { return model.AgentClaude }
+func (c claudeAdapter) Agent() model.Agent               { return model.AgentClaude }
 func (c claudeAdapter) InstructionsPath(_ string) string { return c.path }
 func (c claudeAdapter) VariantKey() string               { return "claude" }
 func (c claudeAdapter) SettingsPath(_ string) string     { return "" }

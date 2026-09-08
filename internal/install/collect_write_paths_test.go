@@ -49,10 +49,10 @@ func TestCollectWritePaths_ProjectTarget_ConfigHarness(t *testing.T) {
 		Mode:   model.ModeLite,
 	}
 	opts := install.Options{
-		HomeDir:       homeDir,
-		ProjectRoot:   projectRoot,
-		Target:        model.Project,
-		Registry:      reg,
+		HomeDir:     homeDir,
+		ProjectRoot: projectRoot,
+		Target:      model.Project,
+		Registry:    reg,
 		// NoSelfInstall=true: this test checks harness paths only.
 		// The self-install target is system-level (not under projectRoot).
 		NoSelfInstall: true,

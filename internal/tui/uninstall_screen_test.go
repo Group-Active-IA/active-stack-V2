@@ -3,9 +3,9 @@ package tui
 import (
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/uninstall"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // TestUninstall_AgentsToMode verifies that Enter on ScreenUninstallAgents

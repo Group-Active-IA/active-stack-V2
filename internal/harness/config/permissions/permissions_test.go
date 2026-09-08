@@ -672,9 +672,9 @@ func TestZeroValueTierComposesBalanceado(t *testing.T) {
 // and per-tool action strings for each tier.
 func TestComposeOpencodeOverlayByTier(t *testing.T) {
 	tests := []struct {
-		name          string
-		tier          model.PermissionTier
-		wantReadAction string
+		name             string
+		tier             model.PermissionTier
+		wantReadAction   string
 		wantBashWildcard string
 	}{
 		{
@@ -911,7 +911,8 @@ func TestOpencodeDoesNotReceiveClaudeShape(t *testing.T) {
 // are NOT affected by the tier — they keep their fixed overlay behavior and do
 // NOT receive the Claude "permissions" shape.
 // Spec: "Gemini y VS Code no se ven afectados por el tier elegido",
-//       "Gemini y VS Code no reciben el shape de Claude".
+//
+//	"Gemini y VS Code no reciben el shape de Claude".
 func TestGeminiVSCodeUnaffectedByTier(t *testing.T) {
 	agents := []struct {
 		name    string

@@ -25,12 +25,12 @@ var SkillsFS embed.FS
 //
 // Structure: commands/<agentVariantKey>/<path>.md
 //
-//   Claude  : commands/claude/active/starter-add.md
-//               → invoked as /active:starter-add inside Claude Code
-//               → full frontmatter (name/description/category/tags)
-//   OpenCode: commands/opencode/active-starter-add.md
-//               → invoked as /active-starter-add inside OpenCode
-//               → flat frontmatter (description only)
+//	Claude  : commands/claude/active/starter-add.md
+//	            → invoked as /active:starter-add inside Claude Code
+//	            → full frontmatter (name/description/category/tags)
+//	OpenCode: commands/opencode/active-starter-add.md
+//	            → invoked as /active-starter-add inside OpenCode
+//	            → flat frontmatter (description only)
 //
 // The command body is a thin wrapper that runs `active-stack starter add $ARGUMENTS`
 // via the agent's bash execution. It does not reimplement any starter logic.

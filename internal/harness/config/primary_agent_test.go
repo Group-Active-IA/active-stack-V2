@@ -18,10 +18,10 @@ type opencodeAdapter struct {
 	settings string
 }
 
-func (o opencodeAdapter) Agent() model.Agent                  { return model.AgentOpenCode }
-func (o opencodeAdapter) InstructionsPath(_ string) string    { return o.instr }
-func (o opencodeAdapter) VariantKey() string                  { return "opencode" }
-func (o opencodeAdapter) SettingsPath(_ string) string        { return o.settings }
+func (o opencodeAdapter) Agent() model.Agent               { return model.AgentOpenCode }
+func (o opencodeAdapter) InstructionsPath(_ string) string { return o.instr }
+func (o opencodeAdapter) VariantKey() string               { return "opencode" }
+func (o opencodeAdapter) SettingsPath(_ string) string     { return o.settings }
 func (o opencodeAdapter) ConfigDelivery() model.ConfigDelivery {
 	return model.ConfigDeliveryPrimaryAgent
 }

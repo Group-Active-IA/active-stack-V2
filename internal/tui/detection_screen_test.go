@@ -4,8 +4,8 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/Group-Active-IA/active-stack/internal/system"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 func TestViewDetection_RendersSystemInfo(t *testing.T) {

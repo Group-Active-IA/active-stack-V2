@@ -101,9 +101,9 @@ func TestRunHeadless_ForwardsBinaryPath(t *testing.T) {
 	defer restoreSnap()
 
 	params := headless.ParsedFlags{
-		TUI:           false,
-		HomeDir:       t.TempDir(),
-		BinaryPath:    "/tmp/my-binary",
+		TUI:        false,
+		HomeDir:    t.TempDir(),
+		BinaryPath: "/tmp/my-binary",
 		Intent: install.Intent{
 			Agents: []model.Agent{model.AgentClaude},
 			Mode:   model.ModeLite,

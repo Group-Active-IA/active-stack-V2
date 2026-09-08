@@ -5,10 +5,10 @@ import (
 	"io"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/Group-Active-IA/active-stack/cmd/active-stack/headless"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/uninstall"
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 // TestUninstallConfirm_EscDoesNotExecute verifies that Esc on the confirm screen
