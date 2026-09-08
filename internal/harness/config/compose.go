@@ -16,6 +16,7 @@ var knownToggles = map[string]bool{
 	"tdd":           true,
 	"governance":    true,
 	"evidence":      true,
+	"auditor":       true,
 }
 
 // Compose assembles the sdd-orchestrator block for the given variant and
@@ -37,7 +38,7 @@ func Compose(toggles []string, variantKey string) (string, error) {
 	// Validate all toggles first.
 	for _, t := range toggles {
 		if !knownToggles[t] {
-			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence)", t)
+			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence, auditor)", t)
 		}
 	}
 
@@ -86,6 +87,16 @@ func Compose(toggles []string, variantKey string) (string, error) {
 			return "", fmt.Errorf("config compose: %w", err)
 		}
 		additives = append(additives, ev)
+	}
+
+	// Step 4c: the auditor. After the typed report on purpose: with no declared
+	// categories it has nothing to audit, only prose to opine about.
+	if active["auditor"] {
+		au, err := loadFragment("auditor.md")
+		if err != nil {
+			return "", fmt.Errorf("config compose: %w", err)
+		}
+		additives = append(additives, au)
 	}
 
 	// Step 5: engram.
