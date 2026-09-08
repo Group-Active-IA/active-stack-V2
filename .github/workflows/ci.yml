@@ -1,0 +1,55 @@
+name: ci
+
+# Corre la suite en cada push y cada PR.
+#
+# Por que existe: hasta el 2026-09-08 el unico workflow del repo era release.yml,
+# que dispara con tag `v*`. Nada ejecutaba `go test`, con ~36k lineas de tests
+# escritas. El primer dia que se corrio la suite en Linux aparecio un test del
+# tema de WiX que llevaba roto quien sabe cuanto: construia la ruta con
+# backslashes literales y fallaba en el setup, no en el assert.
+#
+# Por eso la matriz cruza ubuntu y windows: ese bug SOLO se ve cruzando
+# plataformas, y el producto se distribuye como instalador de Windows.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+# Cancela corridas viejas de la misma rama: solo importa el ultimo commit.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false # que un SO en rojo no oculte el estado del otro
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: gofmt
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "Archivos sin gofmt:"; echo "$unformatted"; exit 1
+          fi
+
+      - name: go vet
+        run: go vet ./...
+
+      - name: go build
+        run: go build ./...
+
+      - name: go test
+        run: go test ./... -count=1
