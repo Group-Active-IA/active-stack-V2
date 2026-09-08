@@ -75,15 +75,21 @@ func TestMergeJSONObjects_OverlayKeysLandAfterBaseKeys(t *testing.T) {
 	}
 }
 
-// TestMergeJSONObjects_ExistingKeysKeepTheirPlace asserts a key present in both
-// keeps the base's position and takes the overlay's value.
+// TestMergeJSONObjects_OverlayKeyMovesToTheEnd asserts a key present in both
+// takes the overlay's value AND the overlay's position, at the end.
 //
-// Without this the merge would shuffle the user's file on every reinstall, and
-// the diff of a reinstall would be unreadable.
-func TestMergeJSONObjects_ExistingKeysKeepTheirPlace(t *testing.T) {
-	// Claves cuyo orden alfabetico NO coincide con el de insercion: si el
-	// resultado saliera ordenado, el test pasaria sin probar nada. Con
-	// first/second/third pasaba por coincidencia.
+// The first version of this test asserted the opposite: that an existing key
+// kept its place, so a reinstall would not churn the user's file. That was the
+// nicer property and it was wrong. Keeping the place guarantees "a NEW key lands
+// last", which is not "the deny floor lands last": switching from estricto to
+// balanceado appended the new allow rules after the floor.
+//
+// Order is legibility. The floor being last is a security property. When they
+// disagree, legibility loses — and the file barely churns anyway, because
+// reinstalling the same overlay is byte-identical.
+func TestMergeJSONObjects_OverlayKeyMovesToTheEnd(t *testing.T) {
+	// Claves cuyo orden alfabetico no coincide con el de insercion, para que el
+	// test no pueda pasar por coincidencia.
 	base := []byte(`{"zebra":"a","mid":"b","alpha":"c"}`)
 	overlay := []byte(`{"mid":"CHANGED"}`)
 
@@ -96,8 +102,66 @@ func TestMergeJSONObjects_ExistingKeysKeepTheirPlace(t *testing.T) {
 	if !strings.Contains(s, `"CHANGED"`) {
 		t.Errorf("el overlay no piso el valor:\n%s", s)
 	}
-	pf, ps, pt := strings.Index(s, `"zebra"`), strings.Index(s, `"mid"`), strings.Index(s, `"alpha"`)
-	if !(pf < ps && ps < pt) {
-		t.Errorf("una clave que ya existia cambio de lugar:\n%s", s)
+	pz, pa, pm := strings.Index(s, `"zebra"`), strings.Index(s, `"alpha"`), strings.Index(s, `"mid"`)
+	if !(pz < pa && pa < pm) {
+		t.Errorf("la clave del overlay no quedo al final.\n"+
+			"Sin eso el piso de denegacion puede quedar tapado por lo que el usuario ya tenia:\n%s", s)
+	}
+}
+
+// TestMergeJSONObjects_TierChangeKeepsDenyLast asserts the deny floor is still
+// the last thing that matches after switching tiers.
+//
+// The first fix (d2fe658) guaranteed "a new key lands at the end", which is NOT
+// the same as "the deny floor lands at the end". Installing estricto and then
+// balanceado appended the new allow rules AFTER the floor:
+//
+//	"*", "rm -rf *", "rm -rf /*", "go test *", "git diff *"
+//
+// It did not blow up only because "go test *" does not overlap with "rm -rf".
+// Right for the wrong reason, which is the same family of failure as the bug it
+// was fixing. Found by the auditor, confirmed by running the merge.
+func TestMergeJSONObjects_TierChangeKeepsDenyLast(t *testing.T) {
+	estricto := []byte(`{"permission":{"bash":{"*":"ask","rm -rf *":"deny","rm -rf /*":"deny"}}}`)
+	installed, err := MergeJSONObjects(nil, estricto)
+	if err != nil {
+		t.Fatalf("primera instalacion: %v", err)
+	}
+
+	balanceado := []byte(`{"permission":{"bash":{"*":"ask","go test *":"allow","git diff *":"allow","rm -rf *":"deny","rm -rf /*":"deny"}}}`)
+	out, err := MergeJSONObjects(installed, balanceado)
+	if err != nil {
+		t.Fatalf("cambio de tier: %v", err)
+	}
+	s := string(out)
+
+	lastDeny := strings.LastIndex(s, `"deny"`)
+	lastAllow := strings.LastIndex(s, `"allow"`)
+	if lastAllow > lastDeny {
+		t.Errorf("tras cambiar de tier hay un allow DESPUES del piso de denegacion.\n"+
+			"Con last-match-wins el piso dejo de ser lo ultimo que matchea:\n%s", s)
+	}
+}
+
+// TestMergeJSONObjects_ReinstallIsIdempotent asserts installing the same overlay
+// twice produces the same bytes.
+//
+// This is what keeps "overlay keys move to the end" from churning the file: with
+// an unchanged overlay the result is stable. It only reorders when the overlay
+// itself changed, which is exactly when reordering is what you want.
+func TestMergeJSONObjects_ReinstallIsIdempotent(t *testing.T) {
+	base := []byte(`{"permission":{"bash":{"sudo *":"allow"}}}`)
+	overlay := []byte(`{"permission":{"bash":{"*":"ask","rm -rf *":"deny"}}}`)
+
+	once, err := MergeJSONObjects(base, overlay)
+	if err != nil {
+		t.Fatalf("primera: %v", err)
+	}
+	twice, err := MergeJSONObjects(once, overlay)
+	if err != nil {
+		t.Fatalf("segunda: %v", err)
+	}
+	if string(once) != string(twice) {
+		t.Errorf("reinstalar cambio el archivo.\nprimera:\n%s\nsegunda:\n%s", once, twice)
 	}
 }

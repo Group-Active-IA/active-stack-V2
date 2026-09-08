@@ -45,7 +45,7 @@ func mergeOrdered(base, overlay *orderedObject) *orderedObject {
 	result := newOrderedObject()
 	for _, key := range base.keys {
 		value, _ := base.get(key)
-		result.set(key, value)
+		result.setKeepingPlace(key, value)
 	}
 
 	for _, key := range overlay.keys {
@@ -90,24 +90,6 @@ func asOrderedSentinel(value any) (any, bool) {
 	}
 	replacement, _ := obj.get(replacesentinel)
 	return replacement, true
-}
-
-func unmarshalJSONObject(raw []byte) (map[string]any, error) {
-	object := map[string]any{}
-	if len(bytes.TrimSpace(raw)) == 0 {
-		return object, nil
-	}
-
-	if err := json.Unmarshal(raw, &object); err == nil {
-		return object, nil
-	}
-
-	normalized := normalizeJSON(raw)
-	if err := json.Unmarshal(normalized, &object); err != nil {
-		return nil, err
-	}
-
-	return object, nil
 }
 
 func normalizeJSON(raw []byte) []byte {
@@ -242,56 +224,3 @@ func stripTrailingCommas(raw []byte) []byte {
 // under that key is used verbatim as the replacement — the corresponding base
 // value is discarded entirely.
 const replacesentinel = "__replace__"
-
-// asSentinel checks if v is a map with exactly one key "__replace__".
-// If so, it returns the replacement value and true. Otherwise it returns nil, false.
-func asSentinel(v any) (any, bool) {
-	m, isMap := v.(map[string]any)
-	if !isMap {
-		return nil, false
-	}
-	if replacement, hasSentinel := m[replacesentinel]; hasSentinel && len(m) == 1 {
-		return replacement, true
-	}
-	return nil, false
-}
-
-func mergeObjects(base map[string]any, overlay map[string]any) map[string]any {
-	result := make(map[string]any, len(base)+len(overlay))
-	for key, value := range base {
-		result[key] = value
-	}
-
-	for key, overlayValue := range overlay {
-		// Check for the replace sentinel: if the overlay value is a map with
-		// exactly one key "__replace__", use the sentinel's value verbatim.
-		if replacement, isSentinel := asSentinel(overlayValue); isSentinel {
-			result[key] = replacement
-			continue
-		}
-
-		baseValue, ok := result[key]
-		if !ok {
-			// Even when there is no base value, recurse into overlay maps so
-			// that any nested __replace__ sentinels are unwrapped before
-			// they reach the output.
-			if overlayMap, isMap := overlayValue.(map[string]any); isMap {
-				result[key] = mergeObjects(map[string]any{}, overlayMap)
-			} else {
-				result[key] = overlayValue
-			}
-			continue
-		}
-
-		baseMap, baseIsMap := baseValue.(map[string]any)
-		overlayMap, overlayIsMap := overlayValue.(map[string]any)
-		if baseIsMap && overlayIsMap {
-			result[key] = mergeObjects(baseMap, overlayMap)
-			continue
-		}
-
-		result[key] = overlayValue
-	}
-
-	return result
-}

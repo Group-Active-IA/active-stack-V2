@@ -37,13 +37,34 @@ func (o *orderedObject) get(key string) (any, bool) {
 	return v, ok
 }
 
-// set stores a value. A key that is already present keeps its position and only
-// updates its value; a new key is appended at the end.
+// set stores a value at the end, moving the key if it was already present.
 //
-// That split is the whole contract: keys the user already had stay where they
-// were, and anything the overlay introduces lands after them. For the deny floor
-// this is what makes it the last thing that matches.
+// "Already present keeps its place" was the first version, and it was not enough:
+// it guarantees "a new key lands last", which is NOT "the deny floor lands last".
+// Installing estricto and then balanceado appended the new allow rules after the
+// floor, and the floor stopped being the last thing that matches.
+//
+// Moving instead of updating in place makes the overlay's own order win, so a
+// floor emitted last by overlays.go arrives last on disk whatever the user had.
+// Reinstalling the same overlay is still byte-identical, because the resulting
+// order only depends on the overlay — see TestMergeJSONObjects_ReinstallIsIdempotent.
 func (o *orderedObject) set(key string, value any) {
+	if _, exists := o.values[key]; exists {
+		for i, k := range o.keys {
+			if k == key {
+				o.keys = append(o.keys[:i], o.keys[i+1:]...)
+				break
+			}
+		}
+	}
+	o.keys = append(o.keys, key)
+	o.values[key] = value
+}
+
+// setKeepingPlace stores a value without moving an existing key. Used when
+// rebuilding the base side of a merge, where the base's own order is the
+// starting point.
+func (o *orderedObject) setKeepingPlace(key string, value any) {
 	if _, exists := o.values[key]; !exists {
 		o.keys = append(o.keys, key)
 	}
@@ -110,7 +131,7 @@ func decodeOrderedBody(dec *json.Decoder) (*orderedObject, error) {
 		if err != nil {
 			return nil, err
 		}
-		out.set(key, value)
+		out.setKeepingPlace(key, value)
 	}
 }
 
