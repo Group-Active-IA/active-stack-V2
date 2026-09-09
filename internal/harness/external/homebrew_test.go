@@ -187,7 +187,7 @@ func TestDownloadBinary_EmptyProfileOS(t *testing.T) {
 
 	installDir := t.TempDir()
 	origFn := binaryInstallDirFn
-	binaryInstallDirFn = func(string) string { return installDir }
+	binaryInstallDirFn = func(string, string) string { return installDir }
 	defer func() { binaryInstallDirFn = origFn }()
 
 	h := harnessWithMethod("homebrew", "engram", "")
@@ -197,7 +197,7 @@ func TestDownloadBinary_EmptyProfileOS(t *testing.T) {
 	// pipeline was doing in externalStep.Run() before the fix.
 	profile := system.PlatformProfile{} // OS intentionally empty
 
-	_, _, err := downloadBinary(nil, h, profile, nil)
+	_, _, err := downloadBinary(nil, h, profile, "", nil)
 	if err != nil {
 		t.Fatalf("downloadBinary failed: %v", err)
 	}
@@ -248,13 +248,13 @@ func TestDownloadBinary_TarGz(t *testing.T) {
 
 	installDir := t.TempDir()
 	origFn := binaryInstallDirFn
-	binaryInstallDirFn = func(string) string { return installDir }
+	binaryInstallDirFn = func(string, string) string { return installDir }
 	defer func() { binaryInstallDirFn = origFn }()
 
 	h := harnessWithMethod("homebrew", "engram", "")
 	profile := system.PlatformProfile{OS: "linux", PackageManager: "apt"}
 
-	outPath, _, err := downloadBinary(nil, h, profile, nil)
+	outPath, _, err := downloadBinary(nil, h, profile, "", nil)
 	if err != nil {
 		t.Fatalf("downloadBinary failed: %v", err)
 	}
@@ -294,13 +294,13 @@ func TestDownloadBinary_Zip(t *testing.T) {
 
 	installDir := t.TempDir()
 	origFn := binaryInstallDirFn
-	binaryInstallDirFn = func(string) string { return installDir }
+	binaryInstallDirFn = func(string, string) string { return installDir }
 	defer func() { binaryInstallDirFn = origFn }()
 
 	h := harnessWithMethod("homebrew", "engram", "")
 	profile := system.PlatformProfile{OS: "windows", PackageManager: "winget"}
 
-	outPath, _, err := downloadBinary(nil, h, profile, nil)
+	outPath, _, err := downloadBinary(nil, h, profile, "", nil)
 	if err != nil {
 		t.Fatalf("downloadBinary failed: %v", err)
 	}
@@ -352,14 +352,14 @@ func TestDownloadBinary_SkipsNonSemverLatestRelease(t *testing.T) {
 
 	installDir := t.TempDir()
 	origFn := binaryInstallDirFn
-	binaryInstallDirFn = func(string) string { return installDir }
+	binaryInstallDirFn = func(string, string) string { return installDir }
 	defer func() { binaryInstallDirFn = origFn }()
 
 	h := harnessWithMethod("homebrew", "engram", "")
 	h.External.Repo = "Gentleman-Programming/engram"
 	profile := system.PlatformProfile{OS: "linux", PackageManager: "apt"}
 
-	outPath, _, err := downloadBinary(nil, h, profile, nil)
+	outPath, _, err := downloadBinary(nil, h, profile, "", nil)
 	if err != nil {
 		t.Fatalf("downloadBinary failed: %v", err)
 	}
@@ -411,10 +411,25 @@ func TestDownloadBinary_APIError(t *testing.T) {
 	httpClient = srv.Client()
 	defer func() { httpClient = origClient }()
 
+	// Pin the install dir to an empty temp dir. Without this the test resolved
+	// the REAL ~/.local/bin: on any machine that already had engram installed,
+	// downloadBinary took the "already installed" shortcut, never called the
+	// API, and returned a nil error — so the test failed locally and passed in
+	// CI purely because CI happened to be a clean machine. Overriding the seam
+	// also stops the test from calling addToUserPath on the developer's PATH.
+	installDir := t.TempDir()
+	origFn := binaryInstallDirFn
+	binaryInstallDirFn = func(string, string) string { return installDir }
+	defer func() { binaryInstallDirFn = origFn }()
+
+	origAdd := addToUserPath
+	addToUserPath = func(string) error { return nil }
+	defer func() { addToUserPath = origAdd }()
+
 	h := harnessWithMethod("homebrew", "engram", "")
 	profile := system.PlatformProfile{OS: "linux", PackageManager: "apt"}
 
-	_, _, err := downloadBinary(nil, h, profile, nil)
+	_, _, err := downloadBinary(nil, h, profile, "", nil)
 	if err == nil {
 		t.Fatal("expected error for API 404, got nil")
 	}
@@ -448,7 +463,7 @@ func TestDownloadBinary_SkipsWhenAlreadyInstalled(t *testing.T) {
 
 	installDir := t.TempDir()
 	origFn := binaryInstallDirFn
-	binaryInstallDirFn = func(string) string { return installDir }
+	binaryInstallDirFn = func(string, string) string { return installDir }
 	defer func() { binaryInstallDirFn = origFn }()
 
 	h := harnessWithMethod("homebrew", "engram", "")
@@ -460,7 +475,7 @@ func TestDownloadBinary_SkipsWhenAlreadyInstalled(t *testing.T) {
 		t.Fatalf("seed existing binary: %v", err)
 	}
 
-	gotPath, alreadyInstalled, err := downloadBinary(nil, h, profile, nil)
+	gotPath, alreadyInstalled, err := downloadBinary(nil, h, profile, "", nil)
 	if err != nil {
 		t.Fatalf("downloadBinary failed: %v", err)
 	}
@@ -508,7 +523,7 @@ func TestDownloadBinary_UsesRepoOverPkg(t *testing.T) {
 
 	installDir := t.TempDir()
 	origFn := binaryInstallDirFn
-	binaryInstallDirFn = func(string) string { return installDir }
+	binaryInstallDirFn = func(string, string) string { return installDir }
 	defer func() { binaryInstallDirFn = origFn }()
 
 	// Pkg is the bare brew formula; Repo is the GitHub owner/repo for download.
@@ -516,7 +531,7 @@ func TestDownloadBinary_UsesRepoOverPkg(t *testing.T) {
 	h.External.Repo = "Gentleman-Programming/engram"
 	profile := system.PlatformProfile{OS: "linux", PackageManager: "apt"}
 
-	if _, _, err := downloadBinary(nil, h, profile, nil); err != nil {
+	if _, _, err := downloadBinary(nil, h, profile, "", nil); err != nil {
 		t.Fatalf("downloadBinary failed: %v", err)
 	}
 	if !strings.Contains(gotAPIPath, "Gentleman-Programming/engram") {
@@ -551,7 +566,7 @@ func TestDownloadBinary_AddsInstallDirToPath(t *testing.T) {
 
 	installDir := t.TempDir()
 	origFn := binaryInstallDirFn
-	binaryInstallDirFn = func(string) string { return installDir }
+	binaryInstallDirFn = func(string, string) string { return installDir }
 	defer func() { binaryInstallDirFn = origFn }()
 
 	// Override the package-level (TestMain no-op) hook to capture the dir.
@@ -563,7 +578,7 @@ func TestDownloadBinary_AddsInstallDirToPath(t *testing.T) {
 	h := harnessWithMethod("homebrew", "engram", "")
 	profile := system.PlatformProfile{OS: "linux", PackageManager: "apt"}
 
-	if _, _, err := downloadBinary(nil, h, profile, nil); err != nil {
+	if _, _, err := downloadBinary(nil, h, profile, "", nil); err != nil {
 		t.Fatalf("downloadBinary failed: %v", err)
 	}
 	if gotDir != installDir {
@@ -583,7 +598,7 @@ func TestInstallHomebrew_UsesBrewWhenAvailable(t *testing.T) {
 	h := harnessWithMethod("homebrew", "engram", "")
 	profile := system.PlatformProfile{OS: "darwin", PackageManager: "brew"}
 
-	result, err := installHomebrew(nil, h, profile, nil)
+	result, err := installHomebrew(nil, h, profile, "", nil)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

@@ -12,6 +12,11 @@ type Result struct {
 	// AlreadyInstalled is true when the tool was already present and no
 	// changes were made.
 	AlreadyInstalled bool
+	// Downloaded is true when THIS run wrote BinaryPath itself, by fetching a
+	// release asset into active-stack's own install dir. It is what tells
+	// rollback the file is ours to delete: a binary that came from npm, brew or
+	// a previous run must never be removed on our behalf.
+	Downloaded bool
 }
 
 type DownloadEventType string

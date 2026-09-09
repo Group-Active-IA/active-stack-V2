@@ -27,13 +27,18 @@ var httpClient = &http.Client{Timeout: 5 * time.Minute}
 var githubBaseURL = "https://github.com"
 
 // binaryInstallDirFn resolves where binaries are installed; replaceable in tests.
-// The default delegates to system.BinaryInstallDir (D1 — shared home).
-var binaryInstallDirFn = system.BinaryInstallDir
+// The default delegates to system.BinaryInstallDirForHome (D1 — shared home).
+//
+// It takes the home directory the installer was given (--home) rather than
+// letting the resolver discover one: with the old goos-only signature the flag
+// could not reach this decision at all, and a run with --home still wrote the
+// binary into the user's real home.
+var binaryInstallDirFn = system.BinaryInstallDirForHome
 
 // addToUserPath persists the install dir onto the user PATH; replaceable in tests.
 var addToUserPath = system.AddToUserPath
 
-func installHomebrew(ctx context.Context, h model.Harness, profile system.PlatformProfile, downloadFn DownloadEventFunc) (Result, error) {
+func installHomebrew(ctx context.Context, h model.Harness, profile system.PlatformProfile, homeDir string, downloadFn DownloadEventFunc) (Result, error) {
 	pkg := h.External.Pkg
 	if pkg == "" {
 		return Result{}, fmt.Errorf("harness %q: homebrew method requires External.Pkg", h.ID)
@@ -45,11 +50,17 @@ func installHomebrew(ctx context.Context, h model.Harness, profile system.Platfo
 	}
 
 	// Fallback: download binary from GitHub Releases.
-	binaryPath, alreadyInstalled, err := downloadBinary(ctx, h, profile, downloadFn)
+	binaryPath, alreadyInstalled, err := downloadBinary(ctx, h, profile, homeDir, downloadFn)
 	if err != nil {
 		return Result{}, err
 	}
-	return Result{BinaryPath: binaryPath, AlreadyInstalled: alreadyInstalled}, nil
+	// Downloaded is set only when this run actually wrote the file into our own
+	// install dir, which is the one case where rollback may delete it again.
+	return Result{
+		BinaryPath:       binaryPath,
+		AlreadyInstalled: alreadyInstalled,
+		Downloaded:       !alreadyInstalled,
+	}, nil
 }
 
 func runBrew(ctx context.Context, pkg string) (Result, error) {
@@ -67,7 +78,7 @@ func runBrew(ctx context.Context, pkg string) (Result, error) {
 // falls back to h.External.Pkg — this keeps the brew formula (Pkg) separate
 // from the GitHub repo (Repo), e.g. brew "engram" vs repo
 // "Gentleman-Programming/engram". h.External.URL may override the GitHub base.
-func downloadBinary(ctx context.Context, h model.Harness, profile system.PlatformProfile, downloadFn DownloadEventFunc) (string, bool, error) {
+func downloadBinary(ctx context.Context, h model.Harness, profile system.PlatformProfile, homeDir string, downloadFn DownloadEventFunc) (string, bool, error) {
 	source := h.External.Repo
 	if source == "" {
 		source = h.External.Pkg
@@ -88,7 +99,7 @@ func downloadBinary(ctx context.Context, h model.Harness, profile system.Platfor
 		binaryName = repo + ".exe"
 	}
 
-	installDir := binaryInstallDirFn(goos)
+	installDir := binaryInstallDirFn(goos, homeDir)
 	outPath := filepath.Join(installDir, binaryName)
 
 	// Idempotent: if the binary is already on disk, skip the download

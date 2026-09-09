@@ -32,7 +32,7 @@ func TestBinaryInstallDir_Unix_Writable(t *testing.T) {
 		return dir == writableDir
 	}
 
-	got := binaryInstallDirWithCandidate("linux", writableDir)
+	got := binaryInstallDirWithCandidate("linux", "", writableDir)
 	if got != writableDir {
 		t.Errorf("binaryInstallDirWithCandidate(linux, writable) = %q, want %q", got, writableDir)
 	}

@@ -37,7 +37,7 @@ func Install(
 		}
 		return maybeRegisterStdioMCP(result, h, adapters, homeDir)
 	case "homebrew":
-		result, err := installHomebrew(ctx, h, profile, downloadFn)
+		result, err := installHomebrew(ctx, h, profile, homeDir, downloadFn)
 		if err != nil {
 			return Result{}, err
 		}
@@ -66,5 +66,6 @@ func maybeRegisterStdioMCP(binaryResult Result, h model.Harness, adapters []Agen
 		BinaryPath:       binaryResult.BinaryPath,
 		ConfigFiles:      mcpResult.ConfigFiles,
 		AlreadyInstalled: binaryResult.AlreadyInstalled && mcpResult.AlreadyInstalled,
+		Downloaded:       binaryResult.Downloaded,
 	}, nil
 }
