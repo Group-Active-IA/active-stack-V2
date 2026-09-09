@@ -62,14 +62,31 @@ harness sabe cómo se materializa.
 ### 2.1 El harness `sdd-orchestrator` (clave)
 
 Es un harness de **configuración** que arma el orquestador SDD con piezas
-**toggleables modularmente**. El usuario elige qué capacidades activar:
+**toggleables modularmente**. El usuario elige qué toggles activar, y cada uno
+agrega una pieza al bloque (en orden de composición):
 
-- Estricto TDD (sí/no)
-- Memoria Engram (sí/no)
-- Routing de modelos por fase (sí/no)
-- Delegación a sub-agentes (sí/no)
-- Governance por dominio (sí/no)
-- … (extensible)
+- `delegation` — reglas de delegación: qué se resuelve inline y qué se manda a
+  un sub-agente, para no inflar el contexto.
+- `model-routing` — tabla de modelo por fase, con sustitución declarada cuando
+  el modelo asignado no está disponible.
+- `governance` — niveles de autonomía por criticidad del dominio (CRITICAL,
+  HIGH, MEDIUM, LOW): a más crítico, menos se escribe sin aprobación humana.
+- `evidence` — reporte tipado: cada afirmación etiquetada EVIDENCIA, JUICIO o
+  SUPOSICIÓN, y la evidencia exige comando, salida y hora.
+- `auditor` — alguien lee a los revisores: marca evidencia sin comando, salida
+  vieja y suposiciones ascendidas a evidencia.
+- `roles` — convoca un rol con estándar fijo y un "listo" observable, en vez de
+  fabricar un sub-agente genérico distinto cada vez.
+- `review` — revisión adversarial: después de la conformidad de `/opsx:verify`,
+  pregunta qué se rompe que nadie escribió.
+- `knowledge-base` — hace que el ciclo vuelva a escribir sobre la KB y reporte
+  su deriva, en vez de creerle a un mapa viejo con autoridad.
+- `senior` — acompañante de todas las fases: aporta memoria de lo que ya pasó,
+  frente a pasadas adversariales que tienen foco y arrancan limpias.
+- `engram` — memoria persistente entre sesiones y compactaciones, cableada a
+  las fases OPSX.
+- `tdd` — TDD estricto en la fase apply: no hay código de producción sin un
+  test que falle primero.
 
 El resultado es el bloque de instrucciones del orquestador que se inyecta en
 `CLAUDE.md` / `AGENTS.md`, compuesto a partir de los toggles elegidos.
@@ -92,7 +109,7 @@ que es la fuente de verdad de qué harnesses existen. Cada entrada declara:
   agents: [claude, opencode, ...]   # dónde aplica
 - id: sdd-orchestrator
   type: config
-  toggles: [tdd, engram, model-routing, delegation, governance]
+  toggles: [tdd, engram, model-routing, delegation, governance, evidence, auditor, roles, review, knowledge-base, senior]
   install_modes: [lite, full]
   ...
 - id: engram
@@ -197,8 +214,12 @@ Cada incremento será un **change OPSX** (dogfooding) en `openspec/` (ignorado p
   los módulos (kb-creator, roadmap-generator, etc.) según cuáles estén instalados/
   activos (lazy-loading, §4.2). No es una skill monolítica.
 - **Toggles del `sdd-orchestrator`**: el texto sale de los assets del stack viejo.
-  base (siempre) + `delegation` (en base) + `model-routing` (bloque ya marcado) +
-  `engram` (engram-protocol) + `tdd` (strict-tdd) + `governance` (niveles, Etapa 4).
+  Base (siempre) + dos sustractivos que ya viven marcados en la base
+  (`delegation`, `model-routing`) + los aditivos, que se anexan en este orden:
+  `governance`, `evidence`, `auditor`, `roles`, `review`, `knowledge-base`,
+  `senior`, `engram` y `tdd`. El orden está argumentado en los comentarios de
+  `internal/harness/config/compose.go`, y `config.KnownToggles()` es la lista
+  canónica.
 
 ### Follow-ups / abiertas
 - ~~**Fix engram download**~~ → **RESUELTO**: `model.External` ya separa `Repo`

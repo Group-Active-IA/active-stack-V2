@@ -168,7 +168,7 @@ Lo que Active Stack puede instalar hoy (fuente de verdad: [`internal/catalog/har
 | **OpenSpec CLI** | external | lite · full | CLI de Spec-Driven Development; fuente de verdad del estado |
 | **Engram** | external | lite · full | Memoria persistente local (SQLite + FTS) vía MCP |
 | **Context7** | external | lite · full | Documentación de librerías al día (MCP remoto) |
-| **SDD Orchestrator** | config | lite · full | Orquestador SDD componible por toggles (TDD, Engram, model-routing, delegación, governance) |
+| **SDD Orchestrator** | config | lite · full | Orquestador SDD componible por toggles (`delegation`, `model-routing`, `governance`, `evidence`, `auditor`, `roles`, `review`, `knowledge-base`, `senior`, `engram`, `tdd`) |
 | **Permissions** | config | lite · full | Permisos seguros por defecto (bloquea `.env`, confirma git destructivo) — **no opcional** |
 | **active-orchestrator** | skill | full | Orquestador delgado de la fase de fundación |
 | **kb-creator** | skill | full | Genera la knowledge-base canónica del dominio |
@@ -178,7 +178,21 @@ Lo que Active Stack puede instalar hoy (fuente de verdad: [`internal/catalog/har
 | **find-skill** | skill (terceros) | full | Busca y recomienda skills relevantes |
 | **skill-creator** | skill (terceros) | full | Crea nuevas skills siguiendo la spec de Agent Skills |
 
-El **`sdd-orchestrator`** es el harness clave: es de tipo `config` y se compone a partir de **toggles modulares** (`tdd`, `engram`, `model-routing`, `delegation`, `governance`). El resultado es el bloque de instrucciones del orquestador que se inyecta en el `CLAUDE.md` / `AGENTS.md` de tu proyecto.
+El **`sdd-orchestrator`** es el harness clave: es de tipo `config` y se compone a partir de **toggles modulares**. El resultado es el bloque de instrucciones del orquestador que se inyecta en el `CLAUDE.md` / `AGENTS.md` de tu proyecto.
+
+Los toggles, en orden de composición, y qué agrega cada uno:
+
+- `delegation` — reglas de delegación: qué resolvés inline y qué mandás a un sub-agente, para no inflar el contexto.
+- `model-routing` — qué modelo usa cada fase del ciclo, con sustitución declarada si no tenés acceso al asignado.
+- `governance` — cuánta autonomía tiene el agente según la criticidad del dominio que toca (CRITICAL, HIGH, MEDIUM, LOW).
+- `evidence` — reporte tipado: cada afirmación etiquetada EVIDENCIA, JUICIO o SUPOSICIÓN, y la evidencia exige comando, salida y hora.
+- `auditor` — alguien lee a los revisores: marca evidencia sin comando, salida vieja y suposiciones ascendidas a evidencia.
+- `roles` — convoca un rol con estándar fijo y "listo" observable, en vez de fabricar un sub-agente genérico distinto cada vez.
+- `review` — revisión adversarial: después de la conformidad de `/opsx:verify`, pregunta qué se rompe que nadie escribió.
+- `knowledge-base` — hace que el ciclo vuelva a escribir sobre la knowledge base y reporte su deriva, en vez de creerle a un mapa viejo.
+- `senior` — acompañante de todas las fases: aporta memoria de lo que ya pasó, frente a pasadas adversariales que tienen foco y arrancan limpias.
+- `engram` — memoria persistente entre sesiones y compactaciones, cableada a las fases OPSX.
+- `tdd` — TDD estricto en la fase apply: no hay código de producción sin un test que falle primero.
 
 ---
 

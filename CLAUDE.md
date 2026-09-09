@@ -5,8 +5,8 @@
 > Leé este archivo antes de cualquier acción no trivial.
 
 > **Nota sobre el orquestador SDD.** El orquestador SDD global (coordinación,
-> delegación a sub-agentes, model-routing por fase, protocolo Engram, governance)
-> ya vive en tu `~/.claude/CLAUDE.md`. **Este archivo NO lo duplica.** Si necesitás
+> delegación, ruteo de modelos, memoria y el resto de los toggles del
+> `sdd-orchestrator`) ya vive en tu `~/.claude/CLAUDE.md`. **Este archivo NO lo duplica.** Si necesitás
 > el detalle del orquestador, referenciá ese archivo global. Acá viven solo las
 > reglas **específicas de este proyecto**.
 
@@ -75,9 +75,23 @@ Detalle real en `internal/model/harness.go`. Tipos clave:
   `ByID`, `ForMode`, `ForAgent`.
 
 **El harness `sdd-orchestrator` es clave**: es de tipo `config` y se compone a
-partir de **toggles modulares** (`tdd`, `engram`, `model-routing`, `delegation`,
-`governance`). El resultado es el bloque de instrucciones del orquestador que se
-inyecta en `CLAUDE.md`/`AGENTS.md` del proyecto destino.
+partir de **toggles modulares**. El resultado es el bloque de instrucciones del
+orquestador que se inyecta en `CLAUDE.md`/`AGENTS.md` del proyecto destino.
+
+Los toggles, en orden de composición, y qué agrega cada uno (la lista canónica es
+`config.KnownToggles()`; el detalle largo, `ARCHITECTURE.md` §2.1):
+
+- `delegation` — qué se resuelve inline y qué se delega, para no inflar contexto.
+- `model-routing` — modelo por fase, con sustitución declarada si no hay acceso.
+- `governance` — autonomía según criticidad del dominio (CRITICAL → LOW).
+- `evidence` — reporte tipado: EVIDENCIA (comando, salida, hora), JUICIO, SUPOSICIÓN.
+- `auditor` — lee los reportes de los otros y marca lo que no se sostiene.
+- `roles` — convoca un rol con estándar fijo y "listo" observable.
+- `review` — revisión adversarial: qué se rompe que nadie escribió.
+- `knowledge-base` — el ciclo vuelve a escribir sobre la KB y reporta su deriva.
+- `senior` — acompañante de todas las fases: aporta memoria, no foco.
+- `engram` — memoria persistente entre sesiones y compactaciones.
+- `tdd` — TDD estricto en apply: sin test que falle primero no hay código.
 
 ---
 
