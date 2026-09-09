@@ -20,6 +20,7 @@ var knownToggles = map[string]bool{
 	"roles":          true,
 	"review":         true,
 	"knowledge-base": true,
+	"senior":         true,
 }
 
 // KnownToggles returns every recognised toggle name, in composition order.
@@ -32,7 +33,7 @@ var knownToggles = map[string]bool{
 func KnownToggles() []string {
 	return []string{
 		"delegation", "model-routing", "governance", "evidence",
-		"auditor", "roles", "review", "knowledge-base", "engram", "tdd",
+		"auditor", "roles", "review", "knowledge-base", "senior", "engram", "tdd",
 	}
 }
 
@@ -51,6 +52,7 @@ func KnownToggles() []string {
 //     4d. Additive: if "roles" active → append assets/roles.md
 //     4e. Additive: if "review" active → append assets/review.md
 //     4f. Additive: if "knowledge-base" active → append assets/knowledge-base.md
+//     4g. Additive: if "senior" active → append assets/senior.md
 //  5. Additive: if "engram" active → append assets/engram-protocol.md
 //  6. Additive: if "tdd" active → append inline TDD flag + assets/strict-tdd.md
 //
@@ -59,7 +61,7 @@ func Compose(toggles []string, variantKey string) (string, error) {
 	// Validate all toggles first.
 	for _, t := range toggles {
 		if !knownToggles[t] {
-			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence, auditor, roles, review, knowledge-base)", t)
+			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence, auditor, roles, review, knowledge-base, senior)", t)
 		}
 	}
 
@@ -143,19 +145,35 @@ func Compose(toggles []string, variantKey string) (string, error) {
 		additives = append(additives, rv)
 	}
 
-	// Step 4f: the knowledge base. Last of the review family and before engram on
-	// purpose: everything above it is scoped to the change in flight, and this is
-	// the only section whose subject OUTLIVES the change. It also reports in the
-	// typed categories and its drift report is a JUDGMENT the auditor can read, so
-	// it must sit downstream of both. Before engram because engram is memory for
-	// the agent and this is a map on disk for the person: engram composing last
-	// must not read as if its protocol already covered this.
+	// Step 4f: the knowledge base. After review and before the senior on purpose:
+	// everything above it is scoped to the change in flight, and this is the first
+	// section whose subject OUTLIVES the change. It also reports in the typed
+	// categories and its drift report is a JUDGMENT the auditor can read, so it
+	// must sit downstream of both. Still upstream of engram, for the reason it was
+	// placed there: engram is memory for the agent and this is a map on disk for
+	// the person, so engram composing later must not read as if its protocol
+	// already covered this.
 	if active["knowledge-base"] {
 		kb, err := loadFragment("knowledge-base.md")
 		if err != nil {
 			return "", fmt.Errorf("config compose: %w", err)
 		}
 		additives = append(additives, kb)
+	}
+
+	// Step 4g: the senior. Last of the additive review family, and after both
+	// review and knowledge-base on purpose: it is the only section defined by
+	// CONTRAST with the adversarial passes — memory against focus — so a reader
+	// who meets it before meeting them cannot see what it adds. Before engram
+	// because engram is where the half of its memory that is not on disk comes
+	// from, and the fragment says so: it must not read as if engram were already
+	// assumed.
+	if active["senior"] {
+		sr, err := loadFragment("senior.md")
+		if err != nil {
+			return "", fmt.Errorf("config compose: %w", err)
+		}
+		additives = append(additives, sr)
 	}
 
 	// Step 5: engram.
