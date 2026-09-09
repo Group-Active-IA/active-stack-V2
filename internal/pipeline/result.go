@@ -34,6 +34,16 @@ type StageResult struct {
 	Steps   []StepResult
 	Success bool
 	Err     error
+	// Unreverted lists side effects that were applied and that rollback could
+	// not undo — a globally installed npm package, a brew formula, a PATH
+	// entry. It is only ever populated for StageRollback.
+	//
+	// Success answers "did every Rollback() call return nil"; it does NOT
+	// answer "is the machine back to how it was". Without this list a rollback
+	// that reverted nothing at all was indistinguishable from a real one, and
+	// the installer reported "Rollback: succeeded" while leaving a 19 MB binary
+	// behind. A non-empty Unreverted with Success true means partial.
+	Unreverted []string
 }
 
 // ExecutionResult is the top-level result returned by Orchestrator.Execute.

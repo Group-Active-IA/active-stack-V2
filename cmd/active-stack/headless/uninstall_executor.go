@@ -90,13 +90,7 @@ func RunHeadlessUninstall(params ParsedUninstallFlags, cat uninstall.Catalog, re
 
 	if result.Err != nil {
 		fmt.Fprintf(w, "\nUninstall failed: %v\n", result.Err)
-		if result.Rollback.Stage == pipeline.StageRollback {
-			if result.Rollback.Success {
-				fmt.Fprintln(w, "Rollback: succeeded")
-			} else {
-				fmt.Fprintf(w, "Rollback: failed (%v)\n", result.Rollback.Err)
-			}
-		}
+		writeRollbackReport(w, result.Rollback)
 		return 1
 	}
 

@@ -139,13 +139,7 @@ func RunHeadless(params ParsedFlags, cat install.Catalog, reg install.Registry, 
 
 	if result.Err != nil {
 		fmt.Fprintf(w, "\nInstallation failed: %v\n", result.Err)
-		if result.Rollback.Stage == pipeline.StageRollback {
-			if result.Rollback.Success {
-				fmt.Fprintln(w, "Rollback: succeeded")
-			} else {
-				fmt.Fprintf(w, "Rollback: failed (%v)\n", result.Rollback.Err)
-			}
-		}
+		writeRollbackReport(w, result.Rollback)
 		return 1
 	}
 

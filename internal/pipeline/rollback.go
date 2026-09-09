@@ -45,6 +45,10 @@ func ExecuteRollback(steps []StepResult, stepIndex map[string]Step) StageResult 
 		}
 
 		err := rollbackStep.Rollback()
+		// Collected whether or not Rollback succeeded: a step that failed
+		// halfway has left even more behind, not less.
+		result.Unreverted = append(result.Unreverted, unrevertedOf(rollbackStep)...)
+
 		item := StepResult{StepID: rollbackStep.ID(), Status: StepStatusRolledBack}
 		if err != nil {
 			item.Status = StepStatusFailed
@@ -59,4 +63,14 @@ func ExecuteRollback(steps []StepResult, stepIndex map[string]Step) StageResult 
 	}
 
 	return result
+}
+
+// unrevertedOf returns what a step declares it could not undo, or nil when the
+// step does not implement UnrevertedReporter.
+func unrevertedOf(step Step) []string {
+	reporter, ok := step.(UnrevertedReporter)
+	if !ok {
+		return nil
+	}
+	return reporter.Unreverted()
 }

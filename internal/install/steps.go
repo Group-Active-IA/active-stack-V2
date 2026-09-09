@@ -67,6 +67,13 @@ type externalStep struct {
 	profile    system.PlatformProfile
 	manifest   *backup.Manifest
 	onDownload DownloadEventFunc
+
+	// result is what the installer reported, captured by Run so Rollback knows
+	// what this run actually created. It used to be discarded
+	// (`_, err := externalInstallFn(...)`), which is why rollback had no idea a
+	// binary had been written and reported a clean success while leaving it.
+	result extinstaller.Result
+	ran    bool
 }
 
 func (s *externalStep) ID() string                     { return "external:" + s.h.ID }
@@ -86,15 +93,56 @@ func (s *externalStep) Run() error {
 			})
 		}
 	}
-	_, err := externalInstallFn(context.Background(), s.h, s.profile, ext, s.homeDir, downloadFn)
-	return err
+	res, err := externalInstallFn(context.Background(), s.h, s.profile, ext, s.homeDir, downloadFn)
+	if err != nil {
+		return err
+	}
+	s.result = res
+	s.ran = true
+	return nil
 }
 
 func (s *externalStep) Rollback() error {
+	// A binary this run downloaded into active-stack's own install dir is ours
+	// to delete: nothing else on the machine put it there. Anything installed
+	// by npm or brew, and anything that was already present, is not — see
+	// Unreverted.
+	if s.ran && s.result.Downloaded && s.result.BinaryPath != "" {
+		if err := os.Remove(s.result.BinaryPath); err != nil && !os.IsNotExist(err) {
+			return fmt.Errorf("remove downloaded binary %q: %w", s.result.BinaryPath, err)
+		}
+	}
 	if s.manifest == nil {
 		return nil
 	}
 	return restoreFn(*s.manifest)
+}
+
+// Unreverted implements pipeline.UnrevertedReporter. It names the side effects
+// this step performed that rollback has no way to undo, so the installer can
+// report a partial rollback instead of claiming the machine is clean.
+func (s *externalStep) Unreverted() []string {
+	if !s.ran || s.result.AlreadyInstalled || s.h.External == nil {
+		return nil
+	}
+	pkg := s.h.External.Pkg
+	if pkg == "" {
+		pkg = s.h.ID
+	}
+
+	switch s.h.External.Method {
+	case "npm":
+		// Deleting the shim would leave a half-removed package behind, so we
+		// deliberately do not touch it and say so instead.
+		return []string{fmt.Sprintf("npm package %q stays installed globally (undo with: npm uninstall -g %s)", pkg, pkg)}
+	case "homebrew":
+		if s.result.Downloaded || s.result.BinaryPath == "" {
+			// Downloaded by us and already removed in Rollback, or never installed.
+			return nil
+		}
+		return []string{fmt.Sprintf("brew formula %q stays installed (undo with: brew uninstall %s)", pkg, pkg)}
+	}
+	return nil
 }
 
 // ─────────────────────────────────────────────────────────────────

@@ -665,11 +665,20 @@ func (m Model) viewComplete() string {
 		sb.WriteString(titleStyle.Render("Installation failed") + "\n\n")
 		sb.WriteString(errorStyle.Render(m.ExecutionResult.Err.Error()) + "\n\n")
 		if len(m.ExecutionResult.Rollback.Steps) > 0 {
+			left := m.ExecutionResult.Rollback.Unreverted
 			sb.WriteString("Rollback: ")
-			if m.ExecutionResult.Rollback.Success {
-				sb.WriteString(selectedStyle.Render("succeeded") + "\n")
-			} else {
+			switch {
+			case !m.ExecutionResult.Rollback.Success:
 				sb.WriteString(errorStyle.Render("failed") + "\n")
+			case len(left) > 0:
+				// Not a clean revert: say so rather than showing "succeeded"
+				// over a machine that still has files on it.
+				sb.WriteString(errorStyle.Render("partial") + "\n")
+			default:
+				sb.WriteString(selectedStyle.Render("succeeded") + "\n")
+			}
+			for _, item := range left {
+				sb.WriteString("  - " + item + "\n")
 			}
 		}
 	} else {

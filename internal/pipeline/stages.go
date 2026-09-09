@@ -21,6 +21,16 @@ type RollbackStep interface {
 	Rollback() error
 }
 
+// UnrevertedReporter is an optional interface for rollback steps that can
+// perform side effects outside the snapshot model — installing a global npm
+// package, running brew, editing the user PATH. Such a step must declare what
+// it left behind so the rollback is reported as partial instead of clean.
+//
+// It is called after Rollback(); returning nil means "nothing was left".
+type UnrevertedReporter interface {
+	Unreverted() []string
+}
+
 // FailurePolicy controls how the runner behaves when a step fails.
 type FailurePolicy int
 
