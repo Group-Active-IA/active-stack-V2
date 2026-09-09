@@ -60,3 +60,34 @@ func TestBinaryInstallDir_Unix_Fallback(t *testing.T) {
 		t.Errorf("BinaryInstallDir(linux, not writable) = %q, want %q", got, want)
 	}
 }
+
+// TestBinaryInstallDirForHome_Windows_ExplicitHomeBeatsLocalAppData is the
+// regression test for the THIRD binary path that ignored --home, and the first
+// one that only reproduces on Windows.
+//
+// The Windows branch read %LOCALAPPDATA% and returned it verbatim, so the
+// homeDir the caller supplied was never used. On any real Windows box
+// LOCALAPPDATA is always set, which means --home was silently ignored there
+// even after the Unix branch was fixed.
+//
+// Found by CI on 2026-09-09: TestSelfInstall_WritesBinaryUnderGivenHome went
+// red on windows-latest and green on ubuntu-latest. The installer had written
+// active-stack.exe into the runner's real AppData instead of the temp home the
+// test handed it — the exact leak that test exists to catch, invisible to it
+// because it only walked the ambient HOME, not LOCALAPPDATA.
+//
+// The datum that discriminates: LOCALAPPDATA points at a directory that is NOT
+// under givenHome. If the result sits under givenHome, the explicit home won;
+// if it sits under ambientAppData, the environment won.
+func TestBinaryInstallDirForHome_Windows_ExplicitHomeBeatsLocalAppData(t *testing.T) {
+	ambientAppData := t.TempDir() // what %LOCALAPPDATA% says
+	givenHome := t.TempDir()      // what --home says
+	t.Setenv("LOCALAPPDATA", ambientAppData)
+
+	got := BinaryInstallDirForHome("windows", givenHome)
+
+	want := filepath.Join(givenHome, "AppData", "Local", "active-stack", "bin")
+	if got != want {
+		t.Errorf("BinaryInstallDirForHome(windows, %q) = %q, want %q", givenHome, got, want)
+	}
+}

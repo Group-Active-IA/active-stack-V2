@@ -45,8 +45,14 @@ func binaryInstallDirWithCandidate(goos, homeDir, candidate string) string {
 	}
 
 	if goos == "windows" {
+		// %LOCALAPPDATA% describes the ambient user, so it must not win over a
+		// home the caller supplied on purpose: --home pointing at a throwaway
+		// directory was silently ignored on Windows, because LOCALAPPDATA is
+		// always set there. Discovered by CI on 2026-09-09, when the
+		// self-install regression test went red on windows-latest only, after
+		// the installer wrote active-stack.exe into the runner's real AppData.
 		localAppData := os.Getenv("LOCALAPPDATA")
-		if localAppData == "" {
+		if homeDir != "" || localAppData == "" {
 			localAppData = filepath.Join(home, "AppData", "Local")
 		}
 		return filepath.Join(localAppData, "active-stack", "bin")
