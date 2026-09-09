@@ -129,6 +129,10 @@ func BuildPlan(cat Catalog, intent Intent, opts Options) (Plan, error) {
 		applySteps = append(applySteps, &selfInstallStep{
 			sourcePath: opts.SelfInstallBinaryPath,
 			onProgress: opts.OnProgress,
+			// resolveSnapshotHomeDir, not effectiveBase: --home must be honoured,
+			// but a Project-target install puts its content in the project folder
+			// and the binary still belongs in the user's home bin dir.
+			homeDir: resolveSnapshotHomeDir(opts),
 			// goos: empty → runtime.GOOS resolved at Run() time. Tests inject
 			// via NewSelfInstallStep or the selfInstallBinaryInstallDirFn seam.
 		})
@@ -145,7 +149,7 @@ func BuildPlan(cat Catalog, intent Intent, opts Options) (Plan, error) {
 	// Include the self-install target binary path so it is snapshotted before
 	// the step writes it (governance ALTO — binary in user bin dir).
 	if !opts.NoSelfInstall {
-		collectSelfInstallPath(opts.Profile.OS, &writePaths)
+		collectSelfInstallPath(opts.Profile.OS, resolveSnapshotHomeDir(opts), &writePaths)
 	}
 	dirHints := writePaths.DirHints
 	prepareSteps := []pipeline.Step{
@@ -416,11 +420,11 @@ func resolvedCommandsDir(a AgentAdapter, base string, t model.InstallTarget) str
 // writePathsResult so the snapshot captures it before the step writes.
 // It uses the injected selfInstallBinaryInstallDirFn seam (testable) and the
 // platform-specific filename.
-func collectSelfInstallPath(goos string, result *writePathsResult) {
+func collectSelfInstallPath(goos, homeDir string, result *writePathsResult) {
 	if goos == "" {
 		goos = "linux" // safe default; real OS resolved at Run() time
 	}
-	dir := selfInstallBinaryInstallDirFn(goos)
+	dir := selfInstallBinaryInstallDirFn(goos, homeDir)
 	target := filepath.Join(dir, binaryFilename(goos))
 	if target == "" {
 		return

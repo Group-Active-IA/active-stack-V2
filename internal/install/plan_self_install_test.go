@@ -188,7 +188,7 @@ func TestBuildPlan_SnapshotIncludesSelfInstallPath(t *testing.T) {
 	defer restoreExt()
 
 	binDir := t.TempDir()
-	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_ string) string { return binDir })
+	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_, _ string) string { return binDir })
 	defer restoreBinDir()
 
 	opts := install.Options{
@@ -241,7 +241,7 @@ func TestBuildPlan_SnapshotNoSelfInstallPath(t *testing.T) {
 	defer restoreExt()
 
 	binDir := t.TempDir()
-	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_ string) string { return binDir })
+	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_, _ string) string { return binDir })
 	defer restoreBinDir()
 
 	opts := install.Options{

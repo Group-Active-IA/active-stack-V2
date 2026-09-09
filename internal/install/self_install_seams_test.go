@@ -19,12 +19,12 @@ func TestSelfInstallSeams_ExecPathFnOverride(t *testing.T) {
 	binDir := t.TempDir()
 	restoreExec := install.SetExecPathFn(func() (string, error) { return src, nil })
 	defer restoreExec()
-	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_ string) string { return binDir })
+	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_, _ string) string { return binDir })
 	defer restoreBinDir()
 	restorePath := install.SetAddToUserPathFn(func(_ string) error { return nil })
 	defer restorePath()
 
-	step := install.NewSelfInstallStep("linux", "", nil)
+	step := install.NewSelfInstallStep("linux", "", "", nil)
 	if err := step.Run(); err != nil {
 		t.Fatalf("Run() error: %v", err)
 	}
@@ -50,7 +50,7 @@ func TestSelfInstallSeams_AddToUserPathFnOverride(t *testing.T) {
 	binDir := t.TempDir()
 	restoreExec := install.SetExecPathFn(func() (string, error) { return src, nil })
 	defer restoreExec()
-	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_ string) string { return binDir })
+	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_, _ string) string { return binDir })
 	defer restoreBinDir()
 
 	var capturedDir string
@@ -60,7 +60,7 @@ func TestSelfInstallSeams_AddToUserPathFnOverride(t *testing.T) {
 	})
 	defer restorePath()
 
-	step := install.NewSelfInstallStep("linux", "", nil)
+	step := install.NewSelfInstallStep("linux", "", "", nil)
 	if err := step.Run(); err != nil {
 		t.Fatalf("Run() error: %v", err)
 	}

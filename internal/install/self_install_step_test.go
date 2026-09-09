@@ -30,7 +30,7 @@ func TestSelfInstallStep_HappyPath(t *testing.T) {
 	var calledWithDir string
 	restoreExec := install.SetExecPathFn(func() (string, error) { return src, nil })
 	defer restoreExec()
-	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_ string) string { return binDir })
+	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_, _ string) string { return binDir })
 	defer restoreBinDir()
 	restorePath := install.SetAddToUserPathFn(func(dir string) error {
 		calledWithDir = dir
@@ -38,7 +38,7 @@ func TestSelfInstallStep_HappyPath(t *testing.T) {
 	})
 	defer restorePath()
 
-	step := install.NewSelfInstallStep("linux", "", nil)
+	step := install.NewSelfInstallStep("linux", "", "", nil)
 	if err := step.Run(); err != nil {
 		t.Fatalf("Run() error: %v", err)
 	}
@@ -69,12 +69,12 @@ func TestSelfInstallStep_WindowsExeName(t *testing.T) {
 
 	restoreExec := install.SetExecPathFn(func() (string, error) { return src, nil })
 	defer restoreExec()
-	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_ string) string { return binDir })
+	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_, _ string) string { return binDir })
 	defer restoreBinDir()
 	restorePath := install.SetAddToUserPathFn(func(_ string) error { return nil })
 	defer restorePath()
 
-	step := install.NewSelfInstallStep("windows", "", nil)
+	step := install.NewSelfInstallStep("windows", "", "", nil)
 	if err := step.Run(); err != nil {
 		t.Fatalf("Run() error: %v", err)
 	}
@@ -104,7 +104,7 @@ func TestSelfInstallStep_ExecPathError(t *testing.T) {
 	})
 	defer restorePath()
 
-	step := install.NewSelfInstallStep("linux", "", nil)
+	step := install.NewSelfInstallStep("linux", "", "", nil)
 	if err := step.Run(); err != nil {
 		t.Fatalf("Run() must return nil on exec error, got: %v", err)
 	}
@@ -122,7 +122,7 @@ func TestSelfInstallStep_CopyError(t *testing.T) {
 	defer restoreExec()
 
 	binDir := t.TempDir()
-	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_ string) string { return binDir })
+	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_, _ string) string { return binDir })
 	defer restoreBinDir()
 
 	var pathCalled bool
@@ -132,7 +132,7 @@ func TestSelfInstallStep_CopyError(t *testing.T) {
 	})
 	defer restorePath()
 
-	step := install.NewSelfInstallStep("linux", "", nil)
+	step := install.NewSelfInstallStep("linux", "", "", nil)
 	if err := step.Run(); err != nil {
 		t.Fatalf("Run() must return nil on copy error, got: %v", err)
 	}
@@ -162,7 +162,7 @@ func TestSelfInstallStep_Idempotent(t *testing.T) {
 
 	restoreExec := install.SetExecPathFn(func() (string, error) { return src, nil })
 	defer restoreExec()
-	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_ string) string { return binDir })
+	restoreBinDir := install.SetSelfInstallBinaryInstallDirFn(func(_, _ string) string { return binDir })
 	defer restoreBinDir()
 	pathCallCount := 0
 	restorePath := install.SetAddToUserPathFn(func(_ string) error {
@@ -171,7 +171,7 @@ func TestSelfInstallStep_Idempotent(t *testing.T) {
 	})
 	defer restorePath()
 
-	step := install.NewSelfInstallStep("linux", "", nil)
+	step := install.NewSelfInstallStep("linux", "", "", nil)
 
 	// First run.
 	if err := step.Run(); err != nil {

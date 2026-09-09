@@ -175,7 +175,8 @@ func SetExecPathFn(fn func() (string, error)) (restore func()) {
 }
 
 // SetSelfInstallBinaryInstallDirFn replaces selfInstallBinaryInstallDirFn for testing.
-func SetSelfInstallBinaryInstallDirFn(fn func(goos string) string) (restore func()) {
+// fn receives the home the install was given (empty means "discover it").
+func SetSelfInstallBinaryInstallDirFn(fn func(goos, homeDir string) string) (restore func()) {
 	old := selfInstallBinaryInstallDirFn
 	selfInstallBinaryInstallDirFn = fn
 	return func() { selfInstallBinaryInstallDirFn = old }

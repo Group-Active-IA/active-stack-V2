@@ -22,8 +22,13 @@ import (
 var execPathFn func() (string, error) = os.Executable
 
 // selfInstallBinaryInstallDirFn resolves the bin dir for self-install.
-// Default: system.BinaryInstallDir. Separate from homebrew's package-level var.
-var selfInstallBinaryInstallDirFn = system.BinaryInstallDir
+// Default: system.BinaryInstallDirForHome. Separate from homebrew's package-level var.
+//
+// It takes the home the installer was given (--home). It used to be the
+// home-less system.BinaryInstallDir, which resolves os.UserHomeDir() by itself:
+// fixing the downloaded-harness path left this second caller still writing
+// active-stack into the user's REAL ~/.local/bin on a run with --home.
+var selfInstallBinaryInstallDirFn = system.BinaryInstallDirForHome
 
 // selfInstallAddToUserPathFn persists the bin dir to the user PATH.
 var selfInstallAddToUserPathFn func(dir string) error = system.AddToUserPath
@@ -37,6 +42,9 @@ type selfInstallStep struct {
 	// sourcePath is an optional override for the source binary path.
 	// When empty, the step resolves via execPathFn.
 	sourcePath string
+	// homeDir is the home the install was told to use (--home). Empty means
+	// "discover it", matching the pre-flag behaviour.
+	homeDir string
 	// goos is the target OS (injected for cross-platform tests).
 	// When empty, defaults to runtime.GOOS.
 	goos string
@@ -49,11 +57,17 @@ type selfInstallStep struct {
 // NewSelfInstallStep constructs a selfInstallStep.
 // goos is the target OS (empty → runtime.GOOS at Run time).
 // sourcePath is an optional override for the source binary (empty → os.Executable).
+// homeDir is the home the install was told to use (empty → discovered).
 // onProgress receives warning events (nil → stderr fallback).
-func NewSelfInstallStep(goos, sourcePath string, onProgress pipeline.ProgressFunc) *selfInstallStep {
+//
+// homeDir is a parameter rather than an implicit lookup on purpose: the version
+// of this constructor without it is what let active-stack keep writing into the
+// real home on a run with --home.
+func NewSelfInstallStep(goos, sourcePath, homeDir string, onProgress pipeline.ProgressFunc) *selfInstallStep {
 	return &selfInstallStep{
 		goos:       goos,
 		sourcePath: sourcePath,
+		homeDir:    homeDir,
 		onProgress: onProgress,
 	}
 }
@@ -80,7 +94,7 @@ func (s *selfInstallStep) Run() error {
 	}
 
 	// 2. Resolve target directory and filename.
-	dir := selfInstallBinaryInstallDirFn(goos)
+	dir := selfInstallBinaryInstallDirFn(goos, s.homeDir)
 	filename := binaryFilename(goos)
 	target := filepath.Join(dir, filename)
 
