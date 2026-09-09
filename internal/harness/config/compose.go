@@ -10,15 +10,16 @@ import (
 // knownToggles is the catalogue of recognised toggle names.
 // Any toggle not in this set causes Compose to return an error.
 var knownToggles = map[string]bool{
-	"delegation":    true,
-	"model-routing": true,
-	"engram":        true,
-	"tdd":           true,
-	"governance":    true,
-	"evidence":      true,
-	"auditor":       true,
-	"roles":         true,
-	"review":        true,
+	"delegation":     true,
+	"model-routing":  true,
+	"engram":         true,
+	"tdd":            true,
+	"governance":     true,
+	"evidence":       true,
+	"auditor":        true,
+	"roles":          true,
+	"review":         true,
+	"knowledge-base": true,
 }
 
 // KnownToggles returns every recognised toggle name, in composition order.
@@ -31,7 +32,7 @@ var knownToggles = map[string]bool{
 func KnownToggles() []string {
 	return []string{
 		"delegation", "model-routing", "governance", "evidence",
-		"auditor", "roles", "review", "engram", "tdd",
+		"auditor", "roles", "review", "knowledge-base", "engram", "tdd",
 	}
 }
 
@@ -49,6 +50,7 @@ func KnownToggles() []string {
 //     4c. Additive: if "auditor" active → append assets/auditor.md
 //     4d. Additive: if "roles" active → append assets/roles.md
 //     4e. Additive: if "review" active → append assets/review.md
+//     4f. Additive: if "knowledge-base" active → append assets/knowledge-base.md
 //  5. Additive: if "engram" active → append assets/engram-protocol.md
 //  6. Additive: if "tdd" active → append inline TDD flag + assets/strict-tdd.md
 //
@@ -57,7 +59,7 @@ func Compose(toggles []string, variantKey string) (string, error) {
 	// Validate all toggles first.
 	for _, t := range toggles {
 		if !knownToggles[t] {
-			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence, auditor, roles, review)", t)
+			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence, auditor, roles, review, knowledge-base)", t)
 		}
 	}
 
@@ -139,6 +141,21 @@ func Compose(toggles []string, variantKey string) (string, error) {
 			return "", fmt.Errorf("config compose: %w", err)
 		}
 		additives = append(additives, rv)
+	}
+
+	// Step 4f: the knowledge base. Last of the review family and before engram on
+	// purpose: everything above it is scoped to the change in flight, and this is
+	// the only section whose subject OUTLIVES the change. It also reports in the
+	// typed categories and its drift report is a JUDGMENT the auditor can read, so
+	// it must sit downstream of both. Before engram because engram is memory for
+	// the agent and this is a map on disk for the person: engram composing last
+	// must not read as if its protocol already covered this.
+	if active["knowledge-base"] {
+		kb, err := loadFragment("knowledge-base.md")
+		if err != nil {
+			return "", fmt.Errorf("config compose: %w", err)
+		}
+		additives = append(additives, kb)
 	}
 
 	// Step 5: engram.
