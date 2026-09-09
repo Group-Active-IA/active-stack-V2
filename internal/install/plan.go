@@ -133,8 +133,13 @@ func BuildPlan(cat Catalog, intent Intent, opts Options) (Plan, error) {
 			// but a Project-target install puts its content in the project folder
 			// and the binary still belongs in the user's home bin dir.
 			homeDir: resolveSnapshotHomeDir(opts),
-			// goos: empty → runtime.GOOS resolved at Run() time. Tests inject
-			// via NewSelfInstallStep or the selfInstallBinaryInstallDirFn seam.
+			// Same OS the snapshot half used at collectSelfInstallPath below.
+			// Leaving this empty resolved runtime.GOOS at Run() time instead,
+			// so the two halves could name different files: the snapshot backed
+			// up one path and the step overwrote another, leaving Rollback()
+			// with nothing to restore. Empty still falls back to runtime.GOOS
+			// in Run(), so an unset Profile keeps the previous behaviour.
+			goos: opts.Profile.OS,
 		})
 	}
 
