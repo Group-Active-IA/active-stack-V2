@@ -1,6 +1,8 @@
 # OPSX Orchestrator Instructions (Gemini)
 
-Bind this to the dedicated `sdd-orchestrator` agent only. Do NOT apply it to executor agents.
+These instructions are for the session that talks to the user: **the main conversation IS the orchestrator**. Executor sub-agents carry their own instructions and must NOT apply this block.
+
+*Why it matters:* this block asks the orchestrator to put a finding in front of the person and wait for the answer. A sub-agent cannot do that — it returns its report and terminates, as this block states further down. Bound to a dedicated agent that no installer creates, the block had no reader at all: the session that does orchestrate read this line and concluded it did not apply.
 
 ## Role
 
