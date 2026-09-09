@@ -83,6 +83,11 @@ agrega una pieza al bloque (en orden de composición):
   su deriva, en vez de creerle a un mapa viejo con autoridad.
 - `senior` — acompañante de todas las fases: aporta memoria de lo que ya pasó,
   frente a pasadas adversariales que tienen foco y arrancan limpias.
+- `ship` — publicar en GitHub el trabajo de un change cerrado. No es una
+  secuencia de pasos sino un diagnóstico: mira en qué estado está el
+  repositorio (trunk, rama sin remoto, PR abierto, trunk que avanzó, cambios
+  sin commitear, sin remoto) y decide. Push a `main` siempre pregunta, a una
+  rama propia no; PR o directo se propone con fundamento; nunca mergea.
 - `engram` — memoria persistente entre sesiones y compactaciones, cableada a
   las fases OPSX.
 - `tdd` — TDD estricto en la fase apply: no hay código de producción sin un
@@ -109,7 +114,7 @@ que es la fuente de verdad de qué harnesses existen. Cada entrada declara:
   agents: [claude, opencode, ...]   # dónde aplica
 - id: sdd-orchestrator
   type: config
-  toggles: [tdd, engram, model-routing, delegation, governance, evidence, auditor, roles, review, knowledge-base, senior]
+  toggles: [tdd, engram, model-routing, delegation, governance, evidence, auditor, roles, review, knowledge-base, senior, ship]
   install_modes: [lite, full]
   ...
 - id: engram
@@ -217,9 +222,9 @@ Cada incremento será un **change OPSX** (dogfooding) en `openspec/` (ignorado p
   Base (siempre) + dos sustractivos que ya viven marcados en la base
   (`delegation`, `model-routing`) + los aditivos, que se anexan en este orden:
   `governance`, `evidence`, `auditor`, `roles`, `review`, `knowledge-base`,
-  `senior`, `engram` y `tdd`. El orden está argumentado en los comentarios de
-  `internal/harness/config/compose.go`, y `config.KnownToggles()` es la lista
-  canónica.
+  `senior`, `ship`, `engram` y `tdd`. El orden está argumentado en los
+  comentarios de `internal/harness/config/compose.go`, y `config.KnownToggles()`
+  es la lista canónica.
 
 ### Follow-ups / abiertas
 - ~~**Fix engram download**~~ → **RESUELTO**: `model.External` ya separa `Repo`

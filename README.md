@@ -168,7 +168,7 @@ Lo que Active Stack puede instalar hoy (fuente de verdad: [`internal/catalog/har
 | **OpenSpec CLI** | external | lite · full | CLI de Spec-Driven Development; fuente de verdad del estado |
 | **Engram** | external | lite · full | Memoria persistente local (SQLite + FTS) vía MCP |
 | **Context7** | external | lite · full | Documentación de librerías al día (MCP remoto) |
-| **SDD Orchestrator** | config | lite · full | Orquestador SDD componible por toggles (`delegation`, `model-routing`, `governance`, `evidence`, `auditor`, `roles`, `review`, `knowledge-base`, `senior`, `engram`, `tdd`) |
+| **SDD Orchestrator** | config | lite · full | Orquestador SDD componible por toggles (`delegation`, `model-routing`, `governance`, `evidence`, `auditor`, `roles`, `review`, `knowledge-base`, `senior`, `ship`, `engram`, `tdd`) |
 | **Permissions** | config | lite · full | Permisos seguros por defecto (bloquea `.env`, confirma git destructivo) — **no opcional** |
 | **active-orchestrator** | skill | full | Orquestador delgado de la fase de fundación |
 | **kb-creator** | skill | full | Genera la knowledge-base canónica del dominio |
@@ -191,6 +191,7 @@ Los toggles, en orden de composición, y qué agrega cada uno:
 - `review` — revisión adversarial: después de la conformidad de `/opsx:verify`, pregunta qué se rompe que nadie escribió.
 - `knowledge-base` — hace que el ciclo vuelva a escribir sobre la knowledge base y reporte su deriva, en vez de creerle a un mapa viejo.
 - `senior` — acompañante de todas las fases: aporta memoria de lo que ya pasó, frente a pasadas adversariales que tienen foco y arrancan limpias.
+- `ship` — publicar en GitHub el trabajo de un change cerrado: no corre comandos fijos, diagnostica dónde está parado el repositorio y decide. Push a `main` siempre pregunta, push a una rama propia no; PR o directo se propone con fundamento; y nunca mergea el PR.
 - `engram` — memoria persistente entre sesiones y compactaciones, cableada a las fases OPSX.
 - `tdd` — TDD estricto en la fase apply: no hay código de producción sin un test que falle primero.
 

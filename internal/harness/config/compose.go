@@ -21,6 +21,7 @@ var knownToggles = map[string]bool{
 	"review":         true,
 	"knowledge-base": true,
 	"senior":         true,
+	"ship":           true,
 }
 
 // KnownToggles returns every recognised toggle name, in composition order.
@@ -33,7 +34,7 @@ var knownToggles = map[string]bool{
 func KnownToggles() []string {
 	return []string{
 		"delegation", "model-routing", "governance", "evidence",
-		"auditor", "roles", "review", "knowledge-base", "senior", "engram", "tdd",
+		"auditor", "roles", "review", "knowledge-base", "senior", "ship", "engram", "tdd",
 	}
 }
 
@@ -53,6 +54,7 @@ func KnownToggles() []string {
 //     4e. Additive: if "review" active → append assets/review.md
 //     4f. Additive: if "knowledge-base" active → append assets/knowledge-base.md
 //     4g. Additive: if "senior" active → append assets/senior.md
+//     4h. Additive: if "ship" active → append assets/ship.md
 //  5. Additive: if "engram" active → append assets/engram-protocol.md
 //  6. Additive: if "tdd" active → append inline TDD flag + assets/strict-tdd.md
 //
@@ -61,7 +63,7 @@ func Compose(toggles []string, variantKey string) (string, error) {
 	// Validate all toggles first.
 	for _, t := range toggles {
 		if !knownToggles[t] {
-			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence, auditor, roles, review, knowledge-base, senior)", t)
+			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence, auditor, roles, review, knowledge-base, senior, ship)", t)
 		}
 	}
 
@@ -174,6 +176,21 @@ func Compose(toggles []string, variantKey string) (string, error) {
 			return "", fmt.Errorf("config compose: %w", err)
 		}
 		additives = append(additives, sr)
+	}
+
+	// Step 4h: ship. Last of the additive family, and after the senior on purpose:
+	// its division of labour IS the senior's — the diagnosis reports, the
+	// orchestrator answers — and a reader who meets the borrowed rule before the
+	// fragment that names it meets it without its argument. It also cites the
+	// verify verdict the review family produces, so both must already be on the
+	// page. Still before engram, which is a separate toggle nothing here may read
+	// as already assumed.
+	if active["ship"] {
+		sp, err := loadFragment("ship.md")
+		if err != nil {
+			return "", fmt.Errorf("config compose: %w", err)
+		}
+		additives = append(additives, sp)
 	}
 
 	// Step 5: engram.

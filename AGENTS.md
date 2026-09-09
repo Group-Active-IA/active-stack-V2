@@ -84,6 +84,7 @@ Los toggles, en orden de composición, y qué agrega cada uno (la lista canónic
 - `review` — revisión adversarial: qué se rompe que nadie escribió.
 - `knowledge-base` — el ciclo vuelve a escribir sobre la KB y reporta su deriva.
 - `senior` — acompañante de todas las fases: aporta memoria, no foco.
+- `ship` — publica el trabajo de un change cerrado: diagnostica el estado del repo y decide. `main` pregunta, PR o directo se propone, nunca mergea.
 - `engram` — memoria persistente entre sesiones y compactaciones.
 - `tdd` — TDD estricto en apply: sin test que falle primero no hay código.
 
