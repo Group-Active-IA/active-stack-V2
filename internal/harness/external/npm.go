@@ -31,6 +31,19 @@ func installNPM(ctx context.Context, h model.Harness, profile system.PlatformPro
 		return Result{}, fmt.Errorf("harness %q: npm method requires External.Pkg", h.ID)
 	}
 
+	// Ask before installing. On 2026-09-09 an install on a machine that already
+	// had openspec 1.3.1 failed with "sudo: npm: command not found" and rolled
+	// the whole installation back: nvm lives under the user's home, so `npm` is
+	// on the interactive PATH and not on sudo's. A machine that ALREADY has the
+	// tool working was the one place this could not install it.
+	//
+	// homebrew.go and the download method already reported AlreadyInstalled;
+	// npm was the only one of the three that never asked.
+	binaryName := pkgBinaryName(pkg)
+	if existing, err := lookPath(binaryName); err == nil && existing != "" {
+		return Result{BinaryPath: existing, AlreadyInstalled: true}, nil
+	}
+
 	var (
 		name string
 		args []string
@@ -54,7 +67,6 @@ func installNPM(ctx context.Context, h model.Harness, profile system.PlatformPro
 		return Result{}, fmt.Errorf("npm install -g %s: %w\n%s", pkg, err, out)
 	}
 
-	binaryName := pkgBinaryName(pkg)
 	binaryPath, _ := lookPath(binaryName)
 
 	return Result{BinaryPath: binaryPath}, nil

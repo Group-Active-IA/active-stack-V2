@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"os/exec"
 	"strings"
 	"testing"
 
@@ -138,8 +139,13 @@ func TestUseSudo(t *testing.T) {
 func TestNPM_CommandBuilt_NoSudo(t *testing.T) {
 	fr := &fakeRunner{output: []byte("ok")}
 	defer withFakeRunner(fr)()
+	// El binario NO esta: es la precondicion para llegar a construir el comando.
+	// Desde 2026-09-09 installNPM pregunta primero y sale temprano si ya existe,
+	// asi que un lookPath que siempre resuelve corta antes de armar nada. La
+	// propiedad que este test asserta (que comando se arma segun el perfil) no
+	// cambio; cambio donde vive.
 	defer withFakeLookPath(func(name string) (string, error) {
-		return "/usr/local/bin/" + name, nil
+		return "", exec.ErrNotFound
 	})()
 
 	h := harnessWithMethod("npm", "@fission-ai/openspec", "")
@@ -158,8 +164,13 @@ func TestNPM_CommandBuilt_NoSudo(t *testing.T) {
 func TestNPM_CommandBuilt_WithSudo(t *testing.T) {
 	fr := &fakeRunner{output: []byte("ok")}
 	defer withFakeRunner(fr)()
+	// El binario NO esta: es la precondicion para llegar a construir el comando.
+	// Desde 2026-09-09 installNPM pregunta primero y sale temprano si ya existe,
+	// asi que un lookPath que siempre resuelve corta antes de armar nada. La
+	// propiedad que este test asserta (que comando se arma segun el perfil) no
+	// cambio; cambio donde vive.
 	defer withFakeLookPath(func(name string) (string, error) {
-		return "/usr/local/bin/" + name, nil
+		return "", exec.ErrNotFound
 	})()
 
 	h := harnessWithMethod("npm", "@fission-ai/openspec", "")
@@ -196,8 +207,13 @@ func TestNPM_CommandBuilt_WithSudo(t *testing.T) {
 func TestNPM_IgnoreScripts(t *testing.T) {
 	fr := &fakeRunner{output: []byte("ok")}
 	defer withFakeRunner(fr)()
+	// El binario NO esta: es la precondicion para llegar a construir el comando.
+	// Desde 2026-09-09 installNPM pregunta primero y sale temprano si ya existe,
+	// asi que un lookPath que siempre resuelve corta antes de armar nada. La
+	// propiedad que este test asserta (que comando se arma segun el perfil) no
+	// cambio; cambio donde vive.
 	defer withFakeLookPath(func(name string) (string, error) {
-		return "/usr/local/bin/" + name, nil
+		return "", exec.ErrNotFound
 	})()
 
 	h := harnessWithMethod("npm", "@fission-ai/openspec", "")
