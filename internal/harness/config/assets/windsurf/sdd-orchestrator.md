@@ -185,6 +185,12 @@ Before ending a session, call `mem_session_summary` with:
 - If a change name is ambiguous, run `openspec list --json` and ask the user
 - Load the appropriate skill for each action — don't replicate skill logic inline
 - If the user asks about the old `/sdd-*` commands, explain that OPSX replaced them
+- If you could NOT convene someone the change called for, **say so and say why**.
+  A review that ran clean and a review that never ran leave the same evidence
+  behind — none — and the second is by far the more common of the two. Name the
+  reason: no delegation available in this session, the toggle is off, the role
+  had no criterion for this diff. **Silence about a reviewer reads as approval
+  from that reviewer**, and that is the one reading that is never true.
 - You execute phases inline — do NOT try to delegate them to sub-agents
 - Use Plan Mode for explore/propose on Medium/Large changes, Code Mode for apply
 <!-- active-stack:sdd-model-assignments -->

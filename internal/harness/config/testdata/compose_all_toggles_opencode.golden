@@ -215,6 +215,12 @@ openspec instructions apply --change "<name>" --json
 - NEVER do apply or propose work inline — ALWAYS delegate via Agent tool
 - If a change name is ambiguous, run `openspec list --json` and ask the user
 - If the user asks about the old `/sdd-*` commands, explain that OPSX replaced them
+- If you could NOT convene someone the change called for, **say so and say why**.
+  A review that ran clean and a review that never ran leave the same evidence
+  behind — none — and the second is by far the more common of the two. Name the
+  reason: no delegation available in this session, the toggle is off, the role
+  had no criterion for this diff. **Silence about a reviewer reads as approval
+  from that reviewer**, and that is the one reading that is never true.
 
 <!-- active-stack:sdd-model-assignments -->
 ## Model Assignments
