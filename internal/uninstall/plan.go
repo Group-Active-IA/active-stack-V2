@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/Group-Active-IA/active-stack/internal/backup"
-	"github.com/Group-Active-IA/active-stack/internal/harness/command"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/pipeline"
 )
@@ -187,18 +186,19 @@ func collectUninstallPaths(adapters []AgentAdapter, homeDir string, harnesses []
 				}
 			}
 		case model.HarnessCommand:
-			// Command harnesses write a single file per adapter under CommandsDir.
-			// Skip adapters with empty CommandsDir or unknown VariantKey.
+			// Command harnesses write one file per embedded asset under CommandsDir.
+			// El snapshot tiene que cubrir TODOS los que el removal step va a borrar:
+			// si esta lista queda corta, el rollback restaura de menos y el usuario
+			// se queda sin un comando que nadie le devuelve.
+			// Skip adapters with empty CommandsDir or a variant with no assets.
 			for _, a := range adapters {
 				commandsDir := a.CommandsDir(homeDir)
 				if commandsDir == "" {
 					continue
 				}
-				relPath := command.RelPathForVariant(a.VariantKey())
-				if relPath == "" {
-					continue
+				for _, relPath := range commandRelPathsForVariant(a.VariantKey()) {
+					add(filepath.Join(commandsDir, relPath))
 				}
-				add(filepath.Join(commandsDir, relPath))
 			}
 		}
 	}

@@ -1,6 +1,10 @@
 package uninstall
 
-import "github.com/Group-Active-IA/active-stack/internal/backup"
+import (
+	"io/fs"
+
+	"github.com/Group-Active-IA/active-stack/internal/backup"
+)
 
 // SetSnapshotCreate replaces the snapshotCreate function for testing.
 func SetSnapshotCreate(fn func(dir string, paths []string) (backup.Manifest, error)) (restore func()) {
@@ -42,4 +46,17 @@ func SetCommandRemovalFn(fn func(path string) error) (restore func()) {
 	old := commandRemovalFn
 	commandRemovalFn = fn
 	return func() { commandRemovalFn = old }
+}
+
+// GetEmbeddedCommandsFS returns the current value of the package-level
+// embeddedCommandsFS variable. Used by the entry-point wiring test to assert
+// that the binary wired the command assets before any dispatch.
+func GetEmbeddedCommandsFS() fs.FS {
+	return embeddedCommandsFS
+}
+
+// ResetEmbeddedCommandsFS sets embeddedCommandsFS back to nil, so a test can
+// prove the nil baseline before wiring.
+func ResetEmbeddedCommandsFS() {
+	embeddedCommandsFS = nil
 }

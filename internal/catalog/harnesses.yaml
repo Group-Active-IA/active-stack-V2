@@ -112,9 +112,13 @@ harnesses:
 
   # ── Slash-commands (embebidos en el binario) ─────────────────────────────
   - id: starter-add-command
-    name: Starter Add Command
-    description: { es: "Slash-command /active:starter-add (Claude) / /active-starter-add (OpenCode) — wrapper thin sobre active-stack starter add.", en: "Slash-command /active:starter-add (Claude) / /active-starter-add (OpenCode) — thin wrapper over active-stack starter add." }
-    long_description: { es: "El slash-command que expone la instalación de starters como comando nativo del agente. Materializa un archivo de comando en el directorio del agente—`/active:starter-add` en Claude, `/active-starter-add` en OpenCode—que es un wrapper delgado sobre `active-stack starter add`. Elegilo para agregar starters (backend, ux-ui, active-ia) desde adentro del agente sin salir a la terminal. Está acotado a Claude y OpenCode, e integra tanto en Lite como en Full por ser parte de la superficie mínima útil.", en: "The slash-command that exposes starter installation as a native agent command. It materializes a command file in the agent's directory—`/active:starter-add` in Claude, `/active-starter-add` in OpenCode—as a thin wrapper over `active-stack starter add`. Choose it to add starters (backend, ux-ui, active-ia) from inside the agent without dropping to a terminal. It's scoped to Claude and OpenCode and ships in both Lite and Full, as part of the minimal useful surface." }
+    # El id queda como starter-add-command: es la clave que usan --custom, el
+    # directorio de backups y los tests. Solo cambia la prosa, que desde
+    # 2026-09-09 mentia: el harness instala TODOS los comandos embebidos de la
+    # variante, no solo starter-add.
+    name: Agent Slash-Commands
+    description: { es: "Los slash-commands nativos del agente: /active:init, /active:starter-add, /opsx:ship y /opsx:verify en Claude; /active-starter-add en OpenCode.", en: "The agent's native slash-commands: /active:init, /active:starter-add, /opsx:ship and /opsx:verify on Claude; /active-starter-add on OpenCode." }
+    long_description: { es: "Los comandos que exponen el stack como comandos nativos del agente. Materializa en el directorio de comandos un archivo por cada uno de los embebidos: en Claude, `/active:init` para levantar la fundación del proyecto, `/active:starter-add` para aplicar un starter, y `/opsx:ship` y `/opsx:verify` para las dos últimas fases del ciclo; en OpenCode, `/active-starter-add`. Elegilo para trabajar desde adentro del agente sin salir a la terminal. Está acotado a Claude y OpenCode, e integra tanto en Lite como en Full por ser parte de la superficie mínima útil.", en: "The commands that expose the stack as native agent commands. It materializes one file per embedded command in the agent's command directory: on Claude, `/active:init` to bootstrap the project foundation, `/active:starter-add` to apply a starter, and `/opsx:ship` and `/opsx:verify` for the last two phases of the cycle; on OpenCode, `/active-starter-add`. Choose it to work from inside the agent without dropping to a terminal. It is scoped to Claude and OpenCode and ships in both Lite and Full, as part of the minimal useful surface." }
     type: command
     # Scoped to the two focused P0 agents only (Claude + OpenCode).
     # Other agent variants are out of scope for C-31 (D3: focused-only).

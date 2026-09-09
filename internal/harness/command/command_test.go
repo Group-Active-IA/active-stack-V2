@@ -9,12 +9,14 @@ package command_test
 // ─────────────────────────────────────────────────────────────────────────────
 
 import (
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 	"testing/fstest"
 
+	"github.com/Group-Active-IA/active-stack/assets"
 	"github.com/Group-Active-IA/active-stack/internal/harness/command"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 )
@@ -339,5 +341,175 @@ func TestInstaller_BothFocusedAgents_HappyPath(t *testing.T) {
 	oData, _ := os.ReadFile(openCodeFile)
 	if string(cData) == string(oData) {
 		t.Error("Claude and OpenCode command files should have different content (different frontmatter)")
+	}
+}
+
+// ── Walk del FS embebido: TODOS los comandos de la variante ───────────────────
+//
+// 2026-09-09: el instalador mapeaba UN archivo por variante, hardcodeado en
+// assetAndRelPathForVariant. Los assets commands/claude/opsx/ship.md,
+// commands/claude/opsx/verify.md y commands/claude/active/init.md existian en el
+// repo y no los instalaba nadie: en una maquina limpia `active-stack install`
+// inyectaba en el CLAUDE.md la doctrina de /opsx:ship y no instalaba el comando
+// que la ejecuta. Doctrina sin mecanismo.
+//
+// Este test corre contra assets.CommandsFS REAL, no contra un MapFS: es lo unico
+// que prueba que agregar un .md alcanza, sin tocar Go.
+
+// commandAssetsForVariant lista los archivos embebidos bajo commands/<variantKey>/,
+// en rutas relativas al directorio de la variante y con separador de la plataforma.
+func commandAssetsForVariant(t *testing.T, variantKey string) []string {
+	t.Helper()
+	root := "commands/" + variantKey
+	var out []string
+	err := fs.WalkDir(assets.CommandsFS, root, func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+		rel, relErr := filepath.Rel(filepath.FromSlash(root), filepath.FromSlash(p))
+		if relErr != nil {
+			return relErr
+		}
+		out = append(out, rel)
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walk assets.CommandsFS bajo %q: %v", root, err)
+	}
+	return out
+}
+
+// TestInstaller_InstallsEveryEmbeddedCommand_ClaudeVariant asserts that installing
+// the claude variant materializes EVERY embedded command, not just starter-add.
+func TestInstaller_InstallsEveryEmbeddedCommand_ClaudeVariant(t *testing.T) {
+	commandsDir := t.TempDir()
+	backupDir := t.TempDir()
+	adapter := fakeAdapter{agent: model.AgentClaude, commandsDir: commandsDir, variantKey: "claude"}
+
+	ins := command.NewInstaller(assets.CommandsFS)
+	results, err := ins.Install([]command.AgentAdapter{adapter}, "", backupDir)
+	if err != nil {
+		t.Fatalf("Install() error: %v", err)
+	}
+
+	// Los cuatro que existen hoy. Explicitos a proposito: si manana se agrega un
+	// quinto asset este test lo cubre via el conteo de abajo, y si se borra uno de
+	// estos cuatro el fallo dice cual.
+	for _, rel := range []string{
+		filepath.Join("active", "starter-add.md"),
+		filepath.Join("active", "init.md"),
+		filepath.Join("opsx", "ship.md"),
+		filepath.Join("opsx", "verify.md"),
+	} {
+		if _, statErr := os.Stat(filepath.Join(commandsDir, rel)); statErr != nil {
+			t.Errorf("comando no instalado: %s (%v)", rel, statErr)
+		}
+	}
+
+	// Y un Result por archivo embebido: nada queda sin reportar.
+	want := commandAssetsForVariant(t, "claude")
+	if len(results) != len(want) {
+		t.Errorf("Install() devolvio %d results, se esperaba %d (uno por asset embebido: %v)",
+			len(results), len(want), want)
+	}
+}
+
+// TestInstaller_EmbeddedAssets_OpenCodeVariantUnchanged es la triangulacion del
+// walk con otra entrada: opencode usa nombres planos y no debe heredar la
+// estructura anidada de claude.
+func TestInstaller_EmbeddedAssets_OpenCodeVariantUnchanged(t *testing.T) {
+	commandsDir := t.TempDir()
+	backupDir := t.TempDir()
+	adapter := fakeAdapter{agent: model.AgentOpenCode, commandsDir: commandsDir, variantKey: "opencode"}
+
+	ins := command.NewInstaller(assets.CommandsFS)
+	results, err := ins.Install([]command.AgentAdapter{adapter}, "", backupDir)
+	if err != nil {
+		t.Fatalf("Install() error: %v", err)
+	}
+
+	want := commandAssetsForVariant(t, "opencode")
+	if len(results) != len(want) {
+		t.Errorf("Install() devolvio %d results para opencode, se esperaba %d (%v)",
+			len(results), len(want), want)
+	}
+	if _, statErr := os.Stat(filepath.Join(commandsDir, "active-starter-add.md")); statErr != nil {
+		t.Errorf("comando plano de opencode no instalado: %v", statErr)
+	}
+	// El walk no debe filtrar assets de una variante a otra.
+	for _, nested := range []string{"active", "opsx"} {
+		if _, statErr := os.Stat(filepath.Join(commandsDir, nested)); statErr == nil {
+			t.Errorf("opencode no debe recibir el subdirectorio %q de claude", nested)
+		}
+	}
+}
+
+// TestInstaller_VariantWithoutAssets_SkipsSilently asserts that a variant with no
+// directory in the embedded FS installs nothing and returns no Result, incluso
+// cuando el adapter SI declara un commandsDir.
+//
+// 2026-09-09: antes del walk, este caso devolvia un Result cero (CommandPath "")
+// que el llamador agregaba a la lista. Ningun test lo cubria porque todos los
+// adapters de variante desconocida traian ademas commandsDir vacio.
+func TestInstaller_VariantWithoutAssets_SkipsSilently(t *testing.T) {
+	commandsDir := t.TempDir()
+	backupDir := t.TempDir()
+	adapter := fakeAdapter{agent: model.AgentGemini, commandsDir: commandsDir, variantKey: "gemini"}
+
+	ins := command.NewInstaller(makeCommandsFS())
+	results, err := ins.Install([]command.AgentAdapter{adapter}, "", backupDir)
+	if err != nil {
+		t.Fatalf("Install() error para variante sin assets: %v", err)
+	}
+	if len(results) != 0 {
+		t.Errorf("esperaba 0 results para una variante sin assets, hubo %d: %+v", len(results), results)
+	}
+	entries, err := os.ReadDir(commandsDir)
+	if err != nil {
+		t.Fatalf("readdir: %v", err)
+	}
+	if len(entries) != 0 {
+		t.Errorf("no se debe escribir nada para una variante sin assets; hay %d entradas", len(entries))
+	}
+}
+
+// TestInstaller_Walk_NestedAssets_MultiLevel asserts that the destination path is
+// derived from the asset path at any depth, not from a table of known names.
+func TestInstaller_Walk_NestedAssets_MultiLevel(t *testing.T) {
+	commandsDir := t.TempDir()
+	backupDir := t.TempDir()
+	adapter := fakeAdapter{agent: model.AgentClaude, commandsDir: commandsDir, variantKey: "claude"}
+
+	fsys := fstest.MapFS{
+		"commands/claude/top.md":                  {Data: []byte("top")},
+		"commands/claude/opsx/ship.md":            {Data: []byte("ship")},
+		"commands/claude/opsx/nested/deeper.md":   {Data: []byte("deeper")},
+		"commands/opencode/active-starter-add.md": {Data: []byte("otra variante")},
+	}
+
+	ins := command.NewInstaller(fsys)
+	results, err := ins.Install([]command.AgentAdapter{adapter}, "", backupDir)
+	if err != nil {
+		t.Fatalf("Install() error: %v", err)
+	}
+	if len(results) != 3 {
+		t.Fatalf("esperaba 3 results (solo los de claude), hubo %d: %+v", len(results), results)
+	}
+	for rel, want := range map[string]string{
+		"top.md":                         "top",
+		filepath.Join("opsx", "ship.md"): "ship",
+		filepath.Join("opsx", "nested", "deeper.md"): "deeper",
+	} {
+		data, readErr := os.ReadFile(filepath.Join(commandsDir, rel))
+		if readErr != nil {
+			t.Errorf("no se instalo %q: %v", rel, readErr)
+			continue
+		}
+		if string(data) != want {
+			t.Errorf("contenido de %q = %q, se esperaba %q", rel, data, want)
+		}
 	}
 }

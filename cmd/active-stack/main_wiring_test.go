@@ -14,6 +14,7 @@ import (
 	"testing"
 
 	"github.com/Group-Active-IA/active-stack/internal/install"
+	"github.com/Group-Active-IA/active-stack/internal/uninstall"
 )
 
 // TestWireEmbeddedFS_SetsCommandsFS is the real entry-point wiring test.
@@ -43,5 +44,28 @@ func TestWireEmbeddedFS_SetsCommandsFS(t *testing.T) {
 	if got := install.GetEmbeddedCommandsFS(); got == nil {
 		t.Fatal("embeddedCommandsFS is nil after wireEmbeddedFS() — " +
 			"the function must call install.WithEmbeddedCommandsFS(assets.CommandsFS)")
+	}
+}
+
+// TestWireEmbeddedFS_SetsUninstallCommandsFS es el espejo del test de arriba
+// para el motor de uninstall.
+//
+// 2026-09-09: el uninstall pasa a derivar del FS embebido QUE archivos borra.
+// Si el entry point no lo wirea, degrada a borrar solo starter-add y deja
+// huerfanos los otros tres comandos, sin decir nada. Ese olvido es C-32 otra
+// vez, y este test es lo unico que lo caza.
+func TestWireEmbeddedFS_SetsUninstallCommandsFS(t *testing.T) {
+	uninstall.ResetEmbeddedCommandsFS()
+	t.Cleanup(uninstall.ResetEmbeddedCommandsFS)
+
+	if got := uninstall.GetEmbeddedCommandsFS(); got != nil {
+		t.Fatalf("pre-condicion: embeddedCommandsFS debe ser nil antes de wireEmbeddedFS(); es %T", got)
+	}
+
+	wireEmbeddedFS()
+
+	if got := uninstall.GetEmbeddedCommandsFS(); got == nil {
+		t.Fatal("uninstall.embeddedCommandsFS quedo nil despues de wireEmbeddedFS() — " +
+			"la funcion tiene que llamar a uninstall.WithEmbeddedCommandsFS(assets.CommandsFS)")
 	}
 }

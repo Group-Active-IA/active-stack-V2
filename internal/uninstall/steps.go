@@ -3,6 +3,7 @@ package uninstall
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -217,6 +218,61 @@ func (s *skillRemovalStep) Rollback() error {
 // commandRemovalStep — command harnesses: removes the per-agent command file.
 // ─────────────────────────────────────────────────────────────────
 
+// embeddedCommandsFS is the fs.FS with the command assets, set by the binary
+// entry point via WithEmbeddedCommandsFS. The uninstall engine needs it to know
+// WHICH files the installer wrote: esa lista sale de los assets, nunca de lo que
+// hay en disco (ver commandRelPathsForVariant).
+var embeddedCommandsFS fs.FS
+
+// WithEmbeddedCommandsFS sets the embedded commands FS used to compute which
+// command files a targeted uninstall removes. Pass assets.CommandsFS from the
+// binary entry point, next to install.WithEmbeddedCommandsFS.
+//
+// Mirrors the install-side global on purpose: C-32 fue el bug de que el binario
+// no llamaba a la version de install y el instalador reventaba con
+// "commandsFS is nil". Misma forma, mismo lugar de wiring, mismo test.
+func WithEmbeddedCommandsFS(f fs.FS) {
+	embeddedCommandsFS = f
+}
+
+// commandRelPathsForVariant returns the relative paths of the command files a
+// targeted uninstall may remove for this variant. Es el mismo walk que corrio el
+// instalador, sobre los mismos assets embebidos.
+//
+// 2026-09-09 — por que sale de los assets y NO de listar el disco:
+// listar <commandsDir> y borrar todo lo que haya adentro tiene una ventaja real
+// (limpiaria comandos de una version anterior que ya no estan embebidos) y un
+// costo que la anula: ese directorio es COMPARTIDO con los comandos que el
+// usuario escribe a mano. En ~/.claude/commands/ conviven hoy /opsx:explore,
+// /opsx:propose, /opsx:apply, /opsx:archive y los /sdd-*, que active-stack nunca
+// instalo; un uninstall que camina el disco se los lleva. Un huerfano molesta,
+// un archivo del usuario borrado no se perdona, asi que la lista sale de lo que
+// este binario sabe que escribio.
+//
+// Lo que esta decision NO cubre, dicho para que se sepa: un comando instalado por
+// una version vieja, cuyo asset ya no existe en este binario, queda huerfano y
+// nadie lo limpia. Distinguirlo de un archivo del usuario pediria un registro de
+// lo instalado, y hoy no hay ninguno (solo manifiestos de backup).
+//
+// Con commandsFS nil cae al path unico de RelPathForVariant, que es el
+// comportamiento previo a este cambio: si el entry point se olvida de llamar a
+// WithEmbeddedCommandsFS (C-32 fue exactamente ese bug), el uninstall degrada a
+// borrar starter-add en vez de convertirse en un no-op silencioso.
+func commandRelPathsForVariant(variantKey string) []string {
+	if embeddedCommandsFS == nil {
+		relPath := command.RelPathForVariant(variantKey)
+		if relPath == "" {
+			return nil
+		}
+		return []string{relPath}
+	}
+	relPaths, err := command.RelPathsForVariant(embeddedCommandsFS, variantKey)
+	if err != nil {
+		return nil
+	}
+	return relPaths
+}
+
 // commandRemovalFn is the backing function for removing a single command file.
 // It is a package-level variable so tests can inject a fake.
 var commandRemovalFn = func(path string) error {
@@ -244,14 +300,12 @@ func (s *commandRemovalStep) Run() error {
 			// Adapter does not support commands; skip silently.
 			continue
 		}
-		relPath := command.RelPathForVariant(a.VariantKey())
-		if relPath == "" {
-			// Unknown variant — no command file to remove; skip silently.
-			continue
-		}
-		commandPath := filepath.Join(commandsDir, relPath)
-		if err := commandRemovalFn(commandPath); err != nil {
-			return fmt.Errorf("command removal for harness %q on agent %q: %w", s.h.ID, a.Agent(), err)
+		// Unknown variant (o variante sin assets) → lista vacia → skip silencioso.
+		for _, relPath := range commandRelPathsForVariant(a.VariantKey()) {
+			commandPath := filepath.Join(commandsDir, relPath)
+			if err := commandRemovalFn(commandPath); err != nil {
+				return fmt.Errorf("command removal for harness %q on agent %q: %w", s.h.ID, a.Agent(), err)
+			}
 		}
 	}
 	return nil

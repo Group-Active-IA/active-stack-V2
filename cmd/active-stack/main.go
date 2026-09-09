@@ -36,8 +36,14 @@ import (
 //
 // C-32 fix: adds the missing WithEmbeddedCommandsFS call that caused
 // "command installer: commandsFS is nil" at runtime. See design.md D1.
+//
+// 2026-09-09: el uninstall tambien lo necesita. Desde que el instalador camina
+// commands/<variante>/ y escribe varios archivos, el uninstall deriva de los
+// mismos assets cuales borrar; sin este wiring degrada a borrar solo starter-add
+// y deja huerfanos los demas, en silencio.
 func wireEmbeddedFS() {
 	install.WithEmbeddedCommandsFS(assets.CommandsFS)
+	uninstall.WithEmbeddedCommandsFS(assets.CommandsFS)
 }
 
 func main() {
