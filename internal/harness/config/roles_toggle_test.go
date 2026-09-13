@@ -440,3 +440,92 @@ func TestCompose_RolesToggle_DoesNotClaimAToolLeverItLacks(t *testing.T) {
 		}
 	}
 }
+
+// rolesRowMatching returns the flattened row whose FIRST CELL contains want.
+//
+// Indexing by a fragment of the first cell is what lets a test assert the
+// mapping instead of the vocabulary: the row keys here are descriptions of what
+// a diff touches, and they are meant to be re-worded. What may not change is
+// which reviewer the row lands on.
+func rolesRowMatching(t *testing.T, want string) string {
+	t.Helper()
+	rows := rolesPhaseRows(t)
+	for key, row := range rows {
+		if strings.Contains(key, want) {
+			return row
+		}
+	}
+	t.Fatalf("no table row in the roles fragment describes a diff that touches %q", want)
+	return ""
+}
+
+// TestCompose_RolesToggle_SizeIsReadOffTheDiff asserts the review size is
+// DERIVED from what the change touches, not picked as a level by the agent that
+// coordinated writing it.
+//
+// WHY THIS PROPERTY AND NOT THE OBVIOUS ONE. The first version of this rule hung
+// the size off the CRITICAL / HIGH / MEDIUM / LOW ladder and asked the
+// orchestrator to classify. Two holes, and the run of 2026-09-09 shows both at
+// once:
+//
+//   - The classification was WRONG on the very run that motivated the rule. That
+//     change was filed as harmless scaffolding, and it touched secrets in
+//     environment variables, database migrations, the CI and the `.env`. Its
+//     twelve real problems were real BECAUSE it touched those. A rule keyed on
+//     the chosen level would have convened the small review on the one change we
+//     know had twelve things broken in it.
+//   - The classifier is the interested party. The agent that coordinated writing
+//     the code grading its own change is the incentive pointing at "low".
+//
+// Reading it off the diff closes both with one change: nobody can file as small
+// a change with a migration inside it, because the migration is right there.
+//
+// The datum that discriminates: the rows must MAP a diff fact to a reviewer. A
+// section that merely says "it depends on what it touches" and stops defers to
+// nothing, so this parses the table and checks where each row lands.
+func TestCompose_RolesToggle_SizeIsReadOffTheDiff(t *testing.T) {
+	body := rolesSection(t, "### how many reviewers")
+	required := map[string]string{
+		"seventeen agents":              "without the measured number the rule is a preference, and preferences get argued with instead of applied",
+		"is not a level somebody picks": "the whole correction: a level the orchestrator chooses is a level the orchestrator gets wrong in its own favour",
+		"it is read off the diff":       "the replacement mechanism has to be named, not implied",
+		"migration is right there":      "the argument for why reading beats judging, and it is what a reader has to be able to repeat",
+		"no matter how small the diff":  "the floor is what this rule may not touch, and it must say so where it is read",
+		"when in doubt, you convene":    "a size rule with no default errs towards convening nobody, which is the failure it was written to avoid",
+		"read this rule as a licence":   "it must name what it does NOT license: the auditor and the lenses were the parts that paid off",
+	}
+	for phrase, why := range required {
+		if !strings.Contains(body, phrase) {
+			t.Errorf("the size section is missing %q: %s", phrase, why)
+		}
+	}
+
+	// El mecanismo: cada hecho del diff cae en un revisor concreto.
+	mapeo := map[string]string{
+		"migration": "dba",
+		"secrets":   "floor",
+		"ci":        "devops",
+		"ui tree":   "frontend",
+		"endpoint":  "backend",
+	}
+	for hecho, revisor := range mapeo {
+		row := rolesRowMatching(t, hecho)
+		if !strings.Contains(row, revisor) {
+			t.Errorf("a diff touching %q does not land on %q (row: %q): a table that "+
+				"names the fact and not the reviewer classifies nothing", hecho, revisor, row)
+		}
+	}
+
+	// Y la clasificación NO puede volver a ser un nivel que alguien elige.
+	for _, banned := range []string{
+		"which level you used",
+		"classifying by blast radius",
+		"the change's governance level",
+	} {
+		if strings.Contains(body, banned) {
+			t.Errorf("the size section still asks somebody to CHOOSE a level (%q). The "+
+				"run of 2026-09-09 filed a change touching secrets, migrations and CI as "+
+				"scaffolding: the classifier is the interested party", banned)
+		}
+	}
+}

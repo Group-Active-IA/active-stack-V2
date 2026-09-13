@@ -145,3 +145,39 @@ func TestCompose_EvidenceToggle_TellsTheOrchestratorToDemandIt(t *testing.T) {
 		}
 	}
 }
+
+// TestCompose_EvidenceToggle_UnreproducedFindingIsNotABlocker asserts the
+// downgrade rule reaches FINDINGS, not only claims.
+//
+// The fragment already forbids promoting a claim to a stronger category for
+// convenience. The same thing happens one level up and nothing said so: a
+// reviewer suspects something and reports it as blocking, because "blocking" is
+// what gets read.
+//
+// The measurement, from a full cycle on a real project on 2026-09-09: of 27
+// findings reported as blocking, 12 were real. The other 15 were paid for three
+// times — the reviewer to find it, the auditor to review it, and the agent
+// fixing things to discard it.
+//
+// THE HALF THAT MATTERS MORE, and it is why this test asserts it separately: a
+// reviewer required to reproduce everything goes QUIET about what it could not
+// prove, and some of those things are real. So the rule has to be downgrade,
+// never go silent — and it has to say which of the two failures is the worse
+// one, in the text, where the reviewer reads it. An unreproduced finding
+// reported as a suspicion costs one line; the same finding kept quiet costs a
+// bug in production.
+func TestCompose_EvidenceToggle_UnreproducedFindingIsNotABlocker(t *testing.T) {
+	body := evidenceFragment(t)
+	required := map[string]string{
+		"go and reproduce it":   "a rule that only says 'be careful' changes nothing about what gets reported",
+		"as a suspicion":        "the finding must still arrive: the fix is the category, not the omission",
+		"what you were missing": "a suspicion with no missing datum named cannot be confirmed by whoever reads it next",
+		"downgrade, never go":   "the mitigation for the way this rule fails: silence instead of a lower category",
+		"is the worse failure":  "if the text does not say which failure costs more, the reviewer picks the one that looks tidier",
+	}
+	for phrase, why := range required {
+		if !strings.Contains(body, phrase) {
+			t.Errorf("the reproduction rule is missing %q: %s", phrase, why)
+		}
+	}
+}

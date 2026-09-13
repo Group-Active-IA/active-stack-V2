@@ -219,6 +219,45 @@ openspec instructions apply --change "<name>" --json
   reason: no delegation available in this session, the toggle is off, the role
   had no criterion for this diff. **Silence about a reviewer reads as approval
   from that reviewer**, and that is the one reading that is never true.
+- **The mechanical checks you run yourself, once, before convening anybody.** A
+  command returns the same thing whoever runs it. When you already know which
+  deterministic checks the review is going to need — the suite, the linter,
+  `git diff --stat`, the state of CI — run them BEFORE convening anybody and
+  paste the output into each reviewer's prompt. On 2026-09-09 a full cycle on a
+  real project spent 1,351,186 tokens on eight reviewers in verify, almost
+  exactly what writing the entire code cost (1,325,302), and four of them came
+  back with the same finding reached down the same two-command path. **The
+  criterion is not in running the command: it is in reading the output.**
+  Convening somebody to execute what you can execute yourself pays a whole
+  context for an exit code.
+  **The bound, and without it the rule reverses:** this holds while the output
+  fits in a few lines — an exit code, a test count, a `git diff --stat`, the
+  list of files touched. **If the output is a dump, you pass the command and
+  its verdict in one line**, never the dump, and whoever needs it whole runs it
+  themselves. A verbose suite pasted into N prompts spends more than it saves,
+  and it lands in your own context on top of that.
+  **It does not delete the delegation table's `Bash for execution → delegate`
+  row, and it does not contradict it in silence** — where the `delegation`
+  toggle keeps that table on the page. That row is about **who executes the
+  work**; this rule is about **not paying N contexts for a datum you already
+  have**. The same criterion separates them that this rule already uses:
+  **mechanical and deterministic** is a datum, "go and see whether this is
+  right" is judgment and gets delegated. **If the output does not fit the
+  bound, the table wins.**
+  It licenses nothing about WHO reads the output either: **the auditor and the
+  three adversarial lenses are not commands**, and this rule does not touch
+  them. The same measurement found the auditor cost 5% of the run and caught
+  three things eleven reviewers had missed.
+- **When the review comes back with several problems, group them by ZONE of the
+  code before you hand them out.** One agent for all of them is expensive: by
+  problem number twelve it is dragging the context of the eleven before it —
+  816,762 tokens on 2026-09-09, 17% of the whole run. One agent per problem is
+  worse: each one pays the project's initial read again, and that read costs the
+  same for one problem as for twelve, so splitting into twelve **pays the
+  entrance fee twelve times**. **The file decides the cut**: problems touching
+  the same file go together, without exception, because apart they overwrite
+  each other; problems in different zones go out in parallel. Where you have no
+  sub-agents, the same grouping decides the order you work them in yourself.
 
 <!-- active-stack:sdd-model-assignments -->
 ## Model Assignments
@@ -329,6 +368,35 @@ timer.
 
 If declaring feels like confessing, the cheapest way out is to stop declaring,
 and then the report looks cleaner while the project gets worse.
+
+### A finding you did not reproduce is not a blocker
+
+The downgrade rule above is about claims. It applies to **findings** in exactly
+the same way, and findings are where it gets ignored: a reviewer suspects
+something and files it as blocking, because blocking is the label that gets read.
+
+So before reporting anything as blocking, **go and reproduce it**. If you cannot —
+no tool for it, the environment will not come up, the datum is not there —
+**report it anyway, as a suspicion, naming what you were missing to confirm it**.
+
+The measurement, from a full cycle on a real project on 2026-09-09: of 27
+findings reported as blocking, 12 were real. The other 15 were **paid for three
+times** — the reviewer to find it, the auditor to review it, and the agent fixing
+things to discard it.
+
+**And the risk, out loud, because it is how this rule fails:** a reviewer
+required to reproduce everything **goes quiet about what it could not prove**,
+and some of those things are real. So the rule is **downgrade, never go silent**.
+An unreproduced finding filed as a suspicion costs one line; the same finding
+kept quiet costs a bug in production. Between the two,
+**silence is the worse failure**, and it is the one that leaves no trace.
+
+```
+JUDGMENT  (correctness pass)  SUSPICION — not reproduced.
+  The migration looks like it breaks on a password containing `%`.
+  Missing to confirm it: I could not raise a database to run it against.
+  Confidence: low.
+```
 
 ### Practical notes
 
@@ -471,6 +539,61 @@ at which it can still cost anything.
 
 Convening all seven every time costs the same as convening nobody: it stops being
 a signal, and by the third change it gets skimmed.
+
+### How many reviewers, not only which — read it off the diff, do not judge it
+
+The table above says WHO by what the change touches. It says nothing about
+**how many**, and that omission has a measured price: on 2026-09-09 the
+scaffolding of an empty project convened **seventeen agents**. The review alone
+came to 1,939,129 tokens, 39% of a 4,900,000-token run, and of 27 findings
+reported as blocking, 12 were real.
+
+Read that run again before drawing the wrong lesson from it. The change was filed
+as harmless scaffolding, and what it actually touched was **secrets in
+environment variables, database migrations, the CI and the `.env`**. That is not
+a small change, and its twelve real problems were real **because** it touched
+those things. A genuine scaffolding — a catalogue of types, a constant, a
+README — touches none of them and needs nobody.
+
+So **the size is not a level somebody picks. It is read off the diff**, in facts
+anybody can check by opening the same diff:
+
+| What the diff touches | Who is convened, with no opinion in the middle |
+|---|---|
+| a migration file, a schema, a query | DBA |
+| secrets, environment variables, authentication, payments or user data | the whole floor below, whatever the size of the diff |
+| deploy, CI or containers | DevOps |
+| any file under the UI tree | frontend |
+| an endpoint, a handler, a validation at the boundary | backend |
+| none of the above | the small review: QA, or nobody |
+
+**This is what closes the incentive hole**, and it is why the rule is written as
+a reading and not as a judgment: the agent that coordinated writing the code is
+the last one who should be grading its own change. **Nobody can file as small a
+change with a migration inside it, because the migration is right there for
+anybody to see.**
+
+Where governance is active it keeps its own job, untouched by this: row two
+overlaps the domains it marks CRITICAL, and **the human gate still blocks there**
+no matter who this table convenes.
+
+Two things this rule does NOT license:
+
+- **The floor stays untouched.** Row two is the floor, and it applies
+  **no matter how small the diff looks**. A floor that gets skipped when the
+  change looks minor is skipped on exactly the change where somebody was in a
+  hurry.
+- **When in doubt, you convene.** The rule saves on a diff that clearly touches
+  none of those rows, never on one that merely looks like it does not. A reviewer
+  convened for nothing costs one context; a reviewer not convened costs the bug
+  nobody read.
+
+And it says nothing about the **auditor** or about the **three adversarial
+lenses**. Those are not review size, they are review coverage, and the same
+measurement that produced this rule found both of them cheap: the auditor was 5%
+of the run and caught three things eleven reviewers had missed, and each lens
+catches a different kind of defect. **Read this rule as a licence to cut either
+one and you have read it backwards.**
 
 ### The roles you did NOT convene go in the report
 

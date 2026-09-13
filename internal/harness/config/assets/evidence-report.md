@@ -70,6 +70,35 @@ timer.
 If declaring feels like confessing, the cheapest way out is to stop declaring,
 and then the report looks cleaner while the project gets worse.
 
+### A finding you did not reproduce is not a blocker
+
+The downgrade rule above is about claims. It applies to **findings** in exactly
+the same way, and findings are where it gets ignored: a reviewer suspects
+something and files it as blocking, because blocking is the label that gets read.
+
+So before reporting anything as blocking, **go and reproduce it**. If you cannot —
+no tool for it, the environment will not come up, the datum is not there —
+**report it anyway, as a suspicion, naming what you were missing to confirm it**.
+
+The measurement, from a full cycle on a real project on 2026-09-09: of 27
+findings reported as blocking, 12 were real. The other 15 were **paid for three
+times** — the reviewer to find it, the auditor to review it, and the agent fixing
+things to discard it.
+
+**And the risk, out loud, because it is how this rule fails:** a reviewer
+required to reproduce everything **goes quiet about what it could not prove**,
+and some of those things are real. So the rule is **downgrade, never go silent**.
+An unreproduced finding filed as a suspicion costs one line; the same finding
+kept quiet costs a bug in production. Between the two,
+**silence is the worse failure**, and it is the one that leaves no trace.
+
+```
+JUDGMENT  (correctness pass)  SUSPICION — not reproduced.
+  The migration looks like it breaks on a password containing `%`.
+  Missing to confirm it: I could not raise a database to run it against.
+  Confidence: low.
+```
+
 ### Practical notes
 
 - Skip empty sections. A one-line change does not need three headings.

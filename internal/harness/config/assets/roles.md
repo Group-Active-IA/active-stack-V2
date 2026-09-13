@@ -69,6 +69,61 @@ at which it can still cost anything.
 Convening all seven every time costs the same as convening nobody: it stops being
 a signal, and by the third change it gets skimmed.
 
+### How many reviewers, not only which — read it off the diff, do not judge it
+
+The table above says WHO by what the change touches. It says nothing about
+**how many**, and that omission has a measured price: on 2026-09-09 the
+scaffolding of an empty project convened **seventeen agents**. The review alone
+came to 1,939,129 tokens, 39% of a 4,900,000-token run, and of 27 findings
+reported as blocking, 12 were real.
+
+Read that run again before drawing the wrong lesson from it. The change was filed
+as harmless scaffolding, and what it actually touched was **secrets in
+environment variables, database migrations, the CI and the `.env`**. That is not
+a small change, and its twelve real problems were real **because** it touched
+those things. A genuine scaffolding — a catalogue of types, a constant, a
+README — touches none of them and needs nobody.
+
+So **the size is not a level somebody picks. It is read off the diff**, in facts
+anybody can check by opening the same diff:
+
+| What the diff touches | Who is convened, with no opinion in the middle |
+|---|---|
+| a migration file, a schema, a query | DBA |
+| secrets, environment variables, authentication, payments or user data | the whole floor below, whatever the size of the diff |
+| deploy, CI or containers | DevOps |
+| any file under the UI tree | frontend |
+| an endpoint, a handler, a validation at the boundary | backend |
+| none of the above | the small review: QA, or nobody |
+
+**This is what closes the incentive hole**, and it is why the rule is written as
+a reading and not as a judgment: the agent that coordinated writing the code is
+the last one who should be grading its own change. **Nobody can file as small a
+change with a migration inside it, because the migration is right there for
+anybody to see.**
+
+Where governance is active it keeps its own job, untouched by this: row two
+overlaps the domains it marks CRITICAL, and **the human gate still blocks there**
+no matter who this table convenes.
+
+Two things this rule does NOT license:
+
+- **The floor stays untouched.** Row two is the floor, and it applies
+  **no matter how small the diff looks**. A floor that gets skipped when the
+  change looks minor is skipped on exactly the change where somebody was in a
+  hurry.
+- **When in doubt, you convene.** The rule saves on a diff that clearly touches
+  none of those rows, never on one that merely looks like it does not. A reviewer
+  convened for nothing costs one context; a reviewer not convened costs the bug
+  nobody read.
+
+And it says nothing about the **auditor** or about the **three adversarial
+lenses**. Those are not review size, they are review coverage, and the same
+measurement that produced this rule found both of them cheap: the auditor was 5%
+of the run and caught three things eleven reviewers had missed, and each lens
+catches a different kind of defect. **Read this rule as a licence to cut either
+one and you have read it backwards.**
+
 ### The roles you did NOT convene go in the report
 
 Every role left out gets **one line**, naming it and **the reason** it was left

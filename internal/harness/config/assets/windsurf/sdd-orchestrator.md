@@ -191,6 +191,45 @@ Before ending a session, call `mem_session_summary` with:
   reason: no delegation available in this session, the toggle is off, the role
   had no criterion for this diff. **Silence about a reviewer reads as approval
   from that reviewer**, and that is the one reading that is never true.
+- **The mechanical checks you run yourself, once, before convening anybody.** A
+  command returns the same thing whoever runs it. When you already know which
+  deterministic checks the review is going to need — the suite, the linter,
+  `git diff --stat`, the state of CI — run them BEFORE convening anybody and
+  paste the output into each reviewer's prompt. On 2026-09-09 a full cycle on a
+  real project spent 1,351,186 tokens on eight reviewers in verify, almost
+  exactly what writing the entire code cost (1,325,302), and four of them came
+  back with the same finding reached down the same two-command path. **The
+  criterion is not in running the command: it is in reading the output.**
+  Convening somebody to execute what you can execute yourself pays a whole
+  context for an exit code.
+  **The bound, and without it the rule reverses:** this holds while the output
+  fits in a few lines — an exit code, a test count, a `git diff --stat`, the
+  list of files touched. **If the output is a dump, you pass the command and
+  its verdict in one line**, never the dump, and whoever needs it whole runs it
+  themselves. A verbose suite pasted into N prompts spends more than it saves,
+  and it lands in your own context on top of that.
+  **It does not delete the delegation table's `Bash for execution → delegate`
+  row, and it does not contradict it in silence** — where the `delegation`
+  toggle keeps that table on the page. That row is about **who executes the
+  work**; this rule is about **not paying N contexts for a datum you already
+  have**. The same criterion separates them that this rule already uses:
+  **mechanical and deterministic** is a datum, "go and see whether this is
+  right" is judgment and gets delegated. **If the output does not fit the
+  bound, the table wins.**
+  It licenses nothing about WHO reads the output either: **the auditor and the
+  three adversarial lenses are not commands**, and this rule does not touch
+  them. The same measurement found the auditor cost 5% of the run and caught
+  three things eleven reviewers had missed.
+- **When the review comes back with several problems, group them by ZONE of the
+  code before you hand them out.** One agent for all of them is expensive: by
+  problem number twelve it is dragging the context of the eleven before it —
+  816,762 tokens on 2026-09-09, 17% of the whole run. One agent per problem is
+  worse: each one pays the project's initial read again, and that read costs the
+  same for one problem as for twelve, so splitting into twelve **pays the
+  entrance fee twelve times**. **The file decides the cut**: problems touching
+  the same file go together, without exception, because apart they overwrite
+  each other; problems in different zones go out in parallel. Where you have no
+  sub-agents, the same grouping decides the order you work them in yourself.
 - You execute phases inline — do NOT try to delegate them to sub-agents
 - Use Plan Mode for explore/propose on Medium/Large changes, Code Mode for apply
 <!-- active-stack:sdd-model-assignments -->
