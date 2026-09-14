@@ -423,6 +423,191 @@ func TestCompose_KnowledgeBaseToggle_EmptyRewriteListIsAClaim(t *testing.T) {
 	}, "the detector section")
 }
 
+// TestCompose_KnowledgeBaseToggle_TheReportIsTheClosingCondition asserts the
+// report is a condition of closing the change, not a courtesy asked at the end.
+//
+// EL PROBLEMA QUE ESTO CIERRA. Todo lo anterior es doctrina y estaba bien; nada
+// verificaba que se hubiera hecho. La fase de archive no tenía ningún trabajo
+// comprobable, y se nota en las dos corridas medidas: archive no produjo UN solo
+// hallazgo en diez changes, y las tres omisiones que sí aparecieron las cazó el
+// auditor leyendo informes, no la fase. El dato fechado es el commit `448d9ab`
+// del proyecto de Java: tres REWRITE pendientes que sobrevivieron DOS changes
+// enteros, uno de ellos sobre el documento que el change siguiente leía como
+// criterio de aceptación. Los dos changes cerraron igual.
+//
+// Los dos datos van en el fragmento a propósito: son lo que impide que dentro de
+// seis meses alguien borre esta sección por parecer burocracia.
+func TestCompose_KnowledgeBaseToggle_TheReportIsTheClosingCondition(t *testing.T) {
+	body := kbSection(t, "### the report is the change")
+	requirePhrases(t, body, map[string]string{
+		"the change is not closed until the two lists are on the record": "la condición de cierre, que es lo único nuevo de esta sección",
+		"a reminder followed by the archive is the archive":              "por qué avisar y seguir no es una versión más suave de la regla sino su ausencia",
+		"name which list is missing and stop":                            "qué se hace cuando falta, en una forma ejecutable",
+		// Los dos datos de las corridas. Sin ellos la sección es una opinión sobre
+		// procesos y se recorta sola.
+		"not a single finding in ten changes": "la corrida que muestra que la fase no tenía trabajo verificable",
+		"448d9ab":                             "el commit fechado: la deuda existió y alguien la pagó a mano meses después",
+		"across two whole changes":            "cuánto sobrevivió sin que nada objetara",
+		"acceptance criterion":                "por qué dolió: uno de los documentos era el criterio del change siguiente",
+	}, "the closing-condition section")
+}
+
+// TestCompose_KnowledgeBaseToggle_ClosingConditionDoesNotClaimTheCLIEnforcesIt
+// asserts la sección nombra la palanca real.
+//
+// Decir "el change no cierra sin el reporte" suena a que algo lo impide.
+// `openspec archive` corre igual. La palanca es el orquestador negándose a
+// declarar cerrado el change, que es la misma que usa una precondición de
+// publicación, y es la única que alguien acá tiene de verdad. Sin esta línea la
+// sección promete un mecanismo inexistente, que es el defecto que este repo ya
+// tuvo que corregir dos veces.
+func TestCompose_KnowledgeBaseToggle_ClosingConditionDoesNotClaimTheCLIEnforcesIt(t *testing.T) {
+	body := kbSection(t, "### the report is the change")
+	requirePhrases(t, body, map[string]string{
+		"what holds it is you, not the cli":        "quién sostiene la condición, dicho antes de que alguien espere al comando",
+		"runs whether or not the report exists":    "lo que el CLI hace de verdad",
+		"the only lever anybody here actually has": "por qué esa palanca y no otra",
+	}, "the closing-condition section")
+}
+
+// TestCompose_KnowledgeBaseToggle_ClosingConditionKeepsBothLists es EL
+// ANTI-ASSERT que pidió el encargo, y va en las dos direcciones.
+//
+// El recorte que hay que impedir no es borrar la sección entera: es dejarla con
+// una sola de las dos listas, o dejar las dos y sacar la obligación de declarar
+// REWRITTEN vacío con su motivo. Ese es el punto exacto que separa el trabajo
+// hecho del trabajo a medias: apilar sale gratis, y un reporte que sólo exige
+// APPENDED se cumple sin releer ni borrar nada.
+//
+// NO se afirman las palabras sueltas "rewritten" y "appended": la sección del
+// detector y el bloque de prompt de archive las escriben varias veces, y
+// `kbSection` acota pero el propio cuerpo de esta sección las repite. Se afirman
+// las frases que sólo esta regla escribe.
+func TestCompose_KnowledgeBaseToggle_ClosingConditionKeepsBothLists(t *testing.T) {
+	body := kbSection(t, "### the report is the change")
+	requirePhrases(t, body, map[string]string{
+		"the two lists stay two, and stay per document": "la regla de separación, en la única línea que la enuncia acá",
+		"rewritten names each document":                 "la mitad cara, definida por lo que borró",
+		"appended names each document":                  "la mitad barata, al lado — una lista sin la otra vuelve a esconder la mitad",
+		"true of the easy half on its own":              "por qué una lista fusionada no vale nada",
+		// La obligación que sostiene todo lo demás. Si alguien la saca, este test
+		// tiene que ponerse rojo.
+		"an empty rewritten list closes the change only with its reason": "la obligación que separa el trabajo hecho del trabajo a medias",
+		"what does not close the change is the blank":                    "lo que NO es respuesta, dicho como condición de cierre y no como consejo",
+		"reads the same whether the hard half was done or skipped":       "el motivo: sin el motivo escrito, las dos mitades son indistinguibles después",
+	}, "the closing-condition section")
+	// Y el ejemplo del "none" razonado, que es lo que hace la obligación barata de
+	// cumplir: sin una forma escrita, "decí por qué" se contesta con silencio.
+	if !strings.Contains(body, "rewritten none —") {
+		t.Error("the closing-condition section demands a reason for an empty REWRITTEN list " +
+			"and never shows one written down: an obligation with no worked shape gets " +
+			"satisfied with a blank, which is the state it was written to end")
+	}
+}
+
+// TestCompose_KnowledgeBaseToggle_ReportLivesInTheChange asserts el reporte
+// queda en un archivo con nombre, no en el return del sub-agente.
+//
+// Un informe que existe sólo en lo que devuelve el sub-agente TERMINA con el
+// sub-agente, y la deuda arrastrada necesita abrirlo el mes que viene. Por eso
+// va al directorio del change como `knowledge-base-report.md`, al lado de
+// `review-verdict.md`, y en las categorías tipadas — no en un cuarto formato,
+// que es lo que las reglas de reporte ya rechazan.
+func TestCompose_KnowledgeBaseToggle_ReportLivesInTheChange(t *testing.T) {
+	body := kbSection(t, "### where the report lives")
+	requirePhrases(t, body, map[string]string{
+		"`knowledge-base-report.md`":     "un nombre de archivo concreto: 'en el change' no nombra nada que alguien pueda abrir",
+		"terminates with the sub-agent":  "por qué el return no alcanza",
+		"not a second format next to it": "en qué se escribe, para no agregar un formato más a los que ya compiten",
+	}, "the where-it-lives section")
+}
+
+// TestCompose_KnowledgeBaseToggle_BorrowsTheArchivingAssumptionInsteadOfRepeating
+// asserts la suposición del archivado sigue siendo UNA.
+//
+// `review.md` ya declara, en extenso, que `openspec archive` mueve el directorio
+// entero del change, y el reparto del bloque base la referencia en vez de
+// repetirla. Este reporte vive en el mismo lugar y depende de lo mismo. Declarada
+// una tercera vez por separado se lee como tres suposiciones del sistema cuando
+// es una sola, y el día que resulte falsa hay que corregir tres lugares y se
+// corrige uno.
+func TestCompose_KnowledgeBaseToggle_BorrowsTheArchivingAssumptionInsteadOfRepeating(t *testing.T) {
+	body := kbSection(t, "### where the report lives")
+	requirePhrases(t, body, map[string]string{
+		"one assumption of the system, not two":    "la referencia, en los términos que el bloque base ya usa",
+		"moves the whole change directory":         "qué se está suponiendo, nombrado para que el puntero sea legible sin ir a buscarlo",
+		"it is not restated here":                  "que NO se vuelve a declarar: ese es el punto",
+		"dropped together and for the same reason": "la consecuencia compartida si la suposición es falsa",
+		"the carried debt below goes with them":    "y que la deuda arrastrada cae con ellos, que es lo que esta sección agrega sobre el original",
+	}, "the where-it-lives section")
+	// El puntero tiene que apuntar a algo. Con `review` activo, la declaración en
+	// extenso está; si review.md la pierde, acá queda un puntero a nada, que es
+	// peor que haberla repetido.
+	all, err := config.Compose(config.KnownToggles(), "claude")
+	if err != nil {
+		t.Fatalf("Compose(all): %v", err)
+	}
+	if !strings.Contains(kbFlat(strings.ToLower(all)), "**assumption** (not verified from this repo): that the file survives because `openspec archive` moves the whole change directory") {
+		t.Error("the knowledge-base fragment points at an assumption `review.md` no longer " +
+			"declares in full: the pointer now names nothing, which is worse than having " +
+			"repeated the declaration")
+	}
+}
+
+// TestCompose_KnowledgeBaseToggle_DebtTravelsOneHop asserts la deuda arrastrada
+// se ve sin que nadie la busque, y sin volverse un inventario.
+//
+// EL CASO QUE MÁS DOLIÓ. Tres REWRITE pendientes de dos changes anteriores: si el
+// reporte cubre sólo el change que se cierra, esa deuda es invisible hasta que
+// alguien la vaya a buscar, que fue literalmente lo que pasó. La solución no es
+// auditar el archivo entero — eso es un inventario, y un inventario se saltea
+// costando toda la lectura del archivo. La deuda VIAJA: cada reporte se la pasa
+// al siguiente, un salto por vez, con el change y la fecha que la originaron.
+func TestCompose_KnowledgeBaseToggle_DebtTravelsOneHop(t *testing.T) {
+	body := kbSection(t, "### the debt travels forward")
+	requirePhrases(t, body, map[string]string{
+		"**pending**": "la tercera lista, etiquetada",
+		"the change that incurred it and the date":                      "qué lleva cada entrada, que es lo que hace legible su antigüedad",
+		"one hop back, never the whole archive":                         "el límite que impide que esto sea un inventario",
+		"an inventory gets skimmed":                                     "por qué el inventario no es una versión más completa sino una peor",
+		"it stays visible by **travelling**, not by being searched for": "el mecanismo, dicho en una línea",
+	}, "the carried-debt section")
+}
+
+// TestCompose_KnowledgeBaseToggle_MissingPreviousReportIsNotAnEmptyDebt asserts
+// el mismo error que el fragmento ya evita en el chequeo de deriva.
+//
+// Un PENDING vacío porque no hay deuda y un PENDING vacío porque el change
+// anterior no dejó reporte se ven igual en la página, y sólo uno significa que no
+// hay deuda. Es la falla de la fecha vacía del chequeo de deriva, llegando por el
+// otro extremo del ciclo: al desplegar esto, el estado ORDINARIO es que el change
+// anterior cerró antes de que la regla existiera.
+func TestCompose_KnowledgeBaseToggle_MissingPreviousReportIsNotAnEmptyDebt(t *testing.T) {
+	body := kbSection(t, "### the debt travels forward")
+	requirePhrases(t, body, map[string]string{
+		"a missing previous report is not an empty pending": "la regla",
+		"could not carry debt forward":                      "la línea exacta que se escribe en su lugar",
+		"only one of them means there is no debt":           "por qué las dos no son intercambiables",
+	}, "the carried-debt section")
+}
+
+// TestCompose_KnowledgeBaseToggle_ArchivePromptCarriesTheReport asserts que lo
+// nuevo llega al que tiene que hacerlo.
+//
+// El defecto que este fragmento ya se cazó dos veces: una regla escrita en la
+// sección y en ningún otro lado está dirigida a alguien que nunca la lee. El
+// lector de estas secciones es el orquestador; el lector del sub-agente es el
+// prompt que el orquestador pega. Si el archivo y la lista PENDING no están en
+// ese bloque de prompt, el sub-agente devuelve dos listas que mueren con él.
+func TestCompose_KnowledgeBaseToggle_ArchivePromptCarriesTheReport(t *testing.T) {
+	body := kbSection(t, "### in archive")
+	requirePhrases(t, body, map[string]string{
+		"write all three lists into this change as `knowledge-base-report.md`": "que el reporte se escriba en el change, dentro del prompt que el sub-agente recibe",
+		"a third list headed pending":                                          "la deuda arrastrada, pedida donde alguien puede actuar sobre ella",
+		"if there is no previous report, say so":                               "y el caso vacío, para que un PENDING en blanco no pase por 'no hay deuda'",
+	}, "the archive section")
+}
+
 // TestCompose_KnowledgeBaseToggle_LabelsTheDocumentNamesAsAssumption asserts the
 // fragment does not hardcode filenames it cannot verify.
 //

@@ -1212,7 +1212,11 @@ diff instead and say so. Then, for each document it names: REWRITE status, next
 steps and frontmatter so they describe the new state and the old text is gone;
 APPEND decisions and gotchas, dated, with what each one cost. Return the two
 lists separately and by document, headed REWRITTEN and APPENDED. If REWRITTEN
-is empty, say why in one line.
+is empty, say why in one line. Then open the previous closed change's
+`knowledge-base-report.md`, carry whatever it left undone into a third list
+headed PENDING with the change and the date that incurred it, and write all
+three lists into this change as `knowledge-base-report.md`. If there is no
+previous report, say so instead of writing an empty PENDING.
 ```
 
 That is one more request on top of another: nothing makes you paste it, and
@@ -1246,6 +1250,94 @@ add only history, and saying so in one line with the reason is a complete answer
 Leaving it blank is not, because **"I updated the knowledge base" is the same
 sentence** whether the hard half was done or skipped, and without the split
 **nobody can tell those two apart** afterwards.
+
+### The report is the change's closing condition
+
+Everything above is how to do the work. This is the part that says the work
+happened — and archive needs one, because **the phase has no verifiable output at
+all**. Across two measured projects, archive returned
+**not a single finding in ten changes**. That is not ten clean archives: the
+three omissions that did surface were found by the auditor reading the reports
+afterwards, never by the phase whose job it was.
+
+The other run is the sharper one, because it is dated. A Java project carries the
+commit `448d9ab docs: ejecutar los tres REWRITE de archive que quedaron
+pendientes de C-01 y C-02` — **three rewrites missed across two whole changes**,
+and one of them was the document the next change was reading as its acceptance
+criterion. Both changes closed on time. Nothing objected, because
+**nothing had anything to check**.
+
+So: **the change is not closed until the two lists are on the record.** Not a
+reminder and then the archive — a reminder followed by the archive is the
+archive, and the reminder is the half nobody reads. If the report is not there,
+name which list is missing and stop before declaring the change closed.
+
+**What holds it is you, not the CLI.** `openspec archive` runs whether or not the
+report exists, for the same reason the section above already gives. The hold is
+the orchestrator declining to call the change closed, which is the only lever
+anybody here actually has — and it is the same one a missing precondition uses
+before a publish.
+
+**The two lists stay two, and stay per document.** REWRITTEN names each document
+whose state text was replaced and what was deleted out of it; APPENDED names each
+document that gained a dated entry and what it cost. Collapsed into
+"I updated the knowledge base" the report is worth nothing, because that sentence
+is **true of the easy half on its own**, and the easy half is the one that
+survives a hurried archive.
+
+**And an empty REWRITTEN list closes the change only with its reason beside it.**
+A change that genuinely moved no state — a decision recorded, a gotcha written
+down, nothing that answers "how is it now" — is a complete answer when it says
+so: `REWRITTEN none — added a retry policy, changed no documented behaviour`.
+What does not close the change is the blank. Take that obligation out and the
+whole section falls back to the sentence it was written to replace: the report
+**reads the same whether the hard half was done or skipped**, and three rewrites
+go missing for two changes before anybody notices.
+
+### Where the report lives, and the one assumption it borrows
+
+Write it into the change as `knowledge-base-report.md`, beside the other
+artifacts, in the typed categories — the JUDGMENT shape the detector above
+already shows, not a second format next to it. A report that exists only in the
+archive sub-agent's return **terminates with the sub-agent**, and the section
+below has to open it again next month.
+
+**This report shares one assumption with the review verdict, and it is one
+assumption of the system, not two**: that archiving moves the whole change
+directory, so what was filed inside it is still there afterwards. Where the
+`review` fragment is on the page that assumption is already declared there in
+full, and it is not restated here. If archiving instead copies a known artifact
+list, the verdict and this report are dropped together and for the same reason —
+and the carried debt below goes with them.
+
+### The debt travels forward, one hop at a time
+
+A report that covers only the change being closed leaves the previous change's
+misses invisible, and that is exactly how three rewrites survived two archives in
+the Java project: by the time anybody looked, each one was somebody else's
+omission. Whoever wrote `448d9ab` had to **go and find them**, months later, in
+an archive nobody reads for pleasure.
+
+So the report carries a third list, and it is short on purpose. **PENDING** holds
+what the *previous* change's report left undone: every document its
+`## Knowledge Base Impact` named for a rewrite that never turned up in its
+REWRITTEN list, plus whatever that report's own PENDING still carried. Each entry
+keeps **the change that incurred it and the date**, so a debt on its third hop
+says so without anybody counting.
+
+**One hop back, never the whole archive.** The look-back is one file — the last
+closed change's report — and not a sweep of `openspec/changes/archive/`. A report
+that re-audits every change since the beginning is an inventory, an inventory
+gets skimmed, and a skimmed list is worth what no list is worth while costing the
+whole archive to produce. Debt nobody pays is handed by each report to the next
+one: it stays visible by **travelling**, not by being searched for.
+
+**And a missing previous report is not an empty PENDING.** If the last change
+closed before this rule existed, or left no `knowledge-base-report.md` at all,
+write **"could not carry debt forward: <change> left no report"** and nothing
+else. Those two lines look identical on the page and only one of them means there
+is no debt — the same failure as an empty date in the drift check above, arriving
+at the other end of the cycle.
 
 
 ## The Senior — A Companion, Not A Phase
