@@ -7,6 +7,7 @@
 //	active-stack install --headless   Non-interactive install (also implied by --mode/--agent).
 //	active-stack install --dry-run    Print the install plan; do not execute.
 //	active-stack install --help       Show all available flags.
+//	active-stack roles                Read a diff and report which reviewers apply.
 package main
 
 import (
@@ -99,6 +100,13 @@ func main() {
 		}
 		regWrapper := uninstallRegistryAdapter{r: reg}
 		exitCode := runUninstallDispatch(os.Args[2:], cat, regWrapper, os.Stderr)
+		if exitCode != 0 {
+			os.Exit(exitCode)
+		}
+	case "roles":
+		// Lee el diff y dice qué revisores corresponden. No necesita catálogo
+		// ni registro de agentes: no instala nada, sólo clasifica rutas.
+		exitCode := runRolesDispatch(os.Args[2:], "", os.Stdout)
 		if exitCode != 0 {
 			os.Exit(exitCode)
 		}
