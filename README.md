@@ -151,8 +151,8 @@ El catálogo agrupa los harnesses en tres presets. Convención: un harness de Li
 
 | Modo | Qué instala | Para qué |
 |------|-------------|----------|
-| **Lite** | El **sustrato** mínimo: `openspec`, `engram`, `context7`, `sdd-orchestrator`, `permissions` | Empezar a trabajar con la metodología ya |
-| **Full** | Sustrato **+ fundación guiada**: `active-orchestrator` y las skills que orquesta (`kb-creator`, `roadmap-generator`, `agent-instruction`, `skill-registry`, `find-skill`, `skill-creator`) | El ecosistema completo, proyecto desde cero |
+| **Lite** | El **sustrato** mínimo: `openspec`, `engram`, `context7`, `sdd-orchestrator`, `permissions`, `starter-add-command` | Empezar a trabajar con la metodología ya |
+| **Full** | Sustrato **+ fundación guiada**: `active-orchestrator` y las skills de fundación (`kb-creator`, `project-scaffold`, `roadmap-generator`, `agent-instruction`, `skill-registry`, `web-scraper`, `discovery-research`, `find-skill`, `skill-creator`) | El ecosistema completo, proyecto desde cero |
 | **Custom** | Vos elegís cada harness | Control total — con una excepción 👇 |
 
 > 🔒 **`permissions` no es desactivable.** Incluso en Custom, el harness de seguridad (permisos *security-first*) queda forzado. La seguridad no es opcional.
@@ -172,9 +172,13 @@ Lo que Active Stack puede instalar hoy (fuente de verdad: [`internal/catalog/har
 | **Permissions** | config | lite · full | Permisos seguros por defecto (bloquea `.env`, confirma git destructivo) — **no opcional** |
 | **active-orchestrator** | skill | full | Orquestador delgado de la fase de fundación |
 | **kb-creator** | skill | full | Genera la knowledge-base canónica del dominio |
+| **project-scaffold** | skill | full | Genera la documentación de proceso: el par `CLAUDE.md`/`AGENTS.md`, README, CONTRIBUTING y skills del stack |
 | **roadmap-generator** | skill | full | Genera `CHANGES.md` (backlog técnico) desde la KB |
 | **agent-instruction** | skill | full | Genera `AGENTS.md`/`CLAUDE.md` con todas las referencias |
 | **skill-registry** | skill | full | Crea/actualiza el registro de skills del proyecto |
+| **web-scraper** | skill | full | Investiga competidores desde una URL, sin API keys ni costos extra |
+| **discovery-research** | skill | full | Fase de Discovery/Investigación (11 puntos) antes de armar la Knowledge Base |
+| **Agent Slash-Commands** | command | lite · full | Los slash-commands nativos del agente (`/active:init`, `/active:starter-add`, `/opsx:ship`, `/opsx:verify`) |
 | **find-skill** | skill (terceros) | full | Busca y recomienda skills relevantes |
 | **skill-creator** | skill (terceros) | full | Crea nuevas skills siguiendo la spec de Agent Skills |
 

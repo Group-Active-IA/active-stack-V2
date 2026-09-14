@@ -53,7 +53,7 @@ var tableEN = map[string]string{
 
 	"mode.full.label": "Complete",
 	"mode.full.desc":  "Full recommended setup with all key tools.",
-	"mode.full.long":  "Complete mode installs the whole recommended kit: the Quick substrate plus the foundation skills (active-orchestrator, kb-creator, roadmap-generator, agent-instruction, skill-registry) and the third-party ones (find-skill, skill-creator). It leaves the project ready for the full OPSX cycle with the guided foundation included. It takes a bit longer than Quick but leaves nothing important out. Choose it when you want everything from day one instead of adding pieces by hand.",
+	"mode.full.long":  "Complete mode installs the whole recommended kit: the Quick substrate plus the foundation skills (active-orchestrator, kb-creator, project-scaffold, roadmap-generator, agent-instruction, skill-registry, web-scraper, discovery-research) and the third-party ones (find-skill, skill-creator). It leaves the project ready for the full OPSX cycle with the guided foundation included. It takes a bit longer than Quick but leaves nothing important out. Choose it when you want everything from day one instead of adding pieces by hand.",
 
 	"mode.custom.label": "Custom",
 	"mode.custom.desc":  "Choose exactly what to install.",

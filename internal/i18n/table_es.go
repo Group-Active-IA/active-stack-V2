@@ -52,7 +52,7 @@ var tableES = map[string]string{
 
 	"mode.full.label": "Completo",
 	"mode.full.desc":  "Instalación completa recomendada con todas las herramientas clave.",
-	"mode.full.long":  "El modo Completo instala todo el kit recomendado: el sustrato de Rápido más las skills de fundación (active-orchestrator, kb-creator, roadmap-generator, agent-instruction, skill-registry) y las de terceros (find-skill, skill-creator). Deja el proyecto listo para el ciclo OPSX completo con la fundación guiada incluida. Tarda un poco más que Rápido pero no deja afuera nada importante. Elegilo cuando querés todo desde el primer día y no ir sumando piezas a mano.",
+	"mode.full.long":  "El modo Completo instala todo el kit recomendado: el sustrato de Rápido más las skills de fundación (active-orchestrator, kb-creator, project-scaffold, roadmap-generator, agent-instruction, skill-registry, web-scraper, discovery-research) y las de terceros (find-skill, skill-creator). Deja el proyecto listo para el ciclo OPSX completo con la fundación guiada incluida. Tarda un poco más que Rápido pero no deja afuera nada importante. Elegilo cuando querés todo desde el primer día y no ir sumando piezas a mano.",
 
 	"mode.custom.label": "Personalizado",
 	"mode.custom.desc":  "Elegí exactamente qué instalar.",
