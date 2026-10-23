@@ -66,9 +66,9 @@ known artifact list, the verdict is dropped on archive and this section is
 wrong — check it before relying on the verdict being there next month.
 
 The breaker reports defects and distinguishes them from taste; it has no veto.
-The auditor classifies the findings and decides; the orchestrator executes that
-verdict. Ordinary closure requires APROBADO with conformity and complete reports.
-An open finding may remain only as debt explicitly justified by the auditor's
+With auditor active, the auditor classifies the findings and decides; the orchestrator executes that
+verdict. With auditor active, ordinary closure requires APROBADO with conformity and complete reports.
+With auditor active, an open finding may remain only as debt explicitly justified by the auditor's
 verdict. At the three-round limit, the written human decision governs the
 exceptional scope, justified debt or stop described below. With auditor absent,
 closure stops for Juani's written decision on degraded scope. Findings remain
@@ -101,11 +101,11 @@ answer on offer, because it looks exactly like the right one.
 
 ### The loop
 
-Run conformity -> breaker -> senior (if active) -> auditor, in that order on a quiet diff. Wait for the senior report before launching the auditor. Only APROBADO from the auditor, with conformity satisfied and complete reports, enables archive. Unresolved CRITICAL prevents APROBADO. The breaker reports; the auditor decides; the orchestrator executes that verdict, never substitutes its own approval.
+Run conformity -> breaker -> senior (if active) on a quiet diff. With auditor active, run the auditor last and wait for the senior report before launching it. With auditor active, only APROBADO from the auditor, with conformity satisfied and complete reports, enables archive. Unresolved CRITICAL prevents APROBADO. The breaker reports. With auditor active, the auditor decides and the orchestrator executes that verdict, never substitutes its own approval.
 
-Before convening reviewers, write `## Bucle de verify` in the change's tasks.md: round 1, 2 or 3, in progress or closed, SHA or reviewed diff, report paths, blockers and decision. Resume reads tasks.md, not Engram as authority. Session recovery or failed capture does not increment or reset the counter. A round begins with verify on a quiet diff and closes with the auditor verdict.
+Before convening reviewers, write `## Bucle de verify` in the change's tasks.md: round 1, 2 or 3, in progress or closed, SHA or reviewed diff, report paths, blockers and decision. Resume reads tasks.md, not Engram as authority. Session recovery or failed capture does not increment or reset the counter. A round begins with verify on a quiet diff. With auditor active, it closes with the auditor verdict. With auditor absent, closure stops for Juani’s written decision in tasks.md on enabling auditor, accepting justified degraded scope or stopping.
 
-Blockers in round 1 or 2 return only the auditor's list to apply. Increment only after correcting those blockers, at the next verify. In rounds 2 and 3 the breaker checks corrections, consumers and regressions outside the diff. New blocking findings go to the auditor; other findings become debt assigned to the first change that uses the piece. A new rule requires human signature before construction (L-029).
+With auditor active, blockers in round 1 or 2 return only the auditor's list to apply. Increment only after correcting those blockers, at the next verify. In rounds 2 and 3 the breaker checks corrections, consumers and regressions outside the diff. New blocking findings go to the auditor; other findings become debt assigned to the first change that uses the piece. A new rule requires human signature before construction (L-029).
 
 Round 3 closes the loop, including open blockers. No automatic fourth round. Present the open list to Juani for a written decision in tasks.md: correct in a newly approved scope, accept justified debt, or stop the change. Without a written answer nothing advances. Human acceptance neither resolves a CRITICAL nor fabricates APROBADO.
 

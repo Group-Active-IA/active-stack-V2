@@ -243,7 +243,7 @@ func TestCompose_ReviewToggle_ReportAuthority(t *testing.T) {
 	for _, hit := range debtViolations(body) {
 		t.Error(hit)
 	}
-	for _, pattern := range []string{`auditor.*classifies.*decides`, `orchestrator.*executes`, `debt.*justified.*auditor`, `findings.*visible`} {
+	for _, pattern := range []string{`auditor\s+classifies[^;.]*decides`, `orchestrator\s+executes`, `debt.*justified.*auditor`, `findings.*visible`} {
 		if !regexp.MustCompile(pattern).MatchString(strings.Join(strings.Fields(body), " ")) {
 			t.Errorf("falta relación de autoridad: %s", pattern)
 		}
