@@ -236,3 +236,50 @@ ok  	github.com/Group-Active-IA/active-stack/internal/verify	0.023s
 
 exit=0
 ```
+## Ítem 3 — RF1-2, condición de auditor ausente
+
+Test con auditor y KB activos: cada línea que ordena marcar la fuente ausente debe anteponer la condición. Rojo contra el texto original, luego verde. Golden: exclusivamente se antepone `If the auditor is absent, ` al mandato del prompt, en las dos variantes.
+
+Hora: 2026-10-23T10:24:13.085325-03:00; SHA: `c3259558cb1cc7677b54c1333542f3578eac2bb2`; HOME: `/tmp/active-stack-v2-home-s8nsqirb`.
+
+Comando: `go test ./internal/harness/config -run TestArchiveBaseCompletaConEvidencia -count=1`
+
+```text
+--- FAIL: TestArchiveBaseCompletaConEvidencia (0.00s)
+    knowledge_base_toggle_test.go:721: auditor activo: instrucción sin condición: APPEND decisions, lessons L-NNN from auditor LECCIONES and debt from auditor DEUDA, dated, with what each one cost. Only append lessons. Each entry states what changed and typed evidence: SHA, test or decision. Mark auditor source absent and do not invent its lists; closure requires Juani's written decision on degraded scope. Return the two
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:24:13.476144-03:00; SHA: `c3259558cb1cc7677b54c1333542f3578eac2bb2`; HOME: `/tmp/active-stack-v2-home-s8nsqirb`.
+
+Comando: `go test ./internal/harness/config -run TestArchiveBaseCompletaConEvidencia -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+
+exit=0
+```
+
+Hora: 2026-10-23T10:24:13.939477-03:00; SHA: `c3259558cb1cc7677b54c1333542f3578eac2bb2`; HOME: `/tmp/active-stack-v2-home-s8nsqirb`.
+
+Comando: `go test ./internal/harness/config -run ^TestCompose_AllToggles -update -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.005s
+
+exit=0
+```
+
+Hora: 2026-10-23T10:24:14.158283-03:00; SHA: `c3259558cb1cc7677b54c1333542f3578eac2bb2`; HOME: `/tmp/active-stack-v2-home-s8nsqirb`.
+
+Comando: `go test ./internal/harness/config -run TestArchiveBaseCompletaConEvidencia|^TestCompose_AllToggles -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.008s
+
+exit=0
+```

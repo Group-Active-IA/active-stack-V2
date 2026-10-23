@@ -1232,7 +1232,7 @@ performs this step, and no part of the block above mentions it either.
 ## Knowledge Base
 Read `## Knowledge Base Impact` in proposal.md and the actual diff, even when the section exists. Cover their union; if the section is missing, say so. Then, for each document either source names: REWRITE status, next
 steps and frontmatter so they describe the new state and the old text is gone;
-APPEND decisions, lessons L-NNN from auditor LECCIONES and debt from auditor DEUDA, dated, with what each one cost. Only append lessons. Each entry states what changed and typed evidence: SHA, test or decision. Mark auditor source absent and do not invent its lists; closure requires Juani's written decision on degraded scope. Return the two
+APPEND decisions, lessons L-NNN from auditor LECCIONES and debt from auditor DEUDA, dated, with what each one cost. Only append lessons. Each entry states what changed and typed evidence: SHA, test or decision. If the auditor is absent, Mark auditor source absent and do not invent its lists; closure requires Juani's written decision on degraded scope. Return the two
 lists separately and by document, headed REWRITTEN and APPENDED. If REWRITTEN
 is empty, say why in one line and label the report SUSPICIOUS: append-only when only APPEND was done. Then open the previous closed change's
 `knowledge-base-report.md`, carry whatever it left undone into a third list

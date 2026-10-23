@@ -714,6 +714,16 @@ func TestCatalog_OrchestratorDescriptionIsNotStaleAboutToggles(t *testing.T) {
 }
 
 func TestArchiveBaseCompletaConEvidencia(t *testing.T) {
+	active, err := config.Compose([]string{"auditor", "knowledge-base"}, "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, line := range strings.Split(active, "\n") {
+		if strings.Contains(line, "Mark auditor source absent") && !strings.Contains(line, "If the auditor is absent, Mark auditor source absent") {
+			t.Errorf("auditor activo: instrucción sin condición: %s", line)
+		}
+	}
+
 	composed, err := config.Compose([]string{"knowledge-base", "auditor"}, "claude")
 	if err != nil {
 		t.Fatal(err)
