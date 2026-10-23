@@ -329,18 +329,20 @@ func TestForMode_ActiveOrchestratorIsFullOnly(t *testing.T) {
 }
 
 // TestForMode_CustomReturnsOnlyGlobal asserts that custom mode returns only the
-// 16 foundation-global harnesses — NOT the 30 starter-only C-30 skills.
+// 17 foundation-global harnesses — NOT the 30 starter-only C-30 skills.
 // C-32: replaces TestForMode_CustomReturnsAll (which incorrectly expected all 43).
 // Bumped 13->15 when discovery-research and web-scraper were catalogued as
 // Full-only, non-starter-only harnesses (add-discovery-scraper-harnesses).
 // Bumped 15->16 when project-scaffold was catalogued as a Full-only,
 // non-starter-only foundation skill (add-project-scaffold-harness).
+// Bumped 16->17 when role-definitions (fase 2, paso 4 — "instalar-roles") was
+// catalogued as a lite+full, non-starter-only config harness.
 func TestForMode_CustomReturnsOnlyGlobal(t *testing.T) {
 	c, err := Load()
 	if err != nil {
 		t.Fatalf("Load(): %v", err)
 	}
-	const wantFoundationGlobal = 16
+	const wantFoundationGlobal = 17
 	got := c.ForMode(model.ModeCustom)
 	if len(got) != wantFoundationGlobal {
 		t.Errorf("custom mode returned %d harnesses, want %d foundation-global", len(got), wantFoundationGlobal)
@@ -358,6 +360,8 @@ func TestForMode_CustomReturnsOnlyGlobal(t *testing.T) {
 // Full/Custom bumped 13->15 when discovery-research and web-scraper were
 // catalogued as Full-only, non-starter-only harnesses (add-discovery-scraper-harnesses),
 // then 15->16 when project-scaffold joined them (add-project-scaffold-harness).
+// Lite/Full/Custom bumped 6/16/16->7/17/17 when role-definitions (fase 2,
+// paso 4) joined as a lite+full, non-starter-only config harness.
 func TestForMode_ExcludesStarterOnlyHarnesses(t *testing.T) {
 	c, err := Load()
 	if err != nil {
@@ -368,9 +372,9 @@ func TestForMode_ExcludesStarterOnlyHarnesses(t *testing.T) {
 		mode      model.InstallMode
 		wantCount int
 	}{
-		{model.ModeLite, 6},
-		{model.ModeFull, 16},
-		{model.ModeCustom, 16},
+		{model.ModeLite, 7},
+		{model.ModeFull, 17},
+		{model.ModeCustom, 17},
 	}
 
 	for _, tc := range cases {

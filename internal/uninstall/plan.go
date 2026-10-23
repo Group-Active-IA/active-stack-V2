@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/Group-Active-IA/active-stack/internal/backup"
+	roledefsinstaller "github.com/Group-Active-IA/active-stack/internal/harness/roledefs"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/pipeline"
 )
@@ -159,11 +160,14 @@ func collectUninstallPaths(adapters []AgentAdapter, homeDir string, harnesses []
 	for _, h := range harnesses {
 		switch h.Type {
 		case model.HarnessConfig:
-			if h.ID == "permissions" {
+			switch h.ID {
+			case "permissions":
 				for _, a := range adapters {
 					add(a.SettingsPath(homeDir))
 				}
-			} else {
+			case "role-definitions":
+				addRoleDefinitionsPaths(adapters, homeDir, add)
+			default:
 				for _, a := range adapters {
 					add(a.InstructionsPath(homeDir))
 					// Primary-agent delivery also touches the settings JSON, so
@@ -206,6 +210,31 @@ func collectUninstallPaths(adapters []AgentAdapter, homeDir string, harnesses []
 	return paths
 }
 
+// addRoleDefinitionsPaths mirrors collectRoleDefinitionsPaths in
+// internal/install/plan.go: one candidate path per (role × adapter) plus
+// its conflict side-file path, for every adapter whose AgentsDir capability
+// is non-empty.
+func addRoleDefinitionsPaths(adapters []AgentAdapter, homeDir string, add func(string)) {
+	res, err := roledefsinstaller.DefaultResources()
+	if err != nil {
+		return
+	}
+	for _, a := range adapters {
+		rd, ok := a.(interface{ AgentsDir(string) string })
+		if !ok {
+			continue
+		}
+		dir := rd.AgentsDir(homeDir)
+		if dir == "" {
+			continue
+		}
+		for _, r := range res {
+			add(filepath.Join(dir, r.Name))
+			add(filepath.Join(dir, r.Name+".active-stack.md"))
+		}
+	}
+}
+
 // buildUninstallStep constructs the correct pipeline.Step for a single harness.
 func buildUninstallStep(h model.Harness, adapters []AgentAdapter, opts Options) (pipeline.Step, error) {
 	switch h.Type {
@@ -229,6 +258,13 @@ func buildUninstallStep(h model.Harness, adapters []AgentAdapter, opts Options) 
 	case model.HarnessConfig:
 		if h.ID == "permissions" {
 			return &permissionsRemovalStep{
+				h:        h,
+				adapters: adapters,
+				homeDir:  opts.HomeDir,
+			}, nil
+		}
+		if h.ID == "role-definitions" {
+			return &roleDefinitionsRemovalStep{
 				h:        h,
 				adapters: adapters,
 				homeDir:  opts.HomeDir,

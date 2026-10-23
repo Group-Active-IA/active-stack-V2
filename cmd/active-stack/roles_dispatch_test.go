@@ -5,12 +5,44 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+
+	roledefsinstaller "github.com/Group-Active-IA/active-stack/internal/harness/roledefs"
+	"github.com/Group-Active-IA/active-stack/internal/model"
 )
+
+// homeWithAllRolesInstalled returns a fresh temp home with the seven
+// canonical role-*.md already installed under .claude/agents/ — so tests
+// that exercise a convened role's classification are not coupled to
+// whatever role-definitions state happens to exist on the real machine
+// running the suite (the new --home-backed check added for the propose's
+// "CLI roles distingue definición faltante/vacía" gate would otherwise make
+// these tests pass or fail depending on the developer's actual
+// ~/.claude/agents/, which is exactly the kind of environment leakage this
+// test file's own TestRolesSinRepoYSinArchivosFalla already guards against
+// in spirit for git state).
+func homeWithAllRolesInstalled(t *testing.T) string {
+	t.Helper()
+	home := t.TempDir()
+	res, err := roledefsinstaller.DefaultResources()
+	if err != nil {
+		t.Fatalf("DefaultResources: %v", err)
+	}
+	adapter := claudeHomeOnlyAdapter{dir: home + "/.claude/agents"}
+	if _, err := roledefsinstaller.Install([]roledefsinstaller.AgentAdapter{adapter}, home, home+"/.active-stack/backups/role-definitions", res); err != nil {
+		t.Fatalf("roledefs.Install (fixture): %v", err)
+	}
+	return home
+}
+
+type claudeHomeOnlyAdapter struct{ dir string }
+
+func (a claudeHomeOnlyAdapter) Agent() model.Agent      { return model.AgentClaude }
+func (a claudeHomeOnlyAdapter) AgentsDir(string) string { return a.dir }
 
 // TestRolesConArchivosExplicitosNombraLosDosLados.
 func TestRolesConArchivosExplicitosNombraLosDosLados(t *testing.T) {
 	var out bytes.Buffer
-	code := runRolesDispatch([]string{"--files", "migrations/003_tenant.sql"}, t.TempDir(), &out)
+	code := runRolesDispatch([]string{"--home", homeWithAllRolesInstalled(t), "--files", "migrations/003_tenant.sql"}, t.TempDir(), &out)
 	if code != 0 {
 		t.Fatalf("exit = %d, salida:\n%s", code, out.String())
 	}
@@ -28,7 +60,7 @@ func TestRolesConArchivosExplicitosNombraLosDosLados(t *testing.T) {
 // TestRolesJSONEsConsumibleSinParsearTexto.
 func TestRolesJSONEsConsumibleSinParsearTexto(t *testing.T) {
 	var out bytes.Buffer
-	code := runRolesDispatch([]string{"--json", "--files", "api/auth.py"}, t.TempDir(), &out)
+	code := runRolesDispatch([]string{"--home", homeWithAllRolesInstalled(t), "--json", "--files", "api/auth.py"}, t.TempDir(), &out)
 	if code != 0 {
 		t.Fatalf("exit = %d, salida:\n%s", code, out.String())
 	}

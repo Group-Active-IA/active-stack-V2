@@ -11,6 +11,7 @@ import (
 	"github.com/Group-Active-IA/active-stack/internal/filemerge"
 	"github.com/Group-Active-IA/active-stack/internal/harness/command"
 	"github.com/Group-Active-IA/active-stack/internal/harness/config"
+	roledefsinstaller "github.com/Group-Active-IA/active-stack/internal/harness/roledefs"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 )
 
@@ -361,6 +362,68 @@ func (s *permissionsRemovalStep) Rollback() error {
 		return nil
 	}
 	return restoreFn(*s.manifest)
+}
+
+// ─────────────────────────────────────────────────────────────────
+// roleDefinitionsRemovalStep — unlike permissionsRemovalStep, this one is
+// NOT a no-op: roledefs.Uninstall discriminates ownership for real (hash
+// recorded in its own manifest vs. current bytes), so Run() safely removes
+// only what this harness owns and preserves everything personal or
+// user-modified — see internal/harness/roledefs/uninstall.go.
+// ─────────────────────────────────────────────────────────────────
+
+var roleDefinitionsUninstallFn = func(adapters []AgentAdapter, homeDir string) error {
+	res, err := roledefsinstaller.DefaultResources()
+	if err != nil {
+		return err
+	}
+	_, err = roledefsinstaller.Uninstall(toRoleDefinitionsAdapters(adapters), homeDir, res)
+	return err
+}
+
+type roleDefinitionsRemovalStep struct {
+	h        model.Harness
+	adapters []AgentAdapter
+	homeDir  string
+	manifest *backup.Manifest
+}
+
+func (s *roleDefinitionsRemovalStep) ID() string                     { return "role-definitions-removal:" + s.h.ID }
+func (s *roleDefinitionsRemovalStep) setManifest(m *backup.Manifest) { s.manifest = m }
+
+func (s *roleDefinitionsRemovalStep) Run() error {
+	return roleDefinitionsUninstallFn(s.adapters, s.homeDir)
+}
+
+func (s *roleDefinitionsRemovalStep) Rollback() error {
+	if s.manifest == nil {
+		return nil
+	}
+	return restoreFn(*s.manifest)
+}
+
+// roleDefinitionsAdapterShim and toRoleDefinitionsAdapters mirror the
+// install-package versions (internal/install/steps.go) — AgentsDir is
+// recovered via a runtime type assertion against the concrete adapter
+// rather than widening the shared AgentAdapter interface.
+type roleDefinitionsAdapterShim struct {
+	AgentAdapter
+	underlying AgentAdapter
+}
+
+func (s roleDefinitionsAdapterShim) AgentsDir(homeDir string) string {
+	if rd, ok := s.underlying.(interface{ AgentsDir(string) string }); ok {
+		return rd.AgentsDir(homeDir)
+	}
+	return ""
+}
+
+func toRoleDefinitionsAdapters(adapters []AgentAdapter) []roledefsinstaller.AgentAdapter {
+	out := make([]roledefsinstaller.AgentAdapter, len(adapters))
+	for i, a := range adapters {
+		out[i] = roleDefinitionsAdapterShim{AgentAdapter: a, underlying: a}
+	}
+	return out
 }
 
 // ─────────────────────────────────────────────────────────────────

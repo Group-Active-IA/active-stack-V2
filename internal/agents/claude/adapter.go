@@ -42,6 +42,15 @@ func (a *Adapter) CommandsDir(homeDir string) string {
 	return filepath.Join(homeDir, ".claude", "commands")
 }
 
+// AgentsDir returns the path to Claude Code's sub-agent definitions
+// directory — flat role-*.md files, one per sub-agent, no index file inside
+// (see internal/harness/roledefs/doc.go for why this differs from
+// SkillsDir's own-subdirectory convention).
+// Example: /home/user/.claude/agents
+func (a *Adapter) AgentsDir(homeDir string) string {
+	return filepath.Join(homeDir, ".claude", "agents")
+}
+
 // SettingsPath returns the path to Claude Code's settings file.
 // Example: /home/user/.claude/settings.json
 func (a *Adapter) SettingsPath(homeDir string) string {

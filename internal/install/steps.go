@@ -12,6 +12,7 @@ import (
 	cfginstaller "github.com/Group-Active-IA/active-stack/internal/harness/config"
 	perminstaller "github.com/Group-Active-IA/active-stack/internal/harness/config/permissions"
 	extinstaller "github.com/Group-Active-IA/active-stack/internal/harness/external"
+	roledefsinstaller "github.com/Group-Active-IA/active-stack/internal/harness/roledefs"
 	skillinstaller "github.com/Group-Active-IA/active-stack/internal/harness/skill"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/pipeline"
@@ -288,6 +289,84 @@ func (s *permissionsStep) Rollback() error {
 		return nil
 	}
 	return restoreFn(*s.manifest)
+}
+
+// ─────────────────────────────────────────────────────────────────
+// roleDefinitionsStep — wraps roledefs.Install (harness `role-definitions`,
+// propose fase 2 paso 4). Dispatched by HarnessID, same pattern as
+// "permissions" — see buildHarnessStep in plan.go for why: a HarnessConfig
+// harness with no special case falls into the generic toggle-injection
+// configStep, which would try to inject the role-*.md resources as if they
+// were CLAUDE.md prose instead of materializing them on disk.
+//
+// roledefs.Install already recovers its own partial writes across adapters
+// when one of them fails mid-call (QA-2, see roledefs/doc.go) — this step's
+// Rollback() is the OTHER half: the pipeline's cross-step case, where this
+// step fully succeeded and a LATER step in the same plan fails. That one
+// still needs the pre-Run snapshot, same as permissionsStep.
+// ─────────────────────────────────────────────────────────────────
+
+// roleDefinitionsInstallFn is the backing function for role-definitions
+// installation. Package-level var so tests can inject a fake.
+var roleDefinitionsInstallFn = func(
+	adapters []AgentAdapter,
+	homeDir, backupDir string,
+) (roledefsinstaller.Result, error) {
+	res, err := roledefsinstaller.DefaultResources()
+	if err != nil {
+		return roledefsinstaller.Result{}, err
+	}
+	return roledefsinstaller.Install(toRoleDefinitionsAdapters(adapters), homeDir, backupDir, res)
+}
+
+type roleDefinitionsStep struct {
+	h         model.Harness
+	adapters  []AgentAdapter
+	homeDir   string
+	backupDir string
+	manifest  *backup.Manifest
+}
+
+func (s *roleDefinitionsStep) ID() string                     { return "role-definitions:" + s.h.ID }
+func (s *roleDefinitionsStep) setManifest(m *backup.Manifest) { s.manifest = m }
+
+func (s *roleDefinitionsStep) Run() error {
+	_, err := roleDefinitionsInstallFn(s.adapters, s.homeDir, s.backupDir)
+	return err
+}
+
+func (s *roleDefinitionsStep) Rollback() error {
+	if s.manifest == nil {
+		return nil
+	}
+	return restoreFn(*s.manifest)
+}
+
+// roleDefinitionsAdapterShim narrows the full AgentAdapter to
+// roledefs.AgentAdapter (Agent + AgentsDir). AgentsDir is not part of the
+// install.AgentAdapter interface (low blast radius — see
+// internal/harness/roledefs/doc.go), so it is recovered via a runtime type
+// assertion against the concrete adapter instead of widening the shared
+// interface. An adapter that does not implement it resolves to "" —
+// capability not supported, same as a real Codex/OpenCode adapter today.
+type roleDefinitionsAdapterShim struct {
+	AgentAdapter
+	underlying AgentAdapter
+}
+
+func (s roleDefinitionsAdapterShim) AgentsDir(homeDir string) string {
+	if rd, ok := s.underlying.(interface{ AgentsDir(string) string }); ok {
+		return rd.AgentsDir(homeDir)
+	}
+	return ""
+}
+
+func toRoleDefinitionsAdapters(adapters []AgentAdapter) []roledefsinstaller.AgentAdapter {
+	out := make([]roledefsinstaller.AgentAdapter, len(adapters))
+	for i, a := range adapters {
+		out[i] = roleDefinitionsAdapterShim{AgentAdapter: a, underlying: a}
+	}
+	return out
 }
 
 // ─────────────────────────────────────────────────────────────────

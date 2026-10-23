@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/Group-Active-IA/active-stack/internal/harness/config/permissions"
+	roledefsinstaller "github.com/Group-Active-IA/active-stack/internal/harness/roledefs"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	toml "github.com/pelletier/go-toml/v2"
 )
@@ -45,6 +46,9 @@ func checksForHarnessAdapter(h model.Harness, adapter Adapter, homeDir string) [
 	case model.HarnessConfig:
 		if h.ID == "permissions" {
 			return checkPermissions(h, adapter, homeDir)
+		}
+		if h.ID == "role-definitions" {
+			return checkRoleDefinitions(h, adapter, homeDir)
 		}
 		return append(checkConfig(h, adapter, homeDir), composedDeliveryCheck(h, adapter, homeDir)...)
 	case model.HarnessExternal:
@@ -485,6 +489,63 @@ func checkPrimaryAgentConfig(h model.Harness, adapter Adapter, homeDir string) [
 					return fmt.Errorf("agent %q has mode %q, want \"primary\" (not tab-able) in %q", h.ID, entry.Mode, settingsPath)
 				}
 				return nil
+			},
+		},
+	}
+}
+
+// roleDefinitionsVerifyAdapter adapts a resolved AgentsDir path into the
+// minimal roledefs.AgentAdapter this check needs, without widening
+// verify.Adapter (same low-blast-radius pattern as the install/uninstall
+// shims in internal/install/steps.go and internal/uninstall/steps.go).
+type roleDefinitionsVerifyAdapter struct {
+	agent model.Agent
+	dir   string
+}
+
+func (a roleDefinitionsVerifyAdapter) Agent() model.Agent      { return a.agent }
+func (a roleDefinitionsVerifyAdapter) AgentsDir(string) string { return a.dir }
+
+// checkRoleDefinitions is the "role-definitions" health check the propose
+// asks for ("Health check reconstruye Compose+enlace y compara referencias y
+// recursos"): it re-derives the seven canonical role resources and confirms
+// each is present and non-empty under the adapter's AgentsDir. An adapter
+// whose capability is unsupported (AgentsDir == "", e.g. Codex/OpenCode
+// today — J3/J4, TBD) produces no check at all rather than a failing one:
+// "not applicable" and "broken" are different claims.
+func checkRoleDefinitions(h model.Harness, adapter Adapter, homeDir string) []Check {
+	rd, ok := adapter.(interface{ AgentsDir(string) string })
+	if !ok {
+		return nil
+	}
+	dir := rd.AgentsDir(homeDir)
+	if dir == "" {
+		return nil
+	}
+	agentID := string(adapter.Agent())
+	wrapped := roleDefinitionsVerifyAdapter{agent: adapter.Agent(), dir: dir}
+
+	return []Check{
+		{
+			ID:          fmt.Sprintf("role-definitions:%s:%s", h.ID, agentID),
+			Description: fmt.Sprintf("the seven canonical role-*.md are present and non-empty for %s", agentID),
+			Run: func(_ context.Context) error {
+				res, err := roledefsinstaller.DefaultResources()
+				if err != nil {
+					return fmt.Errorf("roledefs: load canonical resources: %w", err)
+				}
+				issues, err := roledefsinstaller.Health([]roledefsinstaller.AgentAdapter{wrapped}, homeDir, res)
+				if err != nil {
+					return fmt.Errorf("roledefs: health check: %w", err)
+				}
+				if len(issues) == 0 {
+					return nil
+				}
+				msgs := make([]string, 0, len(issues))
+				for _, iss := range issues {
+					msgs = append(msgs, fmt.Sprintf("%s (%s)", iss.Resource, iss.Problem))
+				}
+				return fmt.Errorf("role definitions unhealthy in %q: %s", dir, strings.Join(msgs, ", "))
 			},
 		},
 	}

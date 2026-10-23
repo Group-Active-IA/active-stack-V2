@@ -48,6 +48,13 @@ func (a *Adapter) CommandsDir(homeDir string) string {
 	return filepath.Join(homeDir, ".config", "opencode", "commands")
 }
 
+// AgentsDir: OpenCode has its own agent concept (primary agents registered
+// in opencode.json), not a flat per-file directory confirmed equivalent to
+// Claude Code's ~/.claude/agents/ (J3/J4, TBD — see
+// internal/harness/roledefs/doc.go). Empty string signals the capability is
+// not supported; role-definitions install/uninstall skip this adapter.
+func (a *Adapter) AgentsDir(string) string { return "" }
+
 // SettingsPath returns the path to OpenCode's settings file.
 // Example: /home/user/.config/opencode/opencode.json
 func (a *Adapter) SettingsPath(homeDir string) string {

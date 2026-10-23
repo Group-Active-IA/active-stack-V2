@@ -27,6 +27,12 @@ func (a *Adapter) SkillsDir(homeDir string) string {
 // directory that Active Stack can materialize into.
 func (a *Adapter) CommandsDir(string) string { return "" }
 
+// AgentsDir: Codex has no confirmed per-file sub-agent definition directory
+// equivalent to Claude Code's ~/.claude/agents/ (J3/J4, TBD — see
+// internal/harness/roledefs/doc.go). Empty string signals the capability is
+// not supported; role-definitions install/uninstall skip this adapter.
+func (a *Adapter) AgentsDir(string) string { return "" }
+
 func (a *Adapter) SettingsPath(homeDir string) string {
 	return filepath.Join(homeDir, ".codex", "config.toml")
 }

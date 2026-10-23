@@ -8,6 +8,7 @@ import (
 
 	"github.com/Group-Active-IA/active-stack/internal/backup"
 	"github.com/Group-Active-IA/active-stack/internal/harness/external"
+	roledefsinstaller "github.com/Group-Active-IA/active-stack/internal/harness/roledefs"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/pipeline"
 	"github.com/Group-Active-IA/active-stack/internal/planner"
@@ -314,8 +315,13 @@ func collectWritePaths(adapters []AgentAdapter, effectiveBase string, target mod
 		}
 		switch h.Type {
 		case model.HarnessConfig:
-			for _, a := range adapters {
-				addFile(resolvedInstructionsPath(a, effectiveBase, target))
+			// role-definitions does not touch InstructionsPath at all (it
+			// writes role-*.md resources into AgentsDir instead) — handled
+			// in its own id-scoped block below, same pattern as permissions.
+			if id != "role-definitions" {
+				for _, a := range adapters {
+					addFile(resolvedInstructionsPath(a, effectiveBase, target))
+				}
 			}
 		case model.HarnessSkill:
 			for _, a := range adapters {
@@ -339,6 +345,14 @@ func collectWritePaths(adapters []AgentAdapter, effectiveBase string, target mod
 			for _, a := range adapters {
 				addFile(resolvedSettingsPath(a, effectiveBase, target))
 			}
+		}
+		// role-definitions harness — one candidate path per (role × adapter),
+		// plus its conflict side-file path, so the Prepare-stage snapshot
+		// covers every file roledefs.Install might touch, including ones
+		// that stay absent because the adapter has no AgentsDir capability
+		// (addFile is a no-op on "").
+		if id == "role-definitions" {
+			collectRoleDefinitionsPaths(adapters, effectiveBase, addFile)
 		}
 	}
 
@@ -419,6 +433,39 @@ func resolvedCommandsDir(a AgentAdapter, base string, t model.InstallTarget) str
 		return a.PathsFor(base, t).CommandsDir
 	}
 	return a.CommandsDir(base)
+}
+
+// collectRoleDefinitionsPaths adds, for every adapter whose AgentsDir
+// capability is non-empty, one candidate path per canonical role resource
+// plus its conflict side-file path — everything roledefs.Install might
+// write, so the Prepare-stage snapshot can cover it. Resources it cannot
+// read (a malformed embed) are skipped here; Install itself will surface
+// that error when the step actually runs.
+func collectRoleDefinitionsPaths(adapters []AgentAdapter, effectiveBase string, addFile func(string)) {
+	resources, err := roledefsinstaller.DefaultResources()
+	if err != nil {
+		return
+	}
+	for _, a := range adapters {
+		dir := roleDefinitionsAgentsDirFor(a, effectiveBase)
+		if dir == "" {
+			continue
+		}
+		for _, res := range resources {
+			addFile(filepath.Join(dir, res.Name))
+			addFile(filepath.Join(dir, res.Name+".active-stack.md"))
+		}
+	}
+}
+
+// roleDefinitionsAgentsDirFor resolves AgentsDir via a runtime type
+// assertion — see roleDefinitionsAdapterShim in steps.go for why this
+// capability is not part of the shared AgentAdapter interface.
+func roleDefinitionsAgentsDirFor(a AgentAdapter, homeDir string) string {
+	if rd, ok := a.(interface{ AgentsDir(string) string }); ok {
+		return rd.AgentsDir(homeDir)
+	}
+	return ""
 }
 
 // collectSelfInstallPath appends the self-install target binary path to the
@@ -541,6 +588,14 @@ func buildHarnessStep(h model.Harness, adapters []AgentAdapter, opts Options, ef
 				adapters: stepAdapters,
 				homeDir:  effectiveBase,
 				tier:     tier,
+			}, nil
+		}
+		if h.ID == "role-definitions" {
+			return &roleDefinitionsStep{
+				h:         h,
+				adapters:  stepAdapters,
+				homeDir:   effectiveBase,
+				backupDir: filepath.Join(effectiveBase, ".active-stack", "backups", "role-definitions"),
 			}, nil
 		}
 		return &configStep{
