@@ -37,6 +37,11 @@ func TestVerifyContratoBucle(t *testing.T) {
 }
 
 func TestAuditorDecideSinAutoridadParalela(t *testing.T) {
+	sequence := seniorFlat(reviewFragment(t))
+	if strings.Contains(sequence, "launch the auditor in parallel with the senior.") || !strings.Contains(sequence, "wait for the senior report before launching the auditor.") {
+		t.Error("secuencia contradictoria: Launch the auditor in parallel with the senior.")
+	}
+
 	b := seniorFlat(auditorFragment(t))
 	if !strings.Contains(b, "missing required reports prevent approval.") {
 		t.Error("falta negación obligatoria: Missing required reports prevent approval.; permitir aprobación sin informes contradice el contrato")

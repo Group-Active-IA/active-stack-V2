@@ -400,3 +400,100 @@ ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.006s
 
 exit=0
 ```
+## Complemento del ítem 1 — M3 en cada test nombrado
+
+La primera ejecución conjunta dio rojo por TestVerifyContratoBucle. Se refuerza también TestAuditorDecideSinAutoridadParalela y se ejecutan por separado para demostrar que cada uno detecta M3 por su aserción.
+
+Hora: 2026-10-23T10:25:03.983711-03:00; SHA: `61b23ea36f5ac59d68aba1774d65833e56a55d83`; HOME: `/tmp/active-stack-v2-home-4uq57qqy`.
+
+Comando: `go test ./internal/harness/config -run ^TestVerifyContratoBucle$ -count=1`
+
+```text
+--- FAIL: TestVerifyContratoBucle (0.00s)
+    verify_loop_test.go:13: secuencia contradictoria: launch the auditor in parallel with the senior.
+    verify_loop_test.go:17: falta espera obligatoria; no se permite: Launch the auditor in parallel with the senior.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.005s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:25:04.479388-03:00; SHA: `61b23ea36f5ac59d68aba1774d65833e56a55d83`; HOME: `/tmp/active-stack-v2-home-4uq57qqy`.
+
+Comando: `go test ./internal/harness/config -run ^TestAuditorDecideSinAutoridadParalela$ -count=1`
+
+```text
+--- FAIL: TestAuditorDecideSinAutoridadParalela (0.01s)
+    verify_loop_test.go:42: secuencia contradictoria: Launch the auditor in parallel with the senior.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.010s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:25:04.736621-03:00; SHA: `61b23ea36f5ac59d68aba1774d65833e56a55d83`; HOME: `/tmp/active-stack-v2-home-4uq57qqy`.
+
+Comando: `go test ./internal/harness/config -run TestVerifyContratoBucle|TestAuditorDecide -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.010s
+
+exit=0
+```
+### Regresión adicional de RF1-3 con aserción acotada
+
+Se reintroduce la frase ambigua únicamente en la regla de CI de cada copia. No se exige cambiar la referencia legítima al repositorio al autenticar gh.
+
+Hora: 2026-10-23T10:25:05.183791-03:00; SHA: `61b23ea36f5ac59d68aba1774d65833e56a55d83`; HOME: `/tmp/active-stack-v2-home-4uq57qqy`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.00s)
+    ship_ci_test.go:11: CI ambiguo: For this repository
+    --- FAIL: TestShipEsperaCICompleto/For_active-stack,_require_.github/workflows/ci.yml_on_push,_with_test_on_Ubuntu_and_Windows. (0.00s)
+        ship_ci_test.go:35: falta contrato de CI: For active-stack, require .github/workflows/ci.yml on push, with test on Ubuntu and Windows.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:25:05.670932-03:00; SHA: `61b23ea36f5ac59d68aba1774d65833e56a55d83`; HOME: `/tmp/active-stack-v2-home-4uq57qqy`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+
+exit=0
+```
+
+Hora: 2026-10-23T10:25:05.893045-03:00; SHA: `61b23ea36f5ac59d68aba1774d65833e56a55d83`; HOME: `/tmp/active-stack-v2-home-4uq57qqy`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.00s)
+    ship_ci_test.go:17: CI ambiguo: For this repository
+    --- FAIL: TestComandoShipEsperaCICompleto/For_active-stack,_require_.github/workflows/ci.yml_on_push,_with_test_on_Ubuntu_and_Windows. (0.00s)
+        ship_ci_test.go:41: falta contrato de CI: For active-stack, require .github/workflows/ci.yml on push, with test on Ubuntu and Windows.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.003s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:25:06.106255-03:00; SHA: `61b23ea36f5ac59d68aba1774d65833e56a55d83`; HOME: `/tmp/active-stack-v2-home-4uq57qqy`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/assets	0.002s
+
+exit=0
+```
