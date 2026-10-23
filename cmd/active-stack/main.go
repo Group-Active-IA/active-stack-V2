@@ -8,6 +8,7 @@
 //	active-stack install --dry-run    Print the install plan; do not execute.
 //	active-stack install --help       Show all available flags.
 //	active-stack roles                Read a diff and report which reviewers apply.
+//	active-stack approval             Read-only check of a written approval table.
 package main
 
 import (
@@ -109,6 +110,13 @@ func main() {
 		// Lee el diff y dice qué revisores corresponden. No necesita catálogo
 		// ni registro de agentes: no instala nada, sólo clasifica rutas.
 		exitCode := runRolesDispatch(os.Args[2:], "", os.Stdout)
+		if exitCode != 0 {
+			os.Exit(exitCode)
+		}
+	case "approval":
+		// Lectura pura: no necesita catálogo ni registro de agentes. Nunca
+		// escribe la tabla de Aprobación ni ningún archivo (J1 revisada).
+		exitCode := runApprovalDispatch(os.Args[2:], "", os.Stdout)
 		if exitCode != 0 {
 			os.Exit(exitCode)
 		}
