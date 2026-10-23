@@ -317,3 +317,7 @@ script de escaneo terminó por esa aserción numérica y el shell continuó con 
 commit documental; se verificó inmediatamente después el archivo completo con
 las exclusiones revisadas, sin encontrar datos personales ni secretos. Este
 resultado no acredita un detector universal.
+
+## Deuda al cerrar (orquestador, 23/10/2026)
+
+- D-21: la captura automática por hooks de Claude Code (2b) no quedó cableada; la captura funciona invocando `reports capture` a mano. Se mergea así por decisión de Juani ("terminate los adaptadores y mergeamos ... demasiado por ahora").
