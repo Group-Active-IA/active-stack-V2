@@ -9,6 +9,7 @@
 //	active-stack install --help       Show all available flags.
 //	active-stack roles                Read a diff and report which reviewers apply.
 //	active-stack approval             Read-only check of a written approval table.
+//	active-stack reports capture      Persist a resolved reviewer report before the next dispatch.
 package main
 
 import (
@@ -117,6 +118,14 @@ func main() {
 		// Lectura pura: no necesita catálogo ni registro de agentes. Nunca
 		// escribe la tabla de Aprobación ni ningún archivo (J1 revisada).
 		exitCode := runApprovalDispatch(os.Args[2:], "", os.Stdout)
+		if exitCode != 0 {
+			os.Exit(exitCode)
+		}
+	case "reports":
+		// Captura de informes (núcleo, propose 2026-10-23-fase-2-pasos-1-4.md
+		// §2a). No necesita catálogo ni registro de agentes: no instala
+		// nada, sólo persiste un informe ya resuelto.
+		exitCode := runReportsDispatch(os.Args[2:], "", os.Stdout)
 		if exitCode != 0 {
 			os.Exit(exitCode)
 		}

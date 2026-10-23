@@ -44,5 +44,13 @@ dist/
 !/openspec/changes/archive/*/
 /openspec/changes/archive/*/*
 !/openspec/changes/archive/*/informes/
+
+# internal/reports (propose 2026-10-23-fase-2-pasos-1-4.md §2a): un informe
+# en el que el escaneo de secretos encontró algo queda RETENIDO — el
+# original nunca entra al árbol versionado, sólo su manifiesto (sin el
+# valor). Vive local bajo .retenidos/ en cualquier nivel dentro de
+# informes/, activo o archivado.
+**/informes/**/.retenidos/
+
 .claude/
 .opencode/
