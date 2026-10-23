@@ -173,6 +173,7 @@ La primera revisión (01–05 de la carpeta principal) queda como historia: **cu
 
 | Elección | Persona | Fecha | Alcance |
 |---|---|---|---|
+| Fase 2 del propose (pasos 0 a 6) con las cinco decisiones del 23/10 | Juani | 23/10/2026 | Tal como está en el propose al momento de esta firma, con la segunda revisión multi-rol y su auditoría (informes/2026-10-23-fase-2/segunda-revision/). Los pasos ALTO llevan su propia firma al construirse |
 
 ## Respuesta a la segunda revisión
 
