@@ -14,3 +14,7 @@ Juani eligió **A** (recomendada): la lectura semántica entra como regla de ver
 ## J1, revisada (23/10/2026)
 
 Juani decide **no configurar firma criptográfica de commits**. El paso 1 (`aprobacion-firmada`) se rediseña sin GPG ni SSH: la aprobación sigue siendo la escrita (tabla `## Aprobación` en commit propio, con alcance explícito), y lo que el paso puede aportar es verificar esa estructura (tabla presente, persona, fecha, alcance, commit separado del código) sin afirmar autenticidad criptográfica. Queda declarado como límite: un agente con acceso al repo puede imitar la firma escrita; el control es de proceso, no criptográfico.
+
+## N1/N1b, política de reintentos de CI (23/10/2026)
+
+Juani eligió **A**: un job cancelado (o fallido por la plataforma) que se reintenta sobre **el mismo SHA** y termina en `success` cuenta como verde para ese job, siempre que el último intento de cada job requerido de ese SHA esté en `success`. Un reintento sobre otro SHA no cuenta, y un cancelado sin reintento exitoso sigue sin ser verde. Caso real que lo motiva: PropTech, 22/10/2026, job `web` cancelado por la instalación de dependencias y reintentado en verde sobre el mismo commit.
