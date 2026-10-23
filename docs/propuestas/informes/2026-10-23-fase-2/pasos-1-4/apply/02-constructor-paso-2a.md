@@ -378,3 +378,21 @@ backend/DBA/frontend/DevOps no se convocaron porque la fase actual es
 `apply`, que convoca únicamente al implementador; QA/arquitecto/backend
 como **revisores** quedan para la vuelta de `verify` de este paso, que este
 informe no sustituye.
+
+## Chequeo del orquestador (23/10/2026 13:14 a 13:18)
+
+EVIDENCIA. Binario compilado de `c4187c8`, repo git temporal SIN .gitignore (como el de un usuario):
+
+```
+$ active-stack reports capture ... --report inf.txt   # con una clave tipo AWS y un correo
+estado: RETAINED (código 4)
+causa: escaneo de secretos detectó: aws-access-key-id, email
+$ git add -A && git diff --cached --name-only
+openspec/changes/x/informes/verify/round-1/qa/.retenidos/97474ccae81b.txt   <- el original con la clave
+```
+
+FILTRACIÓN: el test del constructor (`newRepo`) copiaba el .gitignore de active-stack al repo de prueba, así que nunca vio un repo sin la regla. Rojo por aserción en `TestReportsCapture_Retained_NeverStagedInRepoWithoutGitignore` (13:16:51). Arreglo en `26f7ddc`: `.retenidos/.gitignore` con `*`, escrito antes del original. Suite completa `go test ./...` verde, gofmt y vet limpios (13:17:33). Repetida la corrida: el staging sólo tiene LEEME.md y manifest.json.
+
+Los casos limpio → COMPLETE (0) y en blanco → PENDING (2) se comportaron como dice el contrato.
+
+JUICIO (orquestador, confianza alta): segunda vez seguida que el verde del constructor venía de un entorno más permisivo que el real. Para los pasos que quedan, la corrida real va en un repo que NO sea active-stack.
