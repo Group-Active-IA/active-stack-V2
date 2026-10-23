@@ -1,0 +1,13 @@
+Revisión sólo lectura, rama confirmada. No leí otros informes ni ejecuté tests: `internal/approval` e `internal/reports` todavía no existen.
+
+- **BE-1 · BLOQUEANTE · JUICIO, confianza alta.** `docs/propuestas/2026-10-23-fase-2-pasos-1-4.md:27` y `:13`: bruto e informe íntegro terminan versionados, sin contrato para secretos/datos personales. Limitar al evento no evita que contenga tokens, correos o salidas sensibles. Como backend, considero que habilitar captura así abre una vía de exposición pública. Exigir selección explícita de campos y revisión previa al versionado; contenido sensible debe quedar retenido localmente, con estado visible, sin publicarlo ni afirmar integridad de una copia saneada.
+
+- **BE-2 · NOTA · JUICIO, confianza alta.** Propuesta `:17–23`: nada técnico impide que un agente escriba tabla, manifiesto y commit documental coherentes. Se detectan alteraciones e inconsistencias, no autoría humana falsificada. Es una limitación declarada, compatible con J1; debe aparecer también en la salida: “estructura válida; identidad humana no acreditada”. El código actual sólo contiene la prohibición textual en `internal/harness/config/assets/governance.md:32`.
+
+- **BE-3 · NOTA · JUICIO, confianza alta.** Propuesta `:19`: define estados y códigos, pero falta contrato de errores accionables: causa, archivo/campo afectado y recuperación para aprobación ausente, SHA inválido, documental sucio o hashes distintos. No volcar contenido original ni valores sensibles al explicar el fallo.
+
+- **BE-4 · NOTA · JUICIO, confianza alta.** Propuesta `:37`, `:45`, `:53`: Claude dice “registros/eventos”, Codex “JSON propio y registros”, OpenCode “API”; faltan fuente concreta, método de acceso y esquema/versiones admitidos. `internal/agents/interface.go:17–63` sólo ofrece configuración/rutas, sin captura. Fijar esos contratos antes de habilitar cada proveedor.
+
+- **BE-5 · NOTA · JUICIO, confianza alta.** Propuesta `:41`, `:45`, `:55–57`: contempla incompatibilidad, nulos y mensajes parciales, pero no exige explícitamente rechazar informe vacío/blanco en los tres adapters. Agregar fixtures de vacío y cambio de esquema: nunca COMPLETO; distinguir PENDING por contenido incompleto de UNSUPPORTED por contrato desconocido, con error visible sin transcript.
+
+**EVIDENCIA común, confianza alta:** 2026-10-23, comandos `nl -ba` sobre propuesta, governance, interfaz y `.gitignore`; `rg -n` sobre adapters; `ls internal/approval internal/reports` devolvió ambos inexistentes. `.gitignore:36–46` permite versionar informes activos y archivados. Los riesgos señalados son del diseño propuesto, no una filtración comprobada.
