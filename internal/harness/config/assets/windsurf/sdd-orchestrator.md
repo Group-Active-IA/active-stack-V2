@@ -458,7 +458,7 @@ record.
 <!-- active-stack:sdd-model-assignments -->
 ## Model Assignments
 
-If you cannot switch models mid-session, use this table as a reasoning-depth guide: spend more effort on orchestrator/propose decisions, less on archive operations.
+If you cannot switch models mid-session, use this table as a reasoning-depth guide: spend the effort required by each phase, including evidence-backed knowledge base rewrites in archive. Declare any model substitution.
 
 | Phase | Default Model | Reason |
 |-------|---------------|--------|
@@ -467,7 +467,7 @@ If you cannot switch models mid-session, use this table as a reasoning-depth gui
 | propose | opus | Architectural decisions |
 | apply | sonnet | Implementation |
 | verify | opus | Judges conformity AND hypothesises failures nobody wrote down; substituted by sonnet it agrees more, so say so in the verdict |
-| archive | haiku | File operations |
+| archive | sonnet | Rewrite the knowledge base with evidence; if unavailable, declare the substitution (haiku is an alternative), never silent |
 | default | sonnet | General delegation |
 
 <!-- /active-stack:sdd-model-assignments -->

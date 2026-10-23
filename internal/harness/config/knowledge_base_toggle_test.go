@@ -394,8 +394,8 @@ func TestCompose_KnowledgeBaseToggle_ArchiveDoesNotClaimTheCLIDoesIt(t *testing.
 func TestCompose_KnowledgeBaseToggle_TheDetectorIsTheRewriteList(t *testing.T) {
 	body := kbSection(t, "### the detector")
 	requirePhrases(t, body, map[string]string{
-		"if you only appended, you did not update": "the detector itself",
-		"re-read what was written three months":    "what rewriting costs, which is why it gets skipped",
+		"suspicious: append-only":               "the detector itself",
+		"re-read what was written three months": "what rewriting costs, which is why it gets skipped",
 		// NOT the bare "separately and by document": the archive prompt block writes
 		// "return the two lists separately and by document" too, so deleting the
 		// detector's own rule left the archive copy holding this up. Pin the verb.
@@ -711,4 +711,29 @@ func TestCatalog_OrchestratorDescriptionIsNotStaleAboutToggles(t *testing.T) {
 		return
 	}
 	t.Fatal("the catalog has no sdd-orchestrator harness")
+}
+
+func TestArchiveBaseCompletaConEvidencia(t *testing.T) {
+	body := kbSection(t, "### in archive")
+	for _, frase := range []string{"union of knowledge base impact and the actual diff", "even when the impact section exists", "lessons l-nnn", "only append lessons", "lecciones", "deuda", "each entry", "what changed", "sha, test or decision", "typed evidence", "auditor source absent", "written decision", "do not invent"} {
+		if !strings.Contains(body, frase) {
+			t.Errorf("falta contrato de archive: %s", frase)
+		}
+	}
+	// El consumidor es el prompt literal que recibe el archivista.
+	a := strings.Index(body, "```markdown")
+	if a < 0 {
+		t.Fatal("falta prompt")
+	}
+	prompt := body[a+len("```markdown"):]
+	b := strings.Index(prompt, "```")
+	if b < 0 {
+		t.Fatal("prompt sin cierre")
+	}
+	prompt = prompt[:b]
+	for _, frase := range []string{"actual diff", "lessons l-nnn", "lecciones", "deuda", "sha, test or decision", "typed evidence", "suspicious: append-only"} {
+		if !strings.Contains(prompt, frase) {
+			t.Errorf("prompt no entrega: %s", frase)
+		}
+	}
 }

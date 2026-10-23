@@ -78,8 +78,7 @@ agrega una pieza al bloque (en orden de composición):
 - `roles` — convoca un rol con estándar fijo y un "listo" observable, en vez de
   fabricar un sub-agente genérico distinto cada vez.
 - `review`: un rompedor con tres lentes obligatorias y bucle de hasta tres vueltas; el auditor decide y el orquestador ejecuta.
-- `knowledge-base` — hace que el ciclo vuelva a escribir sobre la KB y reporte
-  su deriva, en vez de creerle a un mapa viejo con autoridad.
+- `knowledge-base`: en archive reescribe la base que impacto y diff tocaron; agrega decisiones, lecciones L-NNN y deuda del auditor con evidencia por entrada. Sólo APPEND sin REWRITE se reporta SUSPICIOUS: append-only.
 - `senior`: sólo en verify, después del rompedor y antes del auditor; aporta contexto de decisiones fechadas, uno por vuelta y hasta tres por change.
 - `ship` — publicar en GitHub el trabajo de un change cerrado. No es una
   secuencia de pasos sino un diagnóstico: mira en qué estado está el

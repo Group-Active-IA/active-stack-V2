@@ -193,7 +193,7 @@ Los toggles, en orden de composición, y qué agrega cada uno:
 - `auditor` — alguien lee a los revisores: marca evidencia sin comando, salida vieja y suposiciones ascendidas a evidencia.
 - `roles` — convoca un rol con estándar fijo y "listo" observable, en vez de fabricar un sub-agente genérico distinto cada vez.
 - `review`: un rompedor con tres lentes obligatorias y bucle de hasta tres vueltas; el auditor decide y el orquestador ejecuta.
-- `knowledge-base` — hace que el ciclo vuelva a escribir sobre la knowledge base y reporte su deriva, en vez de creerle a un mapa viejo.
+- `knowledge-base`: en archive reescribe la base que impacto y diff tocaron; agrega decisiones, lecciones L-NNN y deuda del auditor con evidencia por entrada. Sólo APPEND sin REWRITE se reporta SUSPICIOUS: append-only.
 - `senior`: sólo en verify, después del rompedor y antes del auditor; aporta contexto de decisiones fechadas, uno por vuelta y hasta tres por change.
 - `ship` — publicar en GitHub el trabajo de un change cerrado: no corre comandos fijos, diagnostica dónde está parado el repositorio y decide. Push a `main` siempre pregunta, push a una rama propia no; PR o directo se propone con fundamento; y nunca mergea el PR.
 - `engram` — memoria persistente entre sesiones y compactaciones, cableada a las fases OPSX.

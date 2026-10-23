@@ -343,3 +343,29 @@ func TestOrchestrator_ModelTable_VerifyRowNamesItsDegradation(t *testing.T) {
 		}
 	}
 }
+
+func TestArchiveSonnetEnOchoVariantes(t *testing.T) {
+	for _, v := range evidenceVariants {
+		t.Run(v, func(t *testing.T) {
+			body := h2Section(t, baseBlock(t, v), "## model assignments")
+			rows, _ := tableRows(body)
+			row, ok := rows["archive"]
+			if !ok || len(row) < 2 {
+				t.Fatal("falta fila archive")
+			}
+			if row[0] != "sonnet" {
+				t.Errorf("archive usa %s, se esperaba sonnet", row[0])
+			}
+			for _, frase := range []string{"evidence", "substitution", "unavailable"} {
+				if !strings.Contains(row[1], frase) {
+					t.Errorf("motivo archive no declara %s", frase)
+				}
+			}
+			for _, frase := range []string{"less on archive", "file operations"} {
+				if strings.Contains(body, frase) {
+					t.Errorf("instrucción contradictoria: %s", frase)
+				}
+			}
+		})
+	}
+}

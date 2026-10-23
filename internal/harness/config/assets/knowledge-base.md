@@ -157,6 +157,10 @@ in the report that that is what you did.
 
 ### In archive: rewriting and appending are two operations, never one
 
+Cover the union of Knowledge Base Impact and the actual diff, even when the impact section exists. Inspect all KB documents touched by either source; reconcile omissions in the report.
+
+If auditor is absent, mark "auditor source absent": update facts with evidence but do not invent LECCIONES or DEUDA. Closure needs Juani's written decision accepting degraded scope or enabling auditor. If knowledge-base is absent, preserve the verdict lessons and debt in the change and tell Juani the destination is pending.
+
 Archiving is already the moment the system declares that something stopped being
 a proposal and became true. That moment existed and **nobody was using it**.
 
@@ -166,7 +170,7 @@ underneath, with the superseded paragraph and its replacement sitting there
 looking equally current: a reader who meets two contradicting descriptions of the
 schema, with no way to date either, **believes whichever comes first**.
 
-**Append** — decisions and gotchas, each with **its date and what it cost**. That
+**Append**: decisions, lessons L-NNN and debt, each with **its date and what it cost**. Only append lessons; never rewrite numbered lesson history. Take lessons from the auditor LECCIONES and debt from its DEUDA list. Each entry records what changed and typed evidence: SHA, test or decision. Preserve distinctions between EVIDENCE, JUDGMENT and ASSUMPTION. That
 is history, and **history accumulates, it is not overwritten**. Deleting a
 superseded decision destroys the only record of why the current one won, and the
 next person re-litigates it from scratch.
@@ -182,12 +186,11 @@ performs this step, and no part of the block above mentions it either.
 
 ```markdown
 ## Knowledge Base
-Read `## Knowledge Base Impact` in proposal.md; if it is not there, read the
-diff instead and say so. Then, for each document it names: REWRITE status, next
+Read `## Knowledge Base Impact` in proposal.md and the actual diff, even when the section exists. Cover their union; if the section is missing, say so. Then, for each document either source names: REWRITE status, next
 steps and frontmatter so they describe the new state and the old text is gone;
-APPEND decisions and gotchas, dated, with what each one cost. Return the two
+APPEND decisions, lessons L-NNN from auditor LECCIONES and debt from auditor DEUDA, dated, with what each one cost. Only append lessons. Each entry states what changed and typed evidence: SHA, test or decision. Mark auditor source absent and do not invent its lists; closure requires Juani's written decision on degraded scope. Return the two
 lists separately and by document, headed REWRITTEN and APPENDED. If REWRITTEN
-is empty, say why in one line. Then open the previous closed change's
+is empty, say why in one line and label the report SUSPICIOUS: append-only when only APPEND was done. Then open the previous closed change's
 `knowledge-base-report.md`, carry whatever it left undone into a third list
 headed PENDING with the change and the date that incurred it, and write all
 three lists into this change as `knowledge-base-report.md`. If there is no
@@ -201,7 +204,7 @@ instead of one level too late.
 
 ### The detector: appending alone is the half that comes free
 
-**If you only appended, you did not update.**
+If only APPEND was done without REWRITE, label the report **SUSPICIOUS: append-only** and explain why; this flags suspicion, not an invented rewrite.
 
 Appending comes out easy and it feels like work: one new entry at the bottom,
 dated, with a reason. Nothing had to be re-read and nothing had to be deleted.

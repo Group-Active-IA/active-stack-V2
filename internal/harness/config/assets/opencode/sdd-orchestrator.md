@@ -495,7 +495,7 @@ Read this table at session start (or before first delegation), cache it for the 
 | propose | opus | Architectural decisions |
 | apply | sonnet | Implementation |
 | verify | opus | Judges conformity AND hypothesises failures nobody wrote down; substituted by sonnet it agrees more, so say so in the verdict |
-| archive | haiku | File operations |
+| archive | sonnet | Rewrite the knowledge base with evidence; if unavailable, declare the substitution (haiku is an alternative), never silent |
 | default | sonnet | General delegation |
 
 <!-- /active-stack:sdd-model-assignments -->

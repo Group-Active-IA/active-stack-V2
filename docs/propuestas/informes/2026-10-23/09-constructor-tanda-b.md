@@ -531,3 +531,191 @@ Salida: 0
 ```
 
 Revisión del diff de goldens de senior-solo-en-verify: El diff elimina la convocatoria en cinco fases, deja verify después del rompedor y antes del auditor, mantiene memoria y umbrales, y cambia el costo a uno por vuelta con tope de tres. Se alinean las descripciones senior y review en los cuatro documentos y el catálogo, validado mediante catalog.Load(). Sólo se regeneran Claude y OpenCode por cambios de texto compuesto. No se modifican markers ni lógica de instalación.
+
+## senior-solo-en-verify: cierre-post-commit
+
+### cierre-post-commit
+
+```text
+Hora: 2026-10-23T10:10:43.032451-03:00
+SHA: 66ad39ec9b61364a69e518b749c14c023f9b7f14
+Comando: go test ./...
+ok  	github.com/Group-Active-IA/active-stack/assets	(cached)
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack	(cached)
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack/headless	(cached)
+ok  	github.com/Group-Active-IA/active-stack/e2e/starter	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/claude	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/codex	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/opencode	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/backup	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/catalog	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/filemerge	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/command	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config/permissions	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/external	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/skill	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/i18n	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/install	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/model	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/pipeline	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/planner	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/roles	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/system	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/tui	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/uninstall	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/verify	(cached)
+Salida: 0
+```
+
+## archive-base-completa: rojo
+
+### rojo
+
+```text
+Hora: 2026-10-23T10:11:13.207316-03:00
+SHA: 66ad39ec9b61364a69e518b749c14c023f9b7f14
+Comando: go test ./internal/harness/config -run "TestArchive|TestCompose_KnowledgeBaseToggle_TheDetector" -count=1
+--- FAIL: TestCompose_KnowledgeBaseToggle_TheDetectorIsTheRewriteList (0.00s)
+    knowledge_base_toggle_test.go:396: the detector section is missing "suspicious: append-only" — the detector itself
+--- FAIL: TestArchiveBaseCompletaConEvidencia (0.00s)
+    knowledge_base_toggle_test.go:720: falta contrato de archive: union of knowledge base impact and the actual diff
+    knowledge_base_toggle_test.go:720: falta contrato de archive: even when the impact section exists
+    knowledge_base_toggle_test.go:720: falta contrato de archive: lessons l-nnn
+    knowledge_base_toggle_test.go:720: falta contrato de archive: only append lessons
+    knowledge_base_toggle_test.go:720: falta contrato de archive: lecciones
+    knowledge_base_toggle_test.go:720: falta contrato de archive: deuda
+    knowledge_base_toggle_test.go:720: falta contrato de archive: each entry
+    knowledge_base_toggle_test.go:720: falta contrato de archive: what changed
+    knowledge_base_toggle_test.go:720: falta contrato de archive: sha, test or decision
+    knowledge_base_toggle_test.go:720: falta contrato de archive: typed evidence
+    knowledge_base_toggle_test.go:720: falta contrato de archive: auditor source absent
+    knowledge_base_toggle_test.go:720: falta contrato de archive: written decision
+    knowledge_base_toggle_test.go:720: falta contrato de archive: do not invent
+    knowledge_base_toggle_test.go:736: prompt no entrega: actual diff
+    knowledge_base_toggle_test.go:736: prompt no entrega: lessons l-nnn
+    knowledge_base_toggle_test.go:736: prompt no entrega: lecciones
+    knowledge_base_toggle_test.go:736: prompt no entrega: deuda
+    knowledge_base_toggle_test.go:736: prompt no entrega: sha, test or decision
+    knowledge_base_toggle_test.go:736: prompt no entrega: typed evidence
+    knowledge_base_toggle_test.go:736: prompt no entrega: suspicious: append-only
+--- FAIL: TestArchiveSonnetEnOchoVariantes (0.00s)
+    --- FAIL: TestArchiveSonnetEnOchoVariantes/claude (0.00s)
+        verify_phase_test.go:357: archive usa haiku, se esperaba sonnet
+        verify_phase_test.go:361: motivo archive no declara evidence
+        verify_phase_test.go:361: motivo archive no declara substitution
+        verify_phase_test.go:361: motivo archive no declara unavailable
+        verify_phase_test.go:366: instrucción contradictoria: file operations
+    --- FAIL: TestArchiveSonnetEnOchoVariantes/opencode (0.00s)
+        verify_phase_test.go:357: archive usa haiku, se esperaba sonnet
+        verify_phase_test.go:361: motivo archive no declara evidence
+        verify_phase_test.go:361: motivo archive no declara substitution
+        verify_phase_test.go:361: motivo archive no declara unavailable
+        verify_phase_test.go:366: instrucción contradictoria: file operations
+    --- FAIL: TestArchiveSonnetEnOchoVariantes/codex (0.00s)
+        verify_phase_test.go:357: archive usa haiku, se esperaba sonnet
+        verify_phase_test.go:361: motivo archive no declara evidence
+        verify_phase_test.go:361: motivo archive no declara substitution
+        verify_phase_test.go:361: motivo archive no declara unavailable
+        verify_phase_test.go:366: instrucción contradictoria: file operations
+    --- FAIL: TestArchiveSonnetEnOchoVariantes/cursor (0.00s)
+        verify_phase_test.go:357: archive usa haiku, se esperaba sonnet
+        verify_phase_test.go:361: motivo archive no declara evidence
+        verify_phase_test.go:361: motivo archive no declara substitution
+        verify_phase_test.go:361: motivo archive no declara unavailable
+        verify_phase_test.go:366: instrucción contradictoria: file operations
+    --- FAIL: TestArchiveSonnetEnOchoVariantes/gemini (0.00s)
+        verify_phase_test.go:357: archive usa haiku, se esperaba sonnet
+        verify_phase_test.go:361: motivo archive no declara evidence
+        verify_phase_test.go:361: motivo archive no declara substitution
+        verify_phase_test.go:361: motivo archive no declara unavailable
+        verify_phase_test.go:366: instrucción contradictoria: file operations
+    --- FAIL: TestArchiveSonnetEnOchoVariantes/windsurf (0.00s)
+        verify_phase_test.go:357: archive usa haiku, se esperaba sonnet
+        verify_phase_test.go:361: motivo archive no declara evidence
+        verify_phase_test.go:361: motivo archive no declara substitution
+        verify_phase_test.go:361: motivo archive no declara unavailable
+        verify_phase_test.go:366: instrucción contradictoria: less on archive
+        verify_phase_test.go:366: instrucción contradictoria: file operations
+    --- FAIL: TestArchiveSonnetEnOchoVariantes/antigravity (0.00s)
+        verify_phase_test.go:357: archive usa haiku, se esperaba sonnet
+        verify_phase_test.go:361: motivo archive no declara evidence
+        verify_phase_test.go:361: motivo archive no declara substitution
+        verify_phase_test.go:361: motivo archive no declara unavailable
+        verify_phase_test.go:366: instrucción contradictoria: less on archive
+        verify_phase_test.go:366: instrucción contradictoria: file operations
+    --- FAIL: TestArchiveSonnetEnOchoVariantes/generic (0.00s)
+        verify_phase_test.go:357: archive usa haiku, se esperaba sonnet
+        verify_phase_test.go:361: motivo archive no declara evidence
+        verify_phase_test.go:361: motivo archive no declara substitution
+        verify_phase_test.go:361: motivo archive no declara unavailable
+        verify_phase_test.go:366: instrucción contradictoria: file operations
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.007s
+FAIL
+Salida: 1
+```
+
+## archive-base-completa: verde-dirigido
+
+### verde-dirigido
+
+```text
+Hora: 2026-10-23T10:11:47.574315-03:00
+SHA: 66ad39ec9b61364a69e518b749c14c023f9b7f14
+Comando: go test ./internal/harness/config -run "TestArchive|TestCompose_KnowledgeBase|TestOrchestrator" -count=1
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.023s
+Salida: 0
+```
+
+## archive-base-completa: goldens
+
+### goldens
+
+```text
+Hora: 2026-10-23T10:11:48.104631-03:00
+SHA: 66ad39ec9b61364a69e518b749c14c023f9b7f14
+Comando: go test ./internal/harness/config -run TestCompose_AllToggles -update -count=1
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.006s
+Salida: 0
+```
+
+## archive-base-completa: verde
+
+### verde
+
+```text
+Hora: 2026-10-23T10:11:48.387198-03:00
+SHA: 66ad39ec9b61364a69e518b749c14c023f9b7f14
+Comando: go test ./...
+ok  	github.com/Group-Active-IA/active-stack/assets	(cached)
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack	0.564s
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack/headless	2.595s
+ok  	github.com/Group-Active-IA/active-stack/e2e/starter	0.654s
+ok  	github.com/Group-Active-IA/active-stack/internal/agents	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/claude	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/codex	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/opencode	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/backup	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/catalog	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/filemerge	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/command	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	2.862s
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config/permissions	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/external	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/skill	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/i18n	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/install	0.226s
+ok  	github.com/Group-Active-IA/active-stack/internal/model	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/pipeline	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/planner	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/roles	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/system	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/tui	0.033s
+ok  	github.com/Group-Active-IA/active-stack/internal/uninstall	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/verify	0.034s
+Salida: 0
+```
+
+Revisión del diff de goldens de archive-base-completa: El diff cambia archive de haiku a sonnet con sustitución declarada, exige la unión de impacto y diff, agrega decisiones, lecciones L-NNN y deuda con evidencia, y etiqueta APPEND sin REWRITE como SUSPICIOUS: append-only. Conserva reporte por documento y arrastre PENDING. Sólo se regeneran Claude y OpenCode por cambios de texto compuesto. No se modifican markers ni lógica de instalación.
