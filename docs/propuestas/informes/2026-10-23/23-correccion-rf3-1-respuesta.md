@@ -1,6 +1,5 @@
-RF3-1 corregido con la expresión acordada; mutantes revertidos.
-Ambos mutantes fallan por la regex en ambos lugares; la pregunta de ruteo pasa.
-Salvedad: con código viejo, el segundo mutante ya fallaba en assets por un guard independiente.
+Commit `ce7899e` creado, sin push.
+Regex corregida; ambos mutantes detectados y revertidos; pregunta legítima sin falso positivo.
 `go test ./...` con HOME temporal: PASS.
-Evidencia con comandos, salidas y horas: `23-correccion-rf3-1.md`.
-Sin push ni archive.
+Salvedad documentada: el segundo mutante ya fallaba en assets por otro guard.
+Evidencia en `23-correccion-rf3-1.md`; respuesta separada en `23-correccion-rf3-1-respuesta.md`.
