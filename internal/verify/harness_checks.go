@@ -46,7 +46,7 @@ func checksForHarnessAdapter(h model.Harness, adapter Adapter, homeDir string) [
 		if h.ID == "permissions" {
 			return checkPermissions(h, adapter, homeDir)
 		}
-		return checkConfig(h, adapter, homeDir)
+		return append(checkConfig(h, adapter, homeDir), composedDeliveryCheck(h, adapter, homeDir)...)
 	case model.HarnessExternal:
 		return checkExternal(h, adapter, homeDir)
 	default:

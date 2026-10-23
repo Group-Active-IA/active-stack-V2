@@ -13,7 +13,6 @@ import (
 	"github.com/Group-Active-IA/active-stack/internal/install"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/uninstall"
-	"github.com/Group-Active-IA/active-stack/internal/verify"
 )
 
 // registerLangFlag registers --lang on fs (default "en", shown in --help)
@@ -121,7 +120,7 @@ func runWindowsDispatch(args []string, cat install.Catalog, reg install.Registry
 			if registry, ok := reg.(agentRegistryAdapter); ok && registry.r != nil {
 				verifyAdapters := resolveVerifyAdaptersForTarget(parsed.Intent.Agents, registry.r, verifyBase, parsed.Target)
 				selectedHarnesses := collectSelectedHarnesses(cat, parsed.Intent)
-				parsed.VerifyHookFn = verify.BuildHook(selectedHarnesses, verifyAdapters, verifyBase)
+				parsed.VerifyHookFn = buildInstallVerifyHook(selectedHarnesses, verifyAdapters, verifyBase, parsed.HomeDir, parsed.NoSelfInstall)
 			}
 		}
 		parsed.BuildPlanFn = func(c install.Catalog, intent install.Intent, opts install.Options) (install.Plan, error) {
