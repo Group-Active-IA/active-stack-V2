@@ -19,7 +19,7 @@ func Reject(t *testing.T, body string, patterns ...string) {
 }
 
 var Verify = []string{
-	`ready (to|for) archive[.!]|proceed to archive`,
+	`ready (to|for) archive([^?]|$)|proceed to archive`,
 	`(skip|omit|remove|without|disable)[^.\n]{0,45}(wiring|comments/documentation)|(wiring|comments/documentation)[^.\n]{0,30}(omitted|optional|unnecessary)`,
 	`(approve|approval|aprobado)[^.\n]{0,45}(despite|with|even if)[^.\n]{0,25}(unresolved|pending|open) critical`,
 	`senior[^.\n]{0,35}(start|launch|run)[^.\n]{0,25}auditor[^.\n]{0,25}without it|(start|launch|run)[^.\n]{0,35}auditor[^.\n]{0,55}(without|before|parallel|alongside)[^.\n]{0,35}senior`,
