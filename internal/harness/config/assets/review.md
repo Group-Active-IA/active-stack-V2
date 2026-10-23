@@ -65,16 +65,14 @@ installed archive command, not exercised here. If archiving instead copies a
 known artifact list, the verdict is dropped on archive and this section is
 wrong — check it before relying on the verdict being there next month.
 
-The review **does not block**. It holds no veto and does not need one. A reviewer
-that cannot tell **a defect from a taste**, and halts the work for both, gets
-**switched off in a week** — and then nothing gets reviewed at all, which is
-strictly worse than a review somebody argued with.
-
-**Closing over an open finding** is legitimate. Not every finding is worth what
-it costs to fix now, and that call belongs to the person, not to the reviewer.
-What is not legitimate is the finding going **invisible**: written down and
-knowingly accepted is a decision, while never written down is an accident that
-gets discovered later and called a surprise.
+The breaker reports defects and distinguishes them from taste; it has no veto.
+The auditor classifies the findings and decides; the orchestrator executes that
+verdict. Ordinary closure requires APROBADO with conformity and complete reports.
+An open finding may remain only as debt explicitly justified by the auditor's
+verdict. At the three-round limit, the written human decision governs the
+exceptional scope, justified debt or stop described below. With auditor absent,
+closure stops for Juani's written decision on degraded scope. Findings remain
+visible with their evidence and disposition; the breaker cannot authorize closure.
 
 ### An empty verdict is a finding
 

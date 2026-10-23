@@ -38,6 +38,7 @@ package config_test
 // ──────────────────────────────────────────────────────────────────────────────
 
 import (
+	"regexp"
 	"strings"
 	"testing"
 
@@ -236,21 +237,17 @@ func TestCompose_ReviewToggle_LensesAreDifferentNotRedundant(t *testing.T) {
 	}
 }
 
-// TestCompose_ReviewToggle_ReportsDoesNotBlock asserts the reviewer files its
-// verdict instead of gating on it.
-//
-// A reviewer that cannot tell a defect from a taste and stops for both gets
-// switched off, and then nothing is reviewed at all.
-func TestCompose_ReviewToggle_ReportsDoesNotBlock(t *testing.T) {
+// TestCompose_ReviewToggle_ReportAuthority separates reporting from closure.
+func TestCompose_ReviewToggle_ReportAuthority(t *testing.T) {
 	body := reviewSection(t, "### it reports")
-	requirePhrases(t, body, map[string]string{
-		"does not block":               "the rule itself",
-		"archived with it":             "where the verdict goes: into the change, so it survives the session",
-		"a defect from a taste":        "the distinction whose absence turns a reviewer into an obstacle",
-		"switched off in a week":       "the cost of blocking on taste, named so it is not abstract",
-		"closing over an open finding": "the legitimate case, stated so nobody treats a finding as a veto",
-		"invisible":                    "the illegitimate case: the finding that nobody can see was never made",
-	}, "the reports-not-blocks section")
+	for _, hit := range debtViolations(body) {
+		t.Error(hit)
+	}
+	for _, pattern := range []string{`auditor.*classifies.*decides`, `orchestrator.*executes`, `debt.*justified.*auditor`, `findings.*visible`} {
+		if !regexp.MustCompile(pattern).MatchString(strings.Join(strings.Fields(body), " ")) {
+			t.Errorf("falta relación de autoridad: %s", pattern)
+		}
+	}
 }
 
 // TestCompose_ReviewToggle_EmptyVerdictIsAFinding asserts silence is not an

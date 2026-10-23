@@ -189,6 +189,8 @@ func Compose(toggles []string, variantKey string) (string, error) {
 		seniorAsset := "senior.md"
 		if !active["review"] {
 			seniorAsset = "senior-without-review.md"
+		} else if !active["auditor"] {
+			seniorAsset = "senior-without-auditor.md"
 		}
 		sr, err := loadFragment(seniorAsset)
 		if err != nil {

@@ -721,7 +721,7 @@ func TestArchiveBaseCompletaConEvidencia(t *testing.T) {
 	}
 	contracttest.Reject(t, active, contracttest.RF1...)
 	for _, line := range strings.Split(active, "\n") {
-		if strings.Contains(line, "Mark auditor source absent") && !strings.Contains(line, "If the auditor is absent, Mark auditor source absent") {
+		if strings.Contains(strings.ToLower(line), "mark auditor source absent") && !strings.Contains(strings.ToLower(line), "if the auditor is absent, mark auditor source absent") {
 			t.Errorf("auditor activo: instrucción sin condición: %s", line)
 		}
 	}
