@@ -1,0 +1,13 @@
+Revisión funcional: **PROPUESTO con dos ambigüedades que deben resolverse antes de apply**. No constituye aprobación humana.
+
+1. **BLOQUEANTE funcional — aprobación escrita frente a firma obligatoria.** La propuesta §8, línea 19, conserva WRITTEN_UNVERIFIED y permite aprobación escrita; “Orden de construcción”, línea 101, exige que ninguna fila empiece “sin firma humana de alcance”. JUICIO: esa expresión puede volver obligatoria la firma criptográfica pendiente de J1. Sustituir por “aprobación humana escrita del alcance, con verificación criptográfica sólo si Juani elige ese modo”. Aclarar también que las filas BAJO requieren autorización del alcance documental y aprobación propia de reglas nuevas, sin convertir automáticamente su dominio en ALTO.
+
+2. **BLOQUEANTE funcional — degradación ante captura incompleta.** §9, líneas 27–29, y §S, línea 51, detienen el cierre ante original/informe faltante; §S, línea 53, permite que Juani autorice degradación cuando falta “captura completa”. JUICIO: faltan límites observables para distinguir desactivar prospectivamente S de aceptar un informe obligatorio perdido. Explicitar que una degradación no transforma captura incompleta en informe válido ni habilita cierre ordinario; registrar decisión, obligaciones exceptuadas y alcance degradado. La regla vigente de AGENTS.md §6 exige detener cierre ante informe obligatorio faltante.
+
+**EVIDENCIA por lectura:** J1–J6 están marcadas `(TBD)` y sus recomendaciones no se presentan como respuestas; `## Aprobación` contiene sólo encabezados, sin elección/persona/fecha/alcance. §8 separa identidad, contenido y alcance de la aprobación, rechaza cambios normativos posteriores y no autoriza al agente a completar la tabla. §9 distingue bruto y derivado, conserva conflictos e impide reemplazar originales por resúmenes. §S mantiene al auditor como decisor, al lector como informante y el máximo de tres vueltas. §10 exige aprobación específica para destruir reglas personales de bash; §11 protege ownership y conflictos.
+
+**Notas:** nombre/directorio/modos/licencia de roles, confianza de llaves, versiones de proveedores y presupuesto semántico siguen pendientes de forma explícita. Son gates de los futuros changes, no razones para inventar decisiones ahora.
+
+**Fuentes:** `AGENTS.md` §§3 y 6; `docs/exploraciones/2026-10-23-metodologia-fase-2.md`; `docs/propuestas/2026-10-23-metodologia-fase-2.md` §§8–11, S, orden y aprobación.
+
+**Límites/SUPOSICIONES:** revisión documental independiente; no leí informes de otros revisores, no ejecuté tests/build ni consulté configuración global. No acredita compatibilidad real de clientes, autenticidad criptográfica ni aislamiento técnico entre agentes.
