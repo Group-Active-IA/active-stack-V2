@@ -38,16 +38,16 @@ func RenderText(r Result) string {
 // de Go, no un contrato.
 func RenderJSON(r Result) ([]byte, error) {
 	out := struct {
-		Status      string           `json:"status"`
-		ExitCode    int              `json:"exit_code"`
-		Message     string           `json:"message,omitempty"`
-		Cause       string           `json:"cause,omitempty"`
-		Field       string           `json:"field,omitempty"`
-		Recovery    string           `json:"recovery,omitempty"`
-		Scope       string           `json:"scope,omitempty"`
-		ProposalSHA string           `json:"proposal_sha,omitempty"`
-		CommitSHA   string           `json:"commit_sha,omitempty"`
-		Manifest    []ManifestEntry  `json:"manifest,omitempty"`
+		Status      string          `json:"status"`
+		ExitCode    int             `json:"exit_code"`
+		Message     string          `json:"message,omitempty"`
+		Cause       string          `json:"cause,omitempty"`
+		Field       string          `json:"field,omitempty"`
+		Recovery    string          `json:"recovery,omitempty"`
+		Scope       string          `json:"scope,omitempty"`
+		ProposalSHA string          `json:"proposal_sha,omitempty"`
+		CommitSHA   string          `json:"commit_sha,omitempty"`
+		Manifest    []ManifestEntry `json:"manifest,omitempty"`
 	}{
 		Status:      r.Status.String(),
 		ExitCode:    r.Status.ExitCode(),

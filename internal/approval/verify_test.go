@@ -83,7 +83,7 @@ func TestApprovalVerify_CommitMixesCodeWithApproval_ReturnsInvalid(t *testing.T)
 // el mismo, y el campo reportado tiene que coincidir con el que falta.
 func TestApprovalVerify_MissingField_ReturnsInvalid(t *testing.T) {
 	cases := []struct {
-		name                       string
+		name                              string
 		eleccion, persona, fecha, alcance string
 	}{
 		{"persona", "elección", "", "23/10/2026", "alcance"},
@@ -331,4 +331,36 @@ func snapshotRepo(t *testing.T, dir string) string {
 		return nil
 	})
 	return head + "\n" + status + "\n" + strings.Join(files, ",")
+}
+
+// Un archivo sin trackear y ajeno (un log, un borrador) no altera lo firmado:
+// no puede invalidar la aprobación. Antes isDirty usaba -uall y cualquier
+// .log suelto en el repo real volvía INVALID una firma válida.
+func TestApprovalVerify_UntrackedUnrelatedFile_StillWrittenUnverified(t *testing.T) {
+	dir, _, c := buildValidApproval(t)
+	writeFile(t, dir, "docs/propuestas/informes/x/.borrador.log", "salida suelta\n")
+
+	got, err := Verify(Options{RepoDir: dir, ProposalPath: proposalPath, Commit: c})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Status != StatusWrittenUnverified {
+		t.Fatalf("Status = %v, quería WRITTEN_UNVERIFIED; Cause=%q", got.Status, got.Cause)
+	}
+}
+
+// Una modificación sin commitear a un archivo trackeado sí bloquea: lo que se
+// valida tiene que ser exactamente lo commiteado.
+func TestApprovalVerify_TrackedProposalModified_ReturnsInvalid(t *testing.T) {
+	dir, _, c := buildValidApproval(t)
+	current, _, _ := showFile(dir, "HEAD", proposalPath)
+	writeFile(t, dir, proposalPath, current+"\nun cambio sin commitear\n")
+
+	got, err := Verify(Options{RepoDir: dir, ProposalPath: proposalPath, Commit: c})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Status != StatusInvalid {
+		t.Fatalf("Status = %v, quería INVALID por árbol sucio; Cause=%q", got.Status, got.Cause)
+	}
 }

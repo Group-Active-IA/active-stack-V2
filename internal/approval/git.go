@@ -31,11 +31,12 @@ func resolveCommit(dir, ref string) (string, error) {
 	return strings.TrimSpace(out), nil
 }
 
-// isDirty dice si el árbol de trabajo tiene cambios (trackeados o no) frente a
+// isDirty dice si hay cambios sin commitear en archivos trackeados frente a
 // HEAD. Un árbol documental sucio invalida la comparación: lo que se está
-// leyendo en disco puede no ser lo que está commiteado.
+// leyendo en disco puede no ser lo que está commiteado. Los archivos sin
+// trackear no cuentan: no alteran nada de lo firmado, que se lee de git.
 func isDirty(dir string) (bool, error) {
-	out, err := runGit(dir, "status", "--porcelain=v1", "-uall")
+	out, err := runGit(dir, "status", "--porcelain=v1", "--untracked-files=no")
 	if err != nil {
 		return false, err
 	}
