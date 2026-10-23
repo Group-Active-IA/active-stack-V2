@@ -147,6 +147,21 @@ func Compose(toggles []string, variantKey string) (string, error) {
 		additives = append(additives, rv)
 	}
 
+	if !active["review"] {
+		degradation, err := loadFragment("verify-without-review.md")
+		if err != nil {
+			return "", fmt.Errorf("config compose: %w", err)
+		}
+		// List review first, then other absences in canonical order.
+		missing := []string{"review"}
+		for _, toggle := range KnownToggles() {
+			if toggle != "review" && !active[toggle] {
+				missing = append(missing, toggle)
+			}
+		}
+		additives = append(additives, degradation+"\nMissing toggles: "+strings.Join(missing, ", ")+".\n")
+	}
+
 	// Step 4f: the knowledge base. After review and before the senior on purpose:
 	// everything above it is scoped to the change in flight, and this is the first
 	// section whose subject OUTLIVES the change. It also reports in the typed
@@ -171,7 +186,11 @@ func Compose(toggles []string, variantKey string) (string, error) {
 	// from, and the fragment says so: it must not read as if engram were already
 	// assumed.
 	if active["senior"] {
-		sr, err := loadFragment("senior.md")
+		seniorAsset := "senior.md"
+		if !active["review"] {
+			seniorAsset = "senior-without-review.md"
+		}
+		sr, err := loadFragment(seniorAsset)
 		if err != nil {
 			return "", fmt.Errorf("config compose: %w", err)
 		}
@@ -207,6 +226,9 @@ func Compose(toggles []string, variantKey string) (string, error) {
 		tddModule, err := loadFragment("strict-tdd.md")
 		if err != nil {
 			return "", fmt.Errorf("config compose: %w", err)
+		}
+		if !active["review"] {
+			tddModule = strings.ReplaceAll(tddModule, "The breaker and auditor count the tests themselves; do not accept the constructor's count as their evidence.", "Ordinary verify counts tests independently; do not accept the constructor's count as evidence.")
 		}
 		tddBlock := "Strict TDD Mode: enabled\n\n" + tddModule
 		additives = append(additives, tddBlock)

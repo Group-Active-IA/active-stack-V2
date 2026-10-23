@@ -7,7 +7,7 @@ import (
 )
 
 func TestConstructorContratoApply(t *testing.T) {
-	block, err := config.Compose([]string{"tdd"}, "claude")
+	block, err := config.Compose([]string{"tdd", "review", "auditor"}, "claude")
 	if err != nil {
 		t.Fatal(err)
 	}

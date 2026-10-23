@@ -1,0 +1,3 @@
+## Senior in ordinary verify
+
+Review is absent. The senior runs only in verify, once, to compare the ordinary verification findings against dated decisions in this change's artifacts and closed changes. Cite each decision and date, report which sources were read and distinguish evidence, judgment and assumption. Read numbered lessons when knowledge-base is available; if engram is active, consult its recorded history and disclose empty results as missing records rather than missing decisions. The senior supplies historical context and has no closing authority. Preserve its complete report for the active auditor, or for Juani's written decision when auditor is absent. Do not invent a review cycle or historical context.

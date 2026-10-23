@@ -1,6 +1,7 @@
 package config_test
 
 import (
+	"fmt"
 	"github.com/Group-Active-IA/active-stack/internal/contracttest"
 	"github.com/Group-Active-IA/active-stack/internal/harness/config"
 	"strings"
@@ -84,7 +85,7 @@ func TestVerifyDegradacionesComponibles(t *testing.T) {
 			if e != nil {
 				t.Fatal(e)
 			}
-			if ausente != "review" && !strings.Contains(b, "Announce missing toggles at verify start") {
+			if !strings.Contains(b, "Announce missing toggles at verify start") {
 				t.Fatal("falta degradación visible")
 			}
 			if ausente == "review" && strings.Contains(b, "### The loop") {
@@ -103,5 +104,47 @@ func TestVerifyVocabularioCompuesto(t *testing.T) {
 			}
 			contracttest.Reject(t, body, contracttest.Verify...)
 		})
+	}
+}
+
+func TestVerifySinReviewTresAgentes(t *testing.T) {
+	for _, agent := range []string{"claude", "codex", "opencode"} {
+		for _, auditor := range []bool{true, false} {
+			t.Run(fmt.Sprintf("%s/auditor=%t", agent, auditor), func(t *testing.T) {
+				toggles := []string{}
+				for _, toggle := range config.KnownToggles() {
+					if toggle != "review" && (auditor || toggle != "auditor") {
+						toggles = append(toggles, toggle)
+					}
+				}
+				body, err := config.Compose(toggles, agent)
+				if err != nil {
+					t.Fatal(err)
+				}
+				for _, want := range []string{"Announce missing toggles at verify start", "Review absent", "ordinary verify", "Missing toggles: review", "tasks.md"} {
+					if !strings.Contains(body, want) {
+						t.Errorf("falta degradación: %s", want)
+					}
+				}
+				flat := seniorFlat(body)
+				for _, forbidden := range []string{"breaker", "three mandatory lenses", "three lenses", "### the loop"} {
+					if strings.Contains(flat, forbidden) {
+						t.Errorf("review ausente conserva: %s", forbidden)
+					}
+				}
+				if !auditor {
+					for _, want := range []string{"Missing toggles: review, auditor", "Juani's written decision"} {
+						if !strings.Contains(body, want) {
+							t.Errorf("falta salida humana: %s", want)
+						}
+					}
+					for _, forbidden := range []string{"the auditor decides", "the auditor then reads", "until the auditor"} {
+						if strings.Contains(flat, forbidden) {
+							t.Errorf("autoridad ausente: %s", forbidden)
+						}
+					}
+				}
+			})
+		}
 	}
 }

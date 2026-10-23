@@ -75,7 +75,8 @@ const seniorHeading = "## the senior"
 // seniorFragment returns ONLY the senior fragment, never the whole block.
 func seniorFragment(t *testing.T) string {
 	t.Helper()
-	body, err := config.Compose([]string{"senior"}, "claude")
+	// This helper inspects the full-cycle fragment; ordinary verify is covered separately.
+	body, err := config.Compose([]string{"senior", "review", "auditor"}, "claude")
 	if err != nil {
 		t.Fatalf("Compose([senior]): %v", err)
 	}

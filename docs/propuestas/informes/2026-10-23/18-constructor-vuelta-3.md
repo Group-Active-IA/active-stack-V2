@@ -1047,3 +1047,640 @@ ok  	github.com/Group-Active-IA/active-stack/assets	0.015s
 
 exit=0
 ```
+
+### Ítem 4 rojo seis composiciones
+
+Hora: 2026-10-23T10:41:03.433124-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-hoj48aqu`.
+
+Comando: `go test ./internal/harness/config -run "TestVerify(SinReviewTresAgentes|DegradacionesComponibles)" -count=1`
+
+```text
+--- FAIL: TestVerifyDegradacionesComponibles (0.00s)
+    --- FAIL: TestVerifyDegradacionesComponibles/review (0.00s)
+        verify_loop_test.go:89: falta degradación visible
+--- FAIL: TestVerifySinReviewTresAgentes (0.01s)
+    --- FAIL: TestVerifySinReviewTresAgentes/claude/auditor=true (0.00s)
+        verify_loop_test.go:121: falta degradación: Announce missing toggles at verify start
+        verify_loop_test.go:121: falta degradación: Review absent
+        verify_loop_test.go:121: falta degradación: ordinary verify
+        verify_loop_test.go:121: falta degradación: Missing toggles: review
+        verify_loop_test.go:125: review ausente conserva: breaker
+        verify_loop_test.go:125: review ausente conserva: three mandatory lenses
+    --- FAIL: TestVerifySinReviewTresAgentes/claude/auditor=false (0.00s)
+        verify_loop_test.go:121: falta degradación: Announce missing toggles at verify start
+        verify_loop_test.go:121: falta degradación: Review absent
+        verify_loop_test.go:121: falta degradación: ordinary verify
+        verify_loop_test.go:121: falta degradación: Missing toggles: review
+        verify_loop_test.go:125: review ausente conserva: breaker
+        verify_loop_test.go:125: review ausente conserva: three mandatory lenses
+        verify_loop_test.go:130: autoridad ausente: until the auditor
+        verify_loop_test.go:130: autoridad ausente: auditor receives
+    --- FAIL: TestVerifySinReviewTresAgentes/codex/auditor=true (0.00s)
+        verify_loop_test.go:121: falta degradación: Announce missing toggles at verify start
+        verify_loop_test.go:121: falta degradación: Review absent
+        verify_loop_test.go:121: falta degradación: ordinary verify
+        verify_loop_test.go:121: falta degradación: Missing toggles: review
+        verify_loop_test.go:125: review ausente conserva: breaker
+        verify_loop_test.go:125: review ausente conserva: three mandatory lenses
+    --- FAIL: TestVerifySinReviewTresAgentes/codex/auditor=false (0.00s)
+        verify_loop_test.go:121: falta degradación: Announce missing toggles at verify start
+        verify_loop_test.go:121: falta degradación: Review absent
+        verify_loop_test.go:121: falta degradación: ordinary verify
+        verify_loop_test.go:121: falta degradación: Missing toggles: review
+        verify_loop_test.go:125: review ausente conserva: breaker
+        verify_loop_test.go:125: review ausente conserva: three mandatory lenses
+        verify_loop_test.go:130: autoridad ausente: until the auditor
+        verify_loop_test.go:130: autoridad ausente: auditor receives
+    --- FAIL: TestVerifySinReviewTresAgentes/opencode/auditor=true (0.00s)
+        verify_loop_test.go:121: falta degradación: Announce missing toggles at verify start
+        verify_loop_test.go:121: falta degradación: Review absent
+        verify_loop_test.go:121: falta degradación: ordinary verify
+        verify_loop_test.go:121: falta degradación: Missing toggles: review
+        verify_loop_test.go:125: review ausente conserva: breaker
+        verify_loop_test.go:125: review ausente conserva: three mandatory lenses
+    --- FAIL: TestVerifySinReviewTresAgentes/opencode/auditor=false (0.00s)
+        verify_loop_test.go:121: falta degradación: Announce missing toggles at verify start
+        verify_loop_test.go:121: falta degradación: Review absent
+        verify_loop_test.go:121: falta degradación: ordinary verify
+        verify_loop_test.go:121: falta degradación: Missing toggles: review
+        verify_loop_test.go:125: review ausente conserva: breaker
+        verify_loop_test.go:125: review ausente conserva: three mandatory lenses
+        verify_loop_test.go:130: autoridad ausente: until the auditor
+        verify_loop_test.go:130: autoridad ausente: auditor receives
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.016s
+FAIL
+
+exit=1
+```
+
+### Ítem 4 verde seis composiciones
+
+Hora: 2026-10-23T10:41:31.994620-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-d44l0ly5`.
+
+Comando: `go test ./internal/harness/config -run "TestVerify(SinReviewTresAgentes|DegradacionesComponibles)" -count=1`
+
+```text
+--- FAIL: TestVerifySinReviewTresAgentes (0.01s)
+    --- FAIL: TestVerifySinReviewTresAgentes/claude/auditor=false (0.00s)
+        verify_loop_test.go:143: autoridad ausente: auditor receives
+    --- FAIL: TestVerifySinReviewTresAgentes/codex/auditor=false (0.00s)
+        verify_loop_test.go:143: autoridad ausente: auditor receives
+    --- FAIL: TestVerifySinReviewTresAgentes/opencode/auditor=false (0.00s)
+        verify_loop_test.go:143: autoridad ausente: auditor receives
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.015s
+FAIL
+
+exit=1
+```
+
+### Regresión M1
+
+Hora: 2026-10-23T10:42:01.814487-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-l4d1yr6_`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'A cancelled job counts as green when its rerun passes.'; SHA256: `d52748b47ae6aafff07910d7db63cfe4055d98de3c3023cc3d88bd4aae6a9f28`.
+
+Comando: `go test ./internal/harness/config -run "TestShipEsperaCICompleto" -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.05s)
+    ship_ci_test.go:20: CI contradictorio: A cancelled job counts as green when its rerun passes.
+    ship_ci_test.go:22: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): cancelled job counts as green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.051s
+FAIL
+
+exit=1
+```
+
+### Regresión M1b
+
+Hora: 2026-10-23T10:42:02.359006-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-l4d1yr6_`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'A cancelled job counts as green when its rerun passes.'; SHA256: `b49199ac77e56f639eaa587ab0fc5b69fa2ada1c86357d159c852b3cc7b29c3d`.
+
+Comando: `go test ./assets -run "TestComandoShipEsperaCICompleto" -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:21: CI contradictorio: A cancelled job counts as green when its rerun passes.
+    ship_ci_test.go:23: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): cancelled job counts as green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.014s
+FAIL
+
+exit=1
+```
+
+### Regresión M2
+
+Hora: 2026-10-23T10:42:02.581465-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-l4d1yr6_`.
+
+Mutación: `internal/harness/config/assets/review.md`; 'If blockers remain, start round 4 automatically.'; SHA256: `fa45e5c68dd8a2f6b996bb7c457d63445740760d2427bebc87a58cd5d2ce1847`.
+
+Comando: `go test ./internal/harness/config -run "TestVerifyContratoBucle" -count=1`
+
+```text
+--- FAIL: TestVerifyContratoBucle (0.00s)
+    verify_loop_test.go:15: secuencia contradictoria: if blockers remain, start round 4 automatically.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.005s
+FAIL
+
+exit=1
+```
+
+### Regresión M3
+
+Hora: 2026-10-23T10:42:03.086462-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-l4d1yr6_`.
+
+Mutación: `internal/harness/config/assets/review.md`; ('Wait for the senior report before launching the auditor.', 'Launch the auditor in parallel with the senior.'); SHA256: `62613a38bf094aa681bf73add79fed1ce2c65457d230b921621108573415b397`.
+
+Comando: `go test ./internal/harness/config -run "TestVerifyContratoBucle|TestAuditorDecideSinAutoridadParalela" -count=1`
+
+```text
+--- FAIL: TestVerifyContratoBucle (0.00s)
+    verify_loop_test.go:15: secuencia contradictoria: launch the auditor in parallel with the senior.
+    verify_loop_test.go:19: falta espera obligatoria; no se permite: Launch the auditor in parallel with the senior.
+--- FAIL: TestAuditorDecideSinAutoridadParalela (0.00s)
+    verify_loop_test.go:44: secuencia contradictoria: Launch the auditor in parallel with the senior.
+    verify_loop_test.go:56: the composed block does not carry the senior fragment (heading "## the senior" missing)
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.009s
+FAIL
+
+exit=1
+```
+
+### Regresión M4
+
+Hora: 2026-10-23T10:42:03.580648-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-l4d1yr6_`.
+
+Mutación: `internal/harness/config/assets/auditor.md`; ('Missing required reports prevent approval.', ''); SHA256: `d1c7067926337cc13500df3f603193051dea3190d5fe3e6fae89109a539d0069`.
+
+Comando: `go test ./internal/harness/config -run "TestAuditorDecideSinAutoridadParalela" -count=1`
+
+```text
+--- FAIL: TestAuditorDecideSinAutoridadParalela (0.00s)
+    verify_loop_test.go:49: falta negación obligatoria: Missing required reports prevent approval.; permitir aprobación sin informes contradice el contrato
+    verify_loop_test.go:56: the composed block does not carry the senior fragment (heading "## the senior" missing)
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+FAIL
+
+exit=1
+```
+
+### Regresión M5
+
+Hora: 2026-10-23T10:42:04.058523-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-l4d1yr6_`.
+
+Mutación: `assets/commands/claude/opsx/verify.md`; 'All checks passed. Proceed to archive.'; SHA256: `37025d1091c1ce2743c13d39daf89838a24238620901eceaacbe4f3cd9c7a615`.
+
+Comando: `go test ./assets -run "TestVerifyConformidadNoHabilitaArchive" -count=1`
+
+```text
+--- FAIL: TestVerifyConformidadNoHabilitaArchive (0.00s)
+    commands_test.go:116: contrato contradicho (ready (to|for) archive[.!]|proceed to archive): proceed to archive
+    commands_test.go:118: conformidad anuncia cierre: All checks passed. Proceed to archive.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.006s
+FAIL
+
+exit=1
+```
+
+### Regresión M6
+
+Hora: 2026-10-23T10:42:04.275120-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-l4d1yr6_`.
+
+Mutación: `internal/harness/config/assets/knowledge-base.md`; ('Only append lessons.', 'Rewrite old lessons freely.'); SHA256: `2492dadef01eb4bab95b2be21b6b2f42ebdecbfd7d1022dd74c36a46e0a61991`.
+
+Comando: `go test ./internal/harness/config -run "TestArchiveBaseCompletaConEvidencia" -count=1`
+
+```text
+--- FAIL: TestArchiveBaseCompletaConEvidencia (0.01s)
+    knowledge_base_toggle_test.go:734: historia contradictoria: Rewrite old lessons freely.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.012s
+FAIL
+
+exit=1
+```
+
+### Regresión M7
+
+Hora: 2026-10-23T10:42:04.766264-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-l4d1yr6_`.
+
+Mutación: `internal/harness/config/assets/governance.md`; 'An agent may fill it after chat approval.'; SHA256: `1afa6001a7c74620f942f69184ea63bdede0e1ccd814a7c474c04f0da04b8050`.
+
+Comando: `go test ./internal/harness/config -run "TestGovernance" -count=1`
+
+```text
+--- FAIL: TestGovernanceAprobacionHumanaEnProposal (0.00s)
+    governance_approval_test.go:16: firma contradictoria: An agent may fill it after chat approval.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.003s
+FAIL
+
+exit=1
+```
+
+### Regresión M8
+
+Hora: 2026-10-23T10:42:05.245700-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-l4d1yr6_`.
+
+Mutación: `internal/verify/delivery.go`; ('!= 1', '< 1'); SHA256: `3401ebe7b427b9e5b94eb1e95ba733b117a9ea0c8c54942fb67cc0113f03d234`.
+
+Comando: `go test ./internal/verify -run "TestEntrega" -count=1`
+
+```text
+--- FAIL: TestEntregaRechazaBloqueDuplicado (0.00s)
+    --- FAIL: TestEntregaRechazaBloqueDuplicado/claude (0.00s)
+        delivery_test.go:83: bloque duplicado debe fallar por markers duplicados; resultado: <nil>
+    --- FAIL: TestEntregaRechazaBloqueDuplicado/codex (0.00s)
+        delivery_test.go:83: bloque duplicado debe fallar por markers duplicados; resultado: <nil>
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/verify	0.011s
+FAIL
+
+exit=1
+```
+
+### Ítem 4 verde seis composiciones
+
+Hora: 2026-10-23T10:42:05.864097-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-l4d1yr6_`.
+
+Comando: `go test ./internal/harness/config -run "TestVerify(SinReviewTresAgentes|DegradacionesComponibles)" -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.014s
+
+exit=0
+```
+
+### Contratos y goldens sin regenerar
+
+Hora: 2026-10-23T10:42:06.293667-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-l4d1yr6_`.
+
+Comando: `go test ./internal/harness/config ./assets ./internal/verify -count=1`
+
+```text
+--- FAIL: TestCompose_SeniorToggle_PreambleSaysItIsEveryPhase (0.00s)
+    senior_toggle_test.go:196: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_IsNotAFifthReviewer (0.00s)
+    senior_toggle_test.go:214: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_InVerifyItJudgesTheFindings (0.00s)
+    senior_toggle_test.go:233: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_DistinguishesItselfFromTheAuditor (0.00s)
+    senior_toggle_test.go:251: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_NamesWhereTheMemoryComesFrom (0.00s)
+    senior_toggle_test.go:277: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_LabelsTheArchivePathAsAssumption (0.00s)
+    senior_toggle_test.go:298: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_SaysWhatEngramActuallyOffers (0.00s)
+    senior_toggle_test.go:319: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_AsksADifferentQuestionInEachPhase (0.00s)
+    senior_toggle_test.go:342: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_RunsAtTheCloseOfEachPhase (0.00s)
+    senior_toggle_test.go:361: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_IsNotAnEighthRole (0.00s)
+    senior_toggle_test.go:382: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_TheStopIsAddressedToTheOrchestrator (0.00s)
+    senior_toggle_test.go:403: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_SplitsLabellingFromHolding (0.00s)
+    senior_toggle_test.go:420: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_HasAThreshold (0.00s)
+    senior_toggle_test.go:435: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_ListsTheFourStopConditions (0.00s)
+    senior_toggle_test.go:453: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_NoteAndCarryOnIsTheOtherHalf (0.00s)
+    senior_toggle_test.go:470: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_StopsWithDatumOptionsAndDefault (0.00s)
+    senior_toggle_test.go:488: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_DeclaresItsCost (0.00s)
+    senior_toggle_test.go:510: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestCompose_SeniorToggle_DoesNotClaimAMechanismItLacks (0.00s)
+    senior_toggle_test.go:533: the composed block does not carry the senior fragment (heading "## the senior" missing)
+--- FAIL: TestConstructorContratoApply (0.00s)
+    --- FAIL: TestConstructorContratoApply/The_breaker_and_auditor_count_the_tests_themselves;_do_not_accept_the_constructor's_count_as_their_evidence. (0.00s)
+        tdd_toggle_test.go:48: falta contrato del constructor: The breaker and auditor count the tests themselves; do not accept the constructor's count as their evidence.
+--- FAIL: TestAuditorDecideSinAutoridadParalela (0.00s)
+    verify_loop_test.go:56: the composed block does not carry the senior fragment (heading "## the senior" missing)
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	2.598s
+ok  	github.com/Group-Active-IA/active-stack/assets	0.019s
+ok  	github.com/Group-Active-IA/active-stack/internal/verify	0.027s
+FAIL
+
+exit=1
+```
+
+### Contratos y goldens tras ajustar contexto de helpers
+
+Hora: 2026-10-23T10:42:27.058644-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-hkv94i7y`.
+
+Comando: `go test ./internal/harness/config ./assets ./internal/verify -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	2.555s
+ok  	github.com/Group-Active-IA/active-stack/assets	0.018s
+ok  	github.com/Group-Active-IA/active-stack/internal/verify	0.027s
+
+exit=0
+```
+
+### Regresión M1
+
+Hora: 2026-10-23T10:43:15.026331-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-wkezpgys`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'A cancelled job counts as green when its rerun passes.'; SHA256: `d52748b47ae6aafff07910d7db63cfe4055d98de3c3023cc3d88bd4aae6a9f28`.
+
+Comando: `go test ./internal/harness/config -run "TestShipEsperaCICompleto" -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.05s)
+    ship_ci_test.go:20: CI contradictorio: A cancelled job counts as green when its rerun passes.
+    ship_ci_test.go:22: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): cancelled job counts as green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.050s
+FAIL
+
+exit=1
+```
+
+### Regresión M1b
+
+Hora: 2026-10-23T10:43:15.525981-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-wkezpgys`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'A cancelled job counts as green when its rerun passes.'; SHA256: `b49199ac77e56f639eaa587ab0fc5b69fa2ada1c86357d159c852b3cc7b29c3d`.
+
+Comando: `go test ./assets -run "TestComandoShipEsperaCICompleto" -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:21: CI contradictorio: A cancelled job counts as green when its rerun passes.
+    ship_ci_test.go:23: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): cancelled job counts as green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.014s
+FAIL
+
+exit=1
+```
+
+### Regresión M2
+
+Hora: 2026-10-23T10:43:15.698855-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-wkezpgys`.
+
+Mutación: `internal/harness/config/assets/review.md`; 'If blockers remain, start round 4 automatically.'; SHA256: `fa45e5c68dd8a2f6b996bb7c457d63445740760d2427bebc87a58cd5d2ce1847`.
+
+Comando: `go test ./internal/harness/config -run "TestVerifyContratoBucle" -count=1`
+
+```text
+--- FAIL: TestVerifyContratoBucle (0.00s)
+    verify_loop_test.go:15: secuencia contradictoria: if blockers remain, start round 4 automatically.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+FAIL
+
+exit=1
+```
+
+### Regresión M3
+
+Hora: 2026-10-23T10:43:16.174489-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-wkezpgys`.
+
+Mutación: `internal/harness/config/assets/review.md`; ('Wait for the senior report before launching the auditor.', 'Launch the auditor in parallel with the senior.'); SHA256: `62613a38bf094aa681bf73add79fed1ce2c65457d230b921621108573415b397`.
+
+Comando: `go test ./internal/harness/config -run "TestVerifyContratoBucle|TestAuditorDecideSinAutoridadParalela" -count=1`
+
+```text
+--- FAIL: TestVerifyContratoBucle (0.00s)
+    verify_loop_test.go:15: secuencia contradictoria: launch the auditor in parallel with the senior.
+    verify_loop_test.go:19: falta espera obligatoria; no se permite: Launch the auditor in parallel with the senior.
+--- FAIL: TestAuditorDecideSinAutoridadParalela (0.02s)
+    verify_loop_test.go:44: secuencia contradictoria: Launch the auditor in parallel with the senior.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.031s
+FAIL
+
+exit=1
+```
+
+### Regresión M4
+
+Hora: 2026-10-23T10:43:16.674301-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-wkezpgys`.
+
+Mutación: `internal/harness/config/assets/auditor.md`; ('Missing required reports prevent approval.', ''); SHA256: `d1c7067926337cc13500df3f603193051dea3190d5fe3e6fae89109a539d0069`.
+
+Comando: `go test ./internal/harness/config -run "TestAuditorDecideSinAutoridadParalela" -count=1`
+
+```text
+--- FAIL: TestAuditorDecideSinAutoridadParalela (0.02s)
+    verify_loop_test.go:49: falta negación obligatoria: Missing required reports prevent approval.; permitir aprobación sin informes contradice el contrato
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.024s
+FAIL
+
+exit=1
+```
+
+### Regresión M5
+
+Hora: 2026-10-23T10:43:17.173089-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-wkezpgys`.
+
+Mutación: `assets/commands/claude/opsx/verify.md`; 'All checks passed. Proceed to archive.'; SHA256: `37025d1091c1ce2743c13d39daf89838a24238620901eceaacbe4f3cd9c7a615`.
+
+Comando: `go test ./assets -run "TestVerifyConformidadNoHabilitaArchive" -count=1`
+
+```text
+--- FAIL: TestVerifyConformidadNoHabilitaArchive (0.00s)
+    commands_test.go:116: contrato contradicho (ready (to|for) archive[.!]|proceed to archive): proceed to archive
+    commands_test.go:118: conformidad anuncia cierre: All checks passed. Proceed to archive.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.006s
+FAIL
+
+exit=1
+```
+
+### Regresión M6
+
+Hora: 2026-10-23T10:43:17.339804-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-wkezpgys`.
+
+Mutación: `internal/harness/config/assets/knowledge-base.md`; ('Only append lessons.', 'Rewrite old lessons freely.'); SHA256: `2492dadef01eb4bab95b2be21b6b2f42ebdecbfd7d1022dd74c36a46e0a61991`.
+
+Comando: `go test ./internal/harness/config -run "TestArchiveBaseCompletaConEvidencia" -count=1`
+
+```text
+--- FAIL: TestArchiveBaseCompletaConEvidencia (0.01s)
+    knowledge_base_toggle_test.go:734: historia contradictoria: Rewrite old lessons freely.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.011s
+FAIL
+
+exit=1
+```
+
+### Regresión M7
+
+Hora: 2026-10-23T10:43:17.809709-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-wkezpgys`.
+
+Mutación: `internal/harness/config/assets/governance.md`; 'An agent may fill it after chat approval.'; SHA256: `1afa6001a7c74620f942f69184ea63bdede0e1ccd814a7c474c04f0da04b8050`.
+
+Comando: `go test ./internal/harness/config -run "TestGovernance" -count=1`
+
+```text
+--- FAIL: TestGovernanceAprobacionHumanaEnProposal (0.00s)
+    governance_approval_test.go:16: firma contradictoria: An agent may fill it after chat approval.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.003s
+FAIL
+
+exit=1
+```
+
+### Regresión M8
+
+Hora: 2026-10-23T10:43:18.266377-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-wkezpgys`.
+
+Mutación: `internal/verify/delivery.go`; ('!= 1', '< 1'); SHA256: `3401ebe7b427b9e5b94eb1e95ba733b117a9ea0c8c54942fb67cc0113f03d234`.
+
+Comando: `go test ./internal/verify -run "TestEntrega" -count=1`
+
+```text
+--- FAIL: TestEntregaRechazaBloqueDuplicado (0.00s)
+    --- FAIL: TestEntregaRechazaBloqueDuplicado/claude (0.00s)
+        delivery_test.go:83: bloque duplicado debe fallar por markers duplicados; resultado: <nil>
+    --- FAIL: TestEntregaRechazaBloqueDuplicado/codex (0.00s)
+        delivery_test.go:83: bloque duplicado debe fallar por markers duplicados; resultado: <nil>
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/verify	0.012s
+FAIL
+
+exit=1
+```
+
+### Ítem 4 verde seis composiciones
+
+Hora: 2026-10-23T10:43:18.796355-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-wkezpgys`.
+
+Comando: `go test ./internal/harness/config -run "TestVerify(SinReviewTresAgentes|DegradacionesComponibles)" -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.016s
+
+exit=0
+```
+
+### Contratos y goldens sin regenerar
+
+Hora: 2026-10-23T10:43:19.277507-03:00; SHA: `60ea957d062ec1ed4fb15a407aaa40d6a14a4958`; HOME: `/tmp/active-stack-v3-home-wkezpgys`.
+
+Comando: `go test ./internal/harness/config ./assets ./internal/verify -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	2.610s
+ok  	github.com/Group-Active-IA/active-stack/assets	0.022s
+ok  	github.com/Group-Active-IA/active-stack/internal/verify	0.026s
+
+exit=0
+```
+
+## JUICIO — implementación y alcance por ítem
+
+1. `internal/contracttest/text.go` normaliza mayúsculas, whitespace y énfasis, y rechaza vocabulario de las seis reglas en el bloque completo de claude, codex y opencode y en el comando verify. Las secciones «archivo nombrado» y «senior nombrado» son N6 y N7 respectivamente; cada una tiene su variante propia en ambos consumidores. Para lentes se probó wiring y, con redacción propia, comments/documentation. El interrogante de ruteo «ready to archive?» no anuncia cierre y queda permitido; los anuncios terminados en punto o exclamación se rechazan. Se conservan las aserciones positivas existentes: el control nuevo no las sustituye.
+2. `internal/contracttest/ci.go` busca estados incompatibles con verde y sus verbos de aceptación. `TestShipEsperaCICompleto` inspecciona ahora el bloque compuesto, además del test del comando. Se registran veinte FAIL: diez exigidos (cinco estados × dos copias) y diez de variantes propias. Los estados son pendiente, omitido, SHA ajeno, cero runs y consulta fallida. Cancelado permanece cubierto por M1/M1b. No se intenta resolver N1/N1b: siguen en deuda por decisión del auditor.
+3. `internal/contracttest/rf1.go` rechaza marcar siempre ausente al auditor, imponer requisitos del repositorio actual y recuperar la autoridad de stop del senior. N9, N10 (ambas copias) y N11, más variantes propias, fallan en sus tests nombrados. La condición válida «If the auditor is absent» se conserva.
+4. `Compose` agrega un fragmento específico de verify habitual si falta review y enumera los toggles ausentes. El senior activo conserva su trabajo de contexto fechado mediante un fragmento para verify habitual, sin inventar rompedor ni auditor. El contrato de conteo independiente de TDD se adapta a esa composición. Se eliminó la excepción del test de degradaciones. La prueba adicional compone las seis combinaciones de agentes y auditor: verifica anuncio, lista de ausencias y verify habitual; prohíbe rompedor y lentes, y sin auditor exige decisión escrita de Juani y rechaza autoridad de cierre del auditor ausente.
+
+Los helpers que prueban el fragmento de senior y el contrato completo de TDD ahora activan review y auditor explícitamente; el comportamiento sin esos toggles tiene su test propio, sin skip. Los goldens de todos los toggles siguen pasando sin regeneración: ese texto no cambió.
+
+## Capturas intermedias y límites
+
+Se conservan las capturas fallidas de integración: la primera adaptación dejó los helpers antiguos pidiendo el fragmento completo bajo una composición degradada. Se corrigió el contexto de esos helpers. Otro intento de verde señaló «auditor receives» en roles: corresponde a propose, no a la decisión de verify; se quitó esa prohibición global excesiva del test, manteniendo las prohibiciones de cierre del auditor ausente exigidas. Una captura titulada «verde» con exit=1 es un intento fallido, no evidencia verde; la captura posterior y la suite final son las que acreditan el resultado. No se ocultaron fallas de integración.
+
+Los cuatro tasks.md afectados se actualizaron localmente, dentro de sus secciones Bucle de verify, a vuelta 3 de 3 en curso y pendiente del auditor: verify-rompedor-auditor, ship-espera-ci, archive-base-completa y senior-solo-en-verify. Se preservó el historial previo. `openspec/` está ignorado por política del repo: esas actualizaciones no se fuerzan al índice. Los otros changes no tuvieron correcciones en esta lista. CONF-1 no se ejecutó ni se declaró resuelto.
+
+Este informe es del constructor y no reemplaza conformidad, rompedor, senior ni auditor. Los FAIL son pruebas de contratos textuales y de la regresión de entrega duplicada, no una ejecución real de agentes ni CI remoto. Sin push autorizado no hay observación nueva de CI remoto. Proveedor de esta ejecución: Codex según la sesión; identidad sin registro de despacho independiente se declara SUPUESTO. No se usó otra familia ni se alega independencia.
+
+### Seis composiciones finales con nombres
+
+Hora: 2026-10-23T10:44:28.648769-03:00; SHA: `4aa086a1becbf1aee2265e1f5164803e85028215`; HOME: `/tmp/active-stack-v3-home-49s8y014`.
+
+Comando: `go test ./internal/harness/config -run ^TestVerifySinReviewTresAgentes$ -v -count=1`
+
+```text
+=== RUN   TestVerifySinReviewTresAgentes
+=== RUN   TestVerifySinReviewTresAgentes/claude/auditor=true
+=== RUN   TestVerifySinReviewTresAgentes/claude/auditor=false
+=== RUN   TestVerifySinReviewTresAgentes/codex/auditor=true
+=== RUN   TestVerifySinReviewTresAgentes/codex/auditor=false
+=== RUN   TestVerifySinReviewTresAgentes/opencode/auditor=true
+=== RUN   TestVerifySinReviewTresAgentes/opencode/auditor=false
+--- PASS: TestVerifySinReviewTresAgentes (0.01s)
+    --- PASS: TestVerifySinReviewTresAgentes/claude/auditor=true (0.00s)
+    --- PASS: TestVerifySinReviewTresAgentes/claude/auditor=false (0.00s)
+    --- PASS: TestVerifySinReviewTresAgentes/codex/auditor=true (0.00s)
+    --- PASS: TestVerifySinReviewTresAgentes/codex/auditor=false (0.00s)
+    --- PASS: TestVerifySinReviewTresAgentes/opencode/auditor=true (0.00s)
+    --- PASS: TestVerifySinReviewTresAgentes/opencode/auditor=false (0.00s)
+PASS
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.015s
+
+exit=0
+```
+
+### Revisión de whitespace final
+
+Hora: 2026-10-23T10:44:28.888019-03:00; SHA: `4aa086a1becbf1aee2265e1f5164803e85028215`; HOME: `/tmp/active-stack-v3-home-49s8y014`.
+
+Comando: `git diff --check`
+
+```text
+
+exit=0
+```
+
+### Suite completa final con HOME temporal
+
+Hora: 2026-10-23T10:44:28.895003-03:00; SHA: `4aa086a1becbf1aee2265e1f5164803e85028215`; HOME: `/tmp/active-stack-v3-home-49s8y014`.
+
+Comando: `go test ./... `
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/assets	0.051s
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack	0.594s
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack/headless	2.519s
+ok  	github.com/Group-Active-IA/active-stack/e2e/starter	0.715s
+ok  	github.com/Group-Active-IA/active-stack/internal/agents	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/claude	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/codex	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/opencode	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/backup	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/catalog	(cached)
+?   	github.com/Group-Active-IA/active-stack/internal/contracttest	[no test files]
+ok  	github.com/Group-Active-IA/active-stack/internal/filemerge	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/command	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	2.898s
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config/permissions	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/external	0.045s
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/skill	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/i18n	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/install	0.233s
+ok  	github.com/Group-Active-IA/active-stack/internal/model	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/pipeline	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/planner	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/roles	0.082s
+ok  	github.com/Group-Active-IA/active-stack/internal/system	0.019s
+ok  	github.com/Group-Active-IA/active-stack/internal/tui	0.033s
+ok  	github.com/Group-Active-IA/active-stack/internal/uninstall	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/verify	0.039s
+
+exit=0
+```
+
+## Cierre del constructor
+
+Suite completa exit=0 a las 10:44:28 -03 sobre `4aa086a1becbf1aee2265e1f5164803e85028215`, después del último cambio y commit de código. La incorporación posterior de esta salida y de la respuesta separada sólo modifica documentación; no invalida el árbol de código probado. Cuatro commits, uno por ítem, en español y sin atribución. Los tasks locales quedan en vuelta 3 de 3 pendiente de veredicto; el constructor no declara aprobación ni archiva.
