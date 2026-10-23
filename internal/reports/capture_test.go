@@ -3,6 +3,7 @@ package reports
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -367,6 +368,9 @@ func TestReportsCapture_OriginalIsVersionable_GitCheckIgnoreReturnsNotIgnored(t 
 func TestReportsCapture_PermissionDenied_ReturnsError_NeverComplete(t *testing.T) {
 	if os.Geteuid() == 0 {
 		t.Skip("corriendo como root: chmod 0 no bloquea escrituras, el caso no es simulable")
+	}
+	if runtime.GOOS == "windows" {
+		t.Skip("en Windows os.Chmod sobre un directorio no bloquea escrituras: el caso no es simulable así")
 	}
 	repo := newRepo(t)
 	changesDir := filepath.Join(repo, "openspec", "changes")
