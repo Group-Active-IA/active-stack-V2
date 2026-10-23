@@ -285,7 +285,7 @@ La completa Juani, a mano. Ningún agente la escribe.
 
 | Elección | Persona | Fecha | Alcance |
 |---|---|---|---|
-| | | | |
+| Fase 1 del propose (pasos 0 a 7, incluido 7b) con las 5 recomendaciones del orquestador | Juani | 23/10/2026 | Tal como está en el propose en el commit 409d04a, revisado por analista, arquitecto, DevOps y QA y auditado en dos vueltas (docs/propuestas/informes/2026-10-23/). Los pasos 8 a 12 quedan TBD y NO aprobados. Cada paso es un change con su propia firma si es ALTO |
 
 
 ## Respuesta a la revisión
