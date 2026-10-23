@@ -10,3 +10,7 @@ Juani aceptó las cinco recomendaciones del auditor (`05-auditor.md`):
 ## J5 (23/10/2026)
 
 Juani eligió **A** (recomendada): la lectura semántica entra como regla de verify, con un lector separado bajo `review`, antes del senior y del auditor, dentro del mismo tope de tres vueltas. Es una regla nueva: se construye en el paso 5 con esta aprobación escrita como respaldo.
+
+## J1, revisada (23/10/2026)
+
+Juani decide **no configurar firma criptográfica de commits**. El paso 1 (`aprobacion-firmada`) se rediseña sin GPG ni SSH: la aprobación sigue siendo la escrita (tabla `## Aprobación` en commit propio, con alcance explícito), y lo que el paso puede aportar es verificar esa estructura (tabla presente, persona, fecha, alcance, commit separado del código) sin afirmar autenticidad criptográfica. Queda declarado como límite: un agente con acceso al repo puede imitar la firma escrita; el control es de proceso, no criptográfico.
