@@ -356,7 +356,7 @@ you MUST prompt.
    Never `--force` or `--force-with-lease` over published history without the person
    explicitly saying so for that specific push.
 
-7. **Open the PR — and stop there**
+7. **Open the PR and evaluate its CI result**
 
    ```bash
    gh pr create --base "<trunk>" --head "<branch>" --title "<title>" --body "<body>"
@@ -378,7 +378,39 @@ you MUST prompt.
    Merging is deciding on everybody's behalf that it is good, and that decision belongs to
    whoever owns the repository — which is not the process that wrote the code.
 
-   **The cycle ends at the open PR.**
+   **The cycle ends at the open PR and its CI result.**
+
+### Complete CI on the pushed SHA
+
+Before evaluating CI, record the pushed SHA, expected workflows/events and expanded matrix jobs.
+
+Every required job must finish in success on the pushed SHA.
+
+Discover runs with `gh run list --commit <sha>`, then the orchestrator uses
+`gh run watch <run-id>` to wait for each expected run. Inspect their jobs with
+`gh run view <run-id> --json headSha,event,workflowName,jobs` and retain the result.
+
+Inspect the jobs of every expected run; never choose only the favorable run.
+
+For this repository, require .github/workflows/ci.yml on push, with test on Ubuntu and Windows.
+
+For a PR, inspect its required checks and verify the source SHA, not the synthetic merge SHA.
+
+In other repositories, derive the required set from their workflows and required checks; a tag release is not required for a branch push.
+
+One successful job with another pending is not green.
+
+queued, in_progress, cancelled, skipped, neutral and timed_out are not green.
+
+A result for another SHA is not green.
+
+Zero runs, no CI or a failed query are not green; report the state and leave delivery unconfirmed.
+
+On failure, report it without stacking another fix as if the push were confirmed.
+
+A new push invalidates the previous result and requires evaluating the new SHA.
+
+The orchestrator waits for the complete CI result before declaring delivery ready.
 
 8. **Report — in typed categories**
 

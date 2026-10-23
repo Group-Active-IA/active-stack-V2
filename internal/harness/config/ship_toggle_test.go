@@ -474,10 +474,10 @@ func TestCompose_ShipToggle_ProposesPrOrDirectWithGrounds(t *testing.T) {
 func TestCompose_ShipToggle_NeverMerges(t *testing.T) {
 	body := shipSection(t, "### it does not merge")
 	requireShipPhrases(t, body, map[string]string{
-		"deciding on everybody's behalf":                    "what a merge is, as against what a push is",
-		"the cycle ends at the open pr":                     "where the agent stops, stated as a place",
-		"`gh pr merge`":                                     "the command named, so the prohibition is checkable",
-		"do not enable auto-merge":                          "the first way the line gets crossed: a merge with a delay is still a merge",
+		"deciding on everybody's behalf":                  "what a merge is, as against what a push is",
+		"the cycle ends at the open pr and its ci result": "where the agent stops, stated as a place",
+		"`gh pr merge`":            "the command named, so the prohibition is checkable",
+		"do not enable auto-merge": "the first way the line gets crossed: a merge with a delay is still a merge",
 		"is a different claim from somebody having read it": "the second: green checks are not an approval",
 	}, "the no-merge section")
 }
