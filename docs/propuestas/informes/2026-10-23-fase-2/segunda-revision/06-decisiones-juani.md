@@ -27,3 +27,7 @@ Juani: las funcionalidades quedan como están, pero el camino de código tiene q
 - **Reinstalar la fase 1 en la máquina de Juani ya**, con su ensayo de backup y restore y su OK, para usarla y que el uso real encuentre lo que falte.
 - Se mantienen: la firma de Juani en lo ALTO, el backup antes de tocar configuración del usuario, y el CI en verde antes de decir "listo".
 - El paso 0 se cierra con la decisión del auditor de su vuelta 2; lo que quede abierto pasa a deuda.
+
+## J4: fuente y licencia de los roles (23/10/2026, en el chat)
+
+Juani: "si usa mis role". Los siete `role-*.md` que instala el harness `role-definitions` (analyst, architect, backend, dba, devops, frontend, qa) son copia de los suyos en `~/.claude/agents/`, bajo la licencia MIT del repo. Revisados antes de copiar: sin nombres, rutas, correos ni claves. Cierra la deuda D-15 del paso 4. Quedan afuera `role-auditor`, `role-senior` y `role-implementer`: no son de los siete de la lista canónica del propose.

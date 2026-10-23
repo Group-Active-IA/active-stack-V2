@@ -383,3 +383,7 @@ convoca arquitecto/QA/auditor en este trabajo; eso es la revisión prevista en
 verify, por paso"), no corresponde convocar revisores acá. Arquitecto/
 backend/DBA/frontend/DevOps/QA quedan para la vuelta de `verify` de este
 paso; este informe no la sustituye.
+
+## Cierre de D-15 (orquestador, 23/10/2026)
+
+J4 decidida por Juani (ver `segunda-revision/06-decisiones-juani.md`): los placeholders se reemplazaron por sus `role-*.md`. `go test ./internal/harness/roledefs` verde después del reemplazo.
