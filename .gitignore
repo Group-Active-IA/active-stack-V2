@@ -39,5 +39,10 @@ dist/
 !/openspec/changes/*/
 /openspec/changes/*/*
 !/openspec/changes/*/informes/
+!/openspec/changes/archive/
+/openspec/changes/archive/*
+!/openspec/changes/archive/*/
+/openspec/changes/archive/*/*
+!/openspec/changes/archive/*/informes/
 .claude/
 .opencode/
