@@ -1,6 +1,7 @@
 package config_test
 
 import (
+	"github.com/Group-Active-IA/active-stack/internal/contracttest"
 	"github.com/Group-Active-IA/active-stack/internal/harness/config"
 	"strings"
 	"testing"
@@ -88,6 +89,18 @@ func TestVerifyDegradacionesComponibles(t *testing.T) {
 			if ausente == "review" && strings.Contains(b, "### The loop") {
 				t.Fatal("bucle filtrado")
 			}
+		})
+	}
+}
+
+func TestVerifyVocabularioCompuesto(t *testing.T) {
+	for _, agent := range []string{"claude", "codex", "opencode"} {
+		t.Run(agent, func(t *testing.T) {
+			body, err := config.Compose(config.KnownToggles(), agent)
+			if err != nil {
+				t.Fatal(err)
+			}
+			contracttest.Reject(t, body, contracttest.Verify...)
 		})
 	}
 }

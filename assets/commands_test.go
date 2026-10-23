@@ -1,6 +1,7 @@
 package assets_test
 
 import (
+	"github.com/Group-Active-IA/active-stack/internal/contracttest"
 	"io/fs"
 	"strings"
 	"testing"
@@ -112,6 +113,7 @@ func TestVerifyConformidadNoHabilitaArchive(t *testing.T) {
 		t.Fatal(err)
 	}
 	body := strings.ToLower(string(data))
+	contracttest.Reject(t, body, contracttest.Verify...)
 	if strings.Contains(body, "all checks passed. proceed to archive.") {
 		t.Error("conformidad anuncia cierre: All checks passed. Proceed to archive.")
 	}
