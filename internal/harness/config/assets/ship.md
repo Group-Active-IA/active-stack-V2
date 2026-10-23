@@ -175,9 +175,7 @@ automatically, which **is a different claim from somebody having read it**.
 
 ### The diagnosis can be delegated. The answer cannot.
 
-The senior fragment, when its toggle is on, names this same split —
-**the senior labels, you hold**. Here it is: the diagnosis reports, you answer.
-The rule does not depend on that fragment being present.
+The diagnosis reports, you answer.
 
 Reading a repository is exactly the work this block sends to a sub-agent, and the
 reads can go there. What cannot is any of the three questions above — the push to

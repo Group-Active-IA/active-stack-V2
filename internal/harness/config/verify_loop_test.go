@@ -52,6 +52,11 @@ func TestAuditorDecideSinAutoridadParalela(t *testing.T) {
 			t.Errorf("falta secuencia: %s", frase)
 		}
 	}
+	all, err := config.Compose(config.KnownToggles(), "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	s = seniorFlat(all)
 	for _, frase := range []string{"the two run together", "when the senior returns a finding labelled blocking, do not start", "the senior labels, you hold"} {
 		if strings.Contains(s, frase) {
 			t.Errorf("autoridad vieja: %s", frase)

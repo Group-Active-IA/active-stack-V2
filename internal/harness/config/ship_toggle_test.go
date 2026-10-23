@@ -487,9 +487,8 @@ func TestCompose_ShipToggle_NeverMerges(t *testing.T) {
 // LA TRAMPA TÉCNICA. A sub-agent that asks a question does not receive an answer:
 // it returns the question in its report and terminates, and nothing of it is
 // still running when somebody reads it. So the reads can be delegated and the
-// three questions cannot. `senior.md` already names this split — "the senior
-// labels, you hold" — and citing it is the point: a reader who meets the same
-// mechanism twice under two names counts two mechanisms.
+// three questions cannot. Ship states this split locally without assigning
+// the senior authority over the decision.
 //
 // And the safe default is the other half. Everywhere else in this block an
 // unanswered question costs a delay. Here the wrong default costs a revert
@@ -497,7 +496,6 @@ func TestCompose_ShipToggle_NeverMerges(t *testing.T) {
 func TestCompose_ShipToggle_TheAnswerBelongsToTheOrchestrator(t *testing.T) {
 	body := shipSection(t, "### the diagnosis can be delegated")
 	requireShipPhrases(t, body, map[string]string{
-		"the senior labels, you hold":                                 "the split quoted from the fragment that names it, rather than reinvented here",
 		"a sub-agent that asks a question does not receive an answer": "the mechanical fact the whole section rests on",
 		"returns the question in its report and terminates":           "why: there is nothing left running to hear the answer",
 		"the person is in a conversation with **you**":                "the addressee, named — without it the asking has no venue",

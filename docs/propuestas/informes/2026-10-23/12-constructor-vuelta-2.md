@@ -363,3 +363,40 @@ ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
 
 exit=0
 ```
+## Ítem 5 — RF1-5a, eliminar autoridad paralela citada
+
+La prohibición existente ahora inspecciona Compose(KnownToggles), no sólo senior.md. El test de ship deja de exigir la cita eliminada. Golden: se elimina la referencia al senior y se conserva la regla local de diagnóstico/consulta de ship; sin tocar senior.md (RF1-5b).
+
+Hora: 2026-10-23T10:24:36.830580-03:00; SHA: `140f5d57ffdcece0a827411beaaa2fb37a108dba`; HOME: `/tmp/active-stack-v2-home-55xjt12u`.
+
+Comando: `go test ./internal/harness/config -run ^TestAuditorDecideSinAutoridadParalela$ -count=1`
+
+```text
+--- FAIL: TestAuditorDecideSinAutoridadParalela (0.00s)
+    verify_loop_test.go:60: autoridad vieja: the senior labels, you hold
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.008s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:24:37.245720-03:00; SHA: `140f5d57ffdcece0a827411beaaa2fb37a108dba`; HOME: `/tmp/active-stack-v2-home-55xjt12u`.
+
+Comando: `go test ./internal/harness/config -run TestAuditorDecideSinAutoridadParalela|TestCompose_ShipToggle_TheAnswerBelongsToTheOrchestrator -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.011s
+
+exit=0
+```
+
+Hora: 2026-10-23T10:24:37.739424-03:00; SHA: `140f5d57ffdcece0a827411beaaa2fb37a108dba`; HOME: `/tmp/active-stack-v2-home-55xjt12u`.
+
+Comando: `go test ./internal/harness/config -run ^TestCompose_AllToggles -update -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.006s
+
+exit=0
+```
