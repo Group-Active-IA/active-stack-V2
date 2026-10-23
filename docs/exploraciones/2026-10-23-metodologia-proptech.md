@@ -11,6 +11,10 @@ Informes de los roles convocados, guardados textuales (extraídos del transcript
 Los dos se convocaron de a uno, con prompts independientes; el arquitecto declara que no abrió el
 informe del analista.
 
+> **Actualizado el 23/10 con las decisiones de Juani (§8).** Lo que esas decisiones reemplazan quedó
+> en su lugar, marcado con *Reemplazado (§8)*, para que se vea qué se pensó y por qué cambió. La
+> propuesta que sale de acá está en `docs/propuestas/2026-10-23-metodologia-proptech-en-opsx.md`.
+
 ---
 
 ## 0. Tres hallazgos que van antes que todo
@@ -106,6 +110,11 @@ correr Codex sin sandbox y no va al instalador.
 | Brief con criterio de conflictos | no hay plantilla de brief del constructor | todo | parte de `build-break-audit` |
 | Clasificador de revisores | base, Dispatch punto 3; `active-stack roles` | que llegue instalado y funcione | chequeos en `verify` (§3, problema 5) |
 
+> *Reemplazado (§8)*: las filas "Secuencial", "Constructor → rompedor → auditor", "Constructor de otra
+> familia", "Brief con criterio de conflictos" y "Verificación real" ya no van a un toggle
+> `build-break-audit`. Van dentro de `apply` (`strict-tdd.md`) y de `verify` (`review.md`,
+> `auditor.md`, `senior.md`).
+
 ---
 
 ## 3. Los cinco problemas reales del 22/10 y su propuesta
@@ -193,6 +202,9 @@ escribe el binario de tests sobre el HOME real.
 
 ### Toggles nuevos
 
+> *Reemplazado (§8)*: no hay toggle nuevo. Juani decidió que el método va dentro de las fases OPSX
+> que ya existen. La tabla queda como registro de la alternativa rechazada.
+
 | Toggle | Qué agrega | Posición | Por qué ahí |
 |---|---|---|---|
 | `build-break-audit` | Ciclo constructor → rompedor → auditor **de a uno**, tope de 3 vueltas con diagnóstico al auditor y decisión de la persona; escalado por riesgo; constructor de otra familia que rompedor y auditor (invariante, Codex como ejemplo); brief con consumidores fuera del área y criterio de conflictos (L-030); cierre de vuelta con revisores de rol sobre lo último (L-024); verificación real con la persona al teclado si hay proveedor externo. Declara que en este modo el punto 2 del Dispatch (paralelo) no aplica entre constructor, rompedor y auditor. | entre `review` y `knowledge-base` | depende de `auditor`, `roles` y `review` (anteriores) y los nombra sólo en forma condicional ("where the X fragment is on the page"); ningún fragmento anterior lo nombra a él, así no hay ciclo |
@@ -216,6 +228,9 @@ Nada más nuevo como toggle. El resto son cambios a lo existente.
 | catálogo | tipo de harness `agent` para instalar los `role-*.md` |
 
 ### Orden (el del arquitecto, con el que coincido)
+
+> *Reemplazado en parte (§8)*: el paso 5 ya no es un toggle sino cambios a `strict-tdd.md`,
+> `review.md`, `auditor.md` y `senior.md`; el orden nuevo está en la propuesta.
 
 1. **Instalación sana** (problema 5): binario y bloque al día en `verify`. Sin esto, nada de lo demás llega.
 2. **`fae8bbf`** de juancruz (ver §7): bug real y barato.
@@ -255,10 +270,16 @@ Nada más nuevo como toggle. El resto son cambios a lo existente.
 - **Choque con `review`**: tres pasadas paralelas por lentes contra un rompedor con vueltas. Si se
   activan los dos sin regla de convivencia, el costo se duplica (memoria: Juani no quiere tres pases
   adversariales). Hay que decidir si `build-break-audit` reemplaza a `review` cuando están los dos.
-- **Choque con `ship`**: PropTech autoriza push a `main` sin preguntar al archivar (D-049); `ship`
-  pregunta siempre. Ver pregunta 4.
+- ~~**Choque con `ship`**: PropTech autoriza push a `main` sin preguntar al archivar (D-049); `ship`
+  pregunta siempre. Ver pregunta 4.~~ **Corregido (§8): es falso.** En PropTech siempre se preguntó
+  antes de pushear a `main`. No hay choque: `ship` sigue preguntando siempre.
 - **Choque con `roles.md:58`**: en apply no se convoca a nadie; el rompedor actúa entre vueltas de
   apply. Hay que redefinir "diff que se mueve" como "vuelta cerrada". (analista, contradicción 4)
+  *Resuelto por §8*: el rompedor vive en `verify`, que siempre corre sobre un diff que dejó de
+  moverse; la fila de apply de `roles.md` sigue siendo cierta.
+- *Reemplazado (§8)*: "Más bloque" y "Choque con `review`" eran riesgos del toggle nuevo. Con el
+  método dentro de las fases, el texto se agrega a fragmentos que ya existen y el choque con `review`
+  desaparece porque el rompedor es `review`.
 - **Firma criptográfica**: si Juani no tiene GPG o SSH signing configurado, el subcomando `approval`
   no puede decir nada, y el riesgo es que se relaje a "verificar el autor", que no prueba nada.
 - **Hooks de Claude Code**: frontera externa que versiona Anthropic; el formato del transcript es
@@ -274,11 +295,13 @@ Nada más nuevo como toggle. El resto son cambios a lo existente.
 1. **Firma**: ¿tenés o querés configurar firma de commits (GPG o SSH) con passphrase? Sin eso, "firmado
    por Juani" no se puede distinguir de "commiteado por un agente con tu nombre".
 2. ¿El constructor de otra familia (Codex) lo querés como **regla** del bloque o como **opción** que se
-   activa si está instalado?
+   activa si está instalado? **Respondida (§8)**: opción, si el usuario tiene otro proveedor.
 3. Cuando `build-break-audit` y `review` estén prendidos juntos, ¿el rompedor **reemplaza** a las tres
-   pasadas o van las dos cosas?
-4. En PropTech pusheás a `main` sin preguntar al archivar (D-049). ¿Eso lo querés en Active Stack como
-   excepción configurable, o `ship` sigue preguntando siempre?
+   pasadas o van las dos cosas? **Respondida en parte (§8)**: no hay `build-break-audit`; el rompedor
+   *es* `review.md`. Queda abierto si es un agente con las tres lentes o tres pasadas (ver la propuesta).
+4. ~~En PropTech pusheás a `main` sin preguntar al archivar (D-049). ¿Eso lo querés en Active Stack como
+   excepción configurable, o `ship` sigue preguntando siempre?~~ **Corregido (§8)**: la premisa era
+   falsa, en PropTech siempre se preguntó. `ship` sigue preguntando siempre por `main`.
 5. ¿Active Stack tiene que **instalar los agentes `role-*`**, aunque eso pise los que tenés hoy en
    `~/.claude/agents` (con backup)?
 6. Lo de mirar las pantallas en un navegador después de cada bloque de UI: ¿va en el bloque para
@@ -339,3 +362,45 @@ no se ejecutó.
 - Auditor: no convocado; este documento no tiene veredicto que auditar. Si va a propose, conviene que un
   auditor lea los dos informes contra este documento.
 - `active-stack roles`: **no se corrió con éxito**; el binario instalado es de tests (§0).
+
+---
+
+## 8. Decisiones de Juani del 23/10
+
+Dichas por Juani al orquestador el 2026-10-23, después de leer este documento. Reemplazan lo marcado
+*Reemplazado (§8)* más arriba; el resto de la exploración se mantiene.
+
+**El método no va como toggle separado.** Va dentro de las fases OPSX que ya existen:
+
+1. **`/opsx:apply` es el CONSTRUCTOR.** Escribe con TDD estricto y pega el rojo (y el verde) en
+   `tasks.md`. Si el usuario tiene otro proveedor disponible (Codex/GPT), el constructor puede ser de
+   otra familia de modelo, para que la revisión sea independiente. Es opción, no requisito.
+2. **`/opsx:verify` es conformidad (lo que ya hace) → ROMPEDOR → AUDITOR.** El rompedor es la
+   revisión adversarial que ya existe (`review.md`) con el estilo de PropTech: reproducciones
+   concretas, mutantes que fallan por la aserción (L-019, L-034), contra un diff que dejó de moverse.
+   El auditor (`auditor.md`) lee los informes y decide.
+3. **El bucle.** Si hay bloqueantes, vuelven a `/opsx:apply`, el constructor corrige y se repite
+   `/opsx:verify`. Se sale cuando el auditor aprueba o a la tercera vuelta; en la tercera, lo que
+   queda abierto se le presenta a la persona escrito como decisión suya, nunca en silencio. Una
+   corrección que agrega una regla nueva vuelve a pedir firma humana antes de construirse (L-029).
+4. **Senior sólo en `verify`**, para separar hallazgos reales de los que contradicen una decisión
+   vieja. Deja de estar en todas las fases.
+5. **`/opsx:archive` actualiza toda la base de conocimiento que el change tocó**: REWRITE de lo que
+   dice cómo es ahora; APPEND de decisiones, lecciones numeradas y deuda. Cada cambio a la base sale
+   con la evidencia de su razonamiento (qué cambió y por qué: el commit, el test o la decisión que lo
+   respalda), tipado EVIDENCIA/JUICIO/SUPUESTO. Un archive que sólo agrega y no reescribe se reporta
+   como sospechoso.
+6. **Corrección del push.** La pregunta 4 y el riesgo "Choque con `ship`" decían que en PropTech se
+   pusheaba a `main` sin preguntar al archivar. **Es falso: siempre se preguntó.** `ship` sigue
+   preguntando siempre por `main`. Además, `ship` no da nada por listo hasta que el CI completo esté
+   en verde sobre el commit pusheado (L-037).
+
+La contradicción 5 del informe del analista se apoya en la misma lectura y queda sin efecto. El
+informe no se edita: es textual.
+
+**Se mantiene de la exploración**: arreglar la instalación rota de esta máquina (binario de tests en
+`~/.local/bin/active-stack`, bloque del 9/09) y que `verify` detecte un bloque instalado
+desactualizado; traer los dos arreglos de OpenCode de Juan Cruz (`fae8bbf` por cherry-pick,
+`ddeb94f` reimplementado); informes guardados por hook `SubagentStop` o subcomando, sin dar Write a
+los revisores; aprobación verificable con firma de commits GPG/SSH (sigue siendo pregunta para
+Juani); instalar los `role-*`; bloque compacto al final.
