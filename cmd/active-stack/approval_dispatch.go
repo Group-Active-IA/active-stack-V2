@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/Group-Active-IA/active-stack/internal/approval"
 )
@@ -32,6 +33,14 @@ func runApprovalDispatch(args []string, dir string, w io.Writer) int {
 		fmt.Fprintf(w, "error: %v\n", err)
 		fmt.Fprintln(w, approvalUsage)
 		return 1
+	}
+	if dir == "" {
+		wd, err := os.Getwd()
+		if err != nil {
+			fmt.Fprintf(w, "error: no pude leer el directorio actual: %v\n", err)
+			return 1
+		}
+		dir = wd
 	}
 	opts.RepoDir = dir
 

@@ -141,3 +141,15 @@ func TestRunApprovalDispatch_NoApprovalTable_ExitCode1(t *testing.T) {
 		t.Errorf("la salida no dice MISSING:\n%s", out.String())
 	}
 }
+
+// main llama runApprovalDispatch con dir == "": el repo es el directorio
+// actual. Sin este caso los tests pasaban y el comando real fallaba siempre.
+func TestRunApprovalDispatch_EmptyDirUsesWorkingDirectory(t *testing.T) {
+	dir, c := buildApprovedRepo(t)
+	t.Chdir(dir)
+	var buf bytes.Buffer
+	code := runApprovalDispatch([]string{"--change", "docs/propuestas/x.md", "--commit", c}, "", &buf)
+	if code != 2 {
+		t.Fatalf("código = %d, quería 2 (dir vacío = directorio actual); salida:\n%s", code, buf.String())
+	}
+}
