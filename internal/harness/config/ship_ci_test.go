@@ -20,6 +20,7 @@ func TestShipEsperaCICompleto(t *testing.T) {
 		t.Error("CI contradictorio: A cancelled job counts as green when its rerun passes.")
 	}
 	contracttest.Reject(t, body, contracttest.CI...)
+	contracttest.Reject(t, body, contracttest.RF1...)
 
 	for _, want := range []string{
 		"Before evaluating CI, record the pushed SHA, expected workflows/events and expanded matrix jobs.",

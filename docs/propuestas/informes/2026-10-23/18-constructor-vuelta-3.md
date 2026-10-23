@@ -890,3 +890,160 @@ ok  	github.com/Group-Active-IA/active-stack/assets	0.013s
 
 exit=0
 ```
+
+### Ítem 3 N9 nombrado
+
+Hora: 2026-10-23T10:40:33.751909-03:00; SHA: `a04a6ba1d05b6a5681b5736d94c087c11f535212`; HOME: `/tmp/active-stack-v3-home-vmxdkjt4`.
+
+Mutación: `internal/harness/config/assets/knowledge-base.md`; 'Always mark auditor source absent.'; SHA256: `08f397116dcfa34bc0e07549145c0ae55d4e14c2ff2d10d4f9ce1a8dd46814b5`.
+
+Comando: `go test ./internal/harness/config -run ^TestArchiveBaseCompletaConEvidencia$ -count=1`
+
+```text
+--- FAIL: TestArchiveBaseCompletaConEvidencia (0.01s)
+    knowledge_base_toggle_test.go:722: contrato contradicho ((always|unconditionally)[^.\n]{0,40}(mark|report|declare)[^.\n]{0,25}auditor[^.\n]{0,25}(absent|missing)): always mark auditor source absent
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.012s
+FAIL
+
+exit=1
+```
+
+### Ítem 3 N9 propio
+
+Hora: 2026-10-23T10:40:34.226318-03:00; SHA: `a04a6ba1d05b6a5681b5736d94c087c11f535212`; HOME: `/tmp/active-stack-v3-home-vmxdkjt4`.
+
+Mutación: `internal/harness/config/assets/knowledge-base.md`; 'Unconditionally declare the auditor source missing.'; SHA256: `565c794c88b6a9b54e495907861d68adf557221bbc29fb0e6e5cdadabeeb0130`.
+
+Comando: `go test ./internal/harness/config -run ^TestArchiveBaseCompletaConEvidencia$ -count=1`
+
+```text
+--- FAIL: TestArchiveBaseCompletaConEvidencia (0.01s)
+    knowledge_base_toggle_test.go:722: contrato contradicho ((always|unconditionally)[^.\n]{0,40}(mark|report|declare)[^.\n]{0,25}auditor[^.\n]{0,25}(absent|missing)): unconditionally declare the auditor source missing
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.011s
+FAIL
+
+exit=1
+```
+
+### Ítem 3 N10 nombrado
+
+Hora: 2026-10-23T10:40:34.731091-03:00; SHA: `a04a6ba1d05b6a5681b5736d94c087c11f535212`; HOME: `/tmp/active-stack-v3-home-vmxdkjt4`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'Apply the same requirement to the current repository.'; SHA256: `f52a28f35fe83013fb64661a7870599b2ec5633433a45706a2db7a2cbdb25121`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.05s)
+    ship_ci_test.go:23: contrato contradicho ((for this repository|current repository|this repo)[^.\n]{0,65}(require|requirement)|(apply|impose)[^.\n]{0,55}(requirement|ci)[^.\n]{0,40}current repository): apply the same requirement to the current repository
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.054s
+FAIL
+
+exit=1
+```
+
+### Ítem 3 N10 propio
+
+Hora: 2026-10-23T10:40:35.270330-03:00; SHA: `a04a6ba1d05b6a5681b5736d94c087c11f535212`; HOME: `/tmp/active-stack-v3-home-vmxdkjt4`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'Impose this CI requirement on the current repository.'; SHA256: `5a37c8044d57f368da5b071879cebec987502ac6b6f478495253dd25ce2847c7`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.05s)
+    ship_ci_test.go:23: contrato contradicho ((for this repository|current repository|this repo)[^.\n]{0,65}(require|requirement)|(apply|impose)[^.\n]{0,55}(requirement|ci)[^.\n]{0,40}current repository): impose this ci requirement on the current repository
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.051s
+FAIL
+
+exit=1
+```
+
+### Ítem 3 N10 comando nombrado
+
+Hora: 2026-10-23T10:40:35.775109-03:00; SHA: `a04a6ba1d05b6a5681b5736d94c087c11f535212`; HOME: `/tmp/active-stack-v3-home-vmxdkjt4`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'Apply the same requirement to the current repository.'; SHA256: `fc3bf827d3872fb5ccdde86fdf8e1e502780634b0bf3a415bc53927173e98150`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:24: contrato contradicho ((for this repository|current repository|this repo)[^.\n]{0,65}(require|requirement)|(apply|impose)[^.\n]{0,55}(requirement|ci)[^.\n]{0,40}current repository): apply the same requirement to the current repository
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.013s
+FAIL
+
+exit=1
+```
+
+### Ítem 3 N10 comando propio
+
+Hora: 2026-10-23T10:40:36.002160-03:00; SHA: `a04a6ba1d05b6a5681b5736d94c087c11f535212`; HOME: `/tmp/active-stack-v3-home-vmxdkjt4`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'Impose this CI requirement on the current repository.'; SHA256: `ad85bab54c9e8a4aa1d1c98d4e359c38864956daa008c5ce03bc3dc04cf6a6e0`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:24: contrato contradicho ((for this repository|current repository|this repo)[^.\n]{0,65}(require|requirement)|(apply|impose)[^.\n]{0,55}(requirement|ci)[^.\n]{0,40}current repository): impose this ci requirement on the current repository
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.012s
+FAIL
+
+exit=1
+```
+
+### Ítem 3 N11 nombrado
+
+Hora: 2026-10-23T10:40:36.220505-03:00; SHA: `a04a6ba1d05b6a5681b5736d94c087c11f535212`; HOME: `/tmp/active-stack-v3-home-vmxdkjt4`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'the senior marks it and you stop.'; SHA256: `4366606aa801eacccef0395e703a6ce971954e2c66b73be31fc02b6dd6de9b07`.
+
+Comando: `go test ./internal/harness/config -run ^TestAuditorDecideSinAutoridadParalela$ -count=1`
+
+```text
+--- FAIL: TestAuditorDecideSinAutoridadParalela (0.02s)
+    verify_loop_test.go:66: contrato contradicho (senior (marks|labels)[^.\n]{0,30}(you|orchestrator)[^.\n]{0,15}(stop|hold|halt)): senior marks it and you stop
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.025s
+FAIL
+
+exit=1
+```
+
+### Ítem 3 N11 propio
+
+Hora: 2026-10-23T10:40:36.712602-03:00; SHA: `a04a6ba1d05b6a5681b5736d94c087c11f535212`; HOME: `/tmp/active-stack-v3-home-vmxdkjt4`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'The senior labels findings; the orchestrator must halt.'; SHA256: `efe7c37ecc2862e079fe341ef3d1f0b31908766e8f0b76fb49b0f8ecaaf05a1d`.
+
+Comando: `go test ./internal/harness/config -run ^TestAuditorDecideSinAutoridadParalela$ -count=1`
+
+```text
+--- FAIL: TestAuditorDecideSinAutoridadParalela (0.02s)
+    verify_loop_test.go:66: contrato contradicho (senior (marks|labels)[^.\n]{0,30}(you|orchestrator)[^.\n]{0,15}(stop|hold|halt)): senior labels findings; the orchestrator must halt
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.028s
+FAIL
+
+exit=1
+```
+
+### Ítem 3 verde
+
+Hora: 2026-10-23T10:40:37.236638-03:00; SHA: `a04a6ba1d05b6a5681b5736d94c087c11f535212`; HOME: `/tmp/active-stack-v3-home-vmxdkjt4`.
+
+Comando: `go test ./internal/harness/config ./assets -run "Test(ArchiveBaseCompletaConEvidencia|ShipEsperaCICompleto|ComandoShipEsperaCICompleto|AuditorDecideSinAutoridadParalela)" -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.082s
+ok  	github.com/Group-Active-IA/active-stack/assets	0.015s
+
+exit=0
+```
