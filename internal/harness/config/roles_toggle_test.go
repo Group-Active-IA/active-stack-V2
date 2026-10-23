@@ -529,3 +529,46 @@ func TestCompose_RolesToggle_SizeIsReadOffTheDiff(t *testing.T) {
 		}
 	}
 }
+
+func TestCompose_RolesToggle_HighProposeIsReadBySeveralRolesBeforeSignature(t *testing.T) {
+	body, err := config.Compose([]string{"roles", "governance"}, "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	body = strings.ToLower(body)
+	i := strings.Index(body, rolesHeading)
+	if i < 0 {
+		t.Fatal("falta roles")
+	}
+	body = body[i:]
+	rows, _ := tableRows(body)
+	row := rowText(rows["propose"])
+	for _, frase := range []string{"where governance is active", "high", "critical", "at least three", "functional analyst", "qa", "auditor", "before human approval"} {
+		if !strings.Contains(row, frase) {
+			t.Errorf("fila propose no exige: %s", frase)
+		}
+	}
+	for _, frase := range []string{
+		"at least three independent specialist reports", "architect, functional analyst and qa", "one additional report for each specialty the scope requires", "one at a time", "exclude other specialists' reports and memories", "auditor reads all n original reports", "n >= 3", "n + 1", "before human approval", "do not replace the human signature", "## aprobación", "until all required reports exist", "identify which report is missing and why", "informes/", "leeme.md", "model/provider", "sha", "provenance", "full return or textual transcript", "contamination", "does not count as independent", "obtain a replacement", "reviewers receive no write", "not proof of isolation",
+	} {
+		if !strings.Contains(seniorFlat(body), frase) {
+			t.Errorf("falta propose multirol: %s", frase)
+		}
+	}
+	// La regla nueva debe vivir después del piso y antes del pedido de herramientas.
+	piso := strings.Index(body, "### the floor that is not delegated")
+	regla := strings.Index(body, "### high/critical propose before signature")
+	tools := strings.Index(body, "### the reviewer should not get edit tools")
+	if !(piso >= 0 && piso < regla && regla < tools) {
+		t.Error("regla multirol fuera del lugar aprobado")
+	}
+}
+
+func TestCompose_RolesToggle_HighProposeIsConditionalOnGovernance(t *testing.T) {
+	body := seniorFlat(rolesFragment(t))
+	for _, frase := range []string{"where governance is active and marks the change high or critical", "if governance is absent, do not invent a high/critical classification"} {
+		if !strings.Contains(body, frase) {
+			t.Errorf("falta condición: %s", frase)
+		}
+	}
+}

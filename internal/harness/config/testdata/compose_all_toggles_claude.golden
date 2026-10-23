@@ -757,7 +757,7 @@ migration convenes no frontend, and a stylesheet change convenes no DBA.
 | Phase | Always | Depending on what the change touches |
 |---|---|---|
 | explore | functional analyst, architect | nobody else — nothing is built yet, so there is nothing to review |
-| propose | architect | backend, frontend, DBA, DevOps for the layers the change names; QA, to say how the result would be proven false |
+| propose | architect; where governance is active and the change is HIGH or CRITICAL: at least three specialists (architect, functional analyst, QA), then auditor before human approval | backend, frontend, DBA, DevOps for the layers the change names; QA, to say how the result would be proven false |
 | apply | — | nobody. The implementation sub-agent is still writing: a diff that is **still moving** gets read three times and judged on none of its versions |
 | verify | QA | the specialists of the layers the diff actually touches, convened **as reviewers** once the implementation sub-agent has returned |
 | archive | functional analyst | architect, and only if the change moved a boundary |
@@ -873,6 +873,18 @@ trigger sitting on top of the same domains. Convening four reviewers is not that
 approval — **a reviewer sub-agent is not a human**. The floor decides who reads
 the change; governance decides who may let it proceed. Where both apply, the
 human gate is the one that blocks.
+
+### HIGH/CRITICAL propose before signature
+
+Where governance is active and marks the change HIGH or CRITICAL, obtain at least three independent specialist reports before human approval: architect, functional analyst and QA, plus one additional report for each specialty the scope requires. Then the auditor reads all N original reports, not a fixed number or summaries. N >= 3 specialists, N + 1 total reports including auditor. These reviews do not replace the human signature; they precede it.
+
+Convene specialists one at a time with proposal and sources; exclude other specialists' reports and memories from their inputs. Reviewers receive no Write: this remains a prompt instruction, not an enforced tool restriction. Each report declares sources read, whether the auditor dictated cases and any contamination. A report that read another specialist's conclusions is preserved but does not count as independent; obtain a replacement to meet the minimum. Declarations are not proof of isolation.
+
+Preserve each full return or textual transcript verbatim in openspec/changes/<change>/informes/, with propose and role in its name. LEEME.md indexes author, declared model/provider, shared family, SHA, provenance, orchestration mediation and missing reports. Model identity lacking a dispatch record is ASSUMPTION. The auditor receives all N complete originals after the specialists return, and its report reaches the person verbatim. An incomplete return is missing, never replaced with a summary.
+
+Do not present the proposal's `## Aprobación` for completion until all required reports exist, including the auditor. No agent fills that table. Identify which report is missing and why; recover it or escalate to the person before requesting signature. If the auditor toggle is absent, declare degraded scope and request a written human decision to enable it or explicitly accept the degradation; never claim an auditor verdict or silently count this as the complete multi-role review.
+
+If governance is absent, do not invent a HIGH/CRITICAL classification. The usual layer-based convening table applies; this conditional rule does not manufacture a governance level.
 
 ### The reviewer should not get edit tools — and today that is only a request
 
