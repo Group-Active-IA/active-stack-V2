@@ -1,0 +1,25 @@
+# Auditor, vuelta 2 de verify (Claude opus, textual del registro)
+
+Juani, el resultado es NO APROBADO. La vuelta 3 tiene cuatro ítems, nada más, y CONF-1 pasa a ser una condición para archivar `instalacion-sana`.
+
+**Chequeos, informe por informe** (git y lectura hechos hoy, 23/10)
+- **12 constructor (Codex).** (1) Todo lo que archiva como evidencia trae comando, salida, SHA y hora. La suite completa está en verde en `24a865a`, y `git diff --name-only 24a865a..HEAD` muestra sólo 6 informes, así que la salida sigue valiendo para el código de hoy. (2) No tiene sección SUPUESTO en 594 líneas. Además "corregidos exactamente los cinco ítems" quedó ascendido: el informe 14 muestra que sólo cubre la frase exacta del mutante. La culpa es en parte mía: mi criterio 1 del informe 11 pedía "FAIL con la frase contradictoria en el mensaje", y eso se cumple con `strings.Contains` sobre esa misma frase. (3) La lista de lo que tocó coincide con `git diff --stat 8d05c4e..24a865a` (14 archivos). (4) No aplica, hay un solo autor. (5) No miró qué pasa sin `review`, pero quedaba fuera de lo que tenía que corregir.
+- **13 conformidad (Codex).** (1) Lo que pone bajo EVIDENCIA es lectura del código, no la salida de un comando. `git diff --check` aparece sin hora. Lo bajo a JUICIO. (2) Declara un SUPUESTO, el de CONF-1, y es correcto. (3) Revisa los pasos 0 a 7b uno por uno y cita archivo y línea. Con eso cierra en parte el hueco de la vuelta 1 (`strict-tdd.md:67`, `mcp.go:271`). (4) No aplica en el sentido de copia: es el primero, otros lo leyeron después. (5) No corrió tests, y lo dice.
+- **14 rompedor (Claude).** (1) Para M1 a M8 hay salida y exit. Para N1 a N11 sólo hay `ok`, sin salida, y borró el script de mutantes, así que no se pueden reproducir. Igual lo sostengo, con confianza alta: leí `ship_ci_test.go:10-15`, `verify_loop_test.go:11-17` y `commands_test.go:116-126`, y los tres comparan contra la frase literal. (2) Declara un SUPUESTO, y es honesto. (3) Lista lo que abrió. No leyó el propose. (4) Leyó el 13 antes de escribir, así que RF2-2 y RF2-3 no son hallazgos independientes. Lo admite ("CONF-2 es real") y llegó por otro camino: compuso el bloque para tres agentes. Cuenta como confirmación, no como un voto independiente. (5) Sin hueco nuevo.
+- **15 senior (Claude).** (1) Comandos con salida, con fecha y sin hora. (2) Declara dos SUPUESTOS. (3) Nombra sus fuentes. Del informe 12 sólo leyó un grep. (4) Coincide con el rompedor en N6, pero lo comprobó con su propio `rg`, así que es convergencia real. (5) Sin hueco.
+- Lo de proceso de la vuelta 1 quedó cerrado: los 9 `tasks.md` ya tienen `## Bucle de verify`.
+
+**Clasificación** (respeta tu opción A del informe 16)
+- **CONF-2 y RF2-2, BLOQUEANTE.** Conformidad lo marcó CRITICAL y lo confirmé: `verify_loop_test.go:85` saltea justo el caso sin `review`. Según §3.1, mientras siga abierto no se puede aprobar.
+- **RF2-1, BLOQUEANTE sólo en la parte que es defecto:** N6 y N7 (mutantes que nombra §3.3) y N9, N10 y N11 (vuelven RF1-2, RF1-3 y RF1-5a). N2b, N3, N4, N5 y N8 van a DEUDA. N1 y N1b también a DEUDA: el senior duda, con confianza media, que invierta el sentido de §3.4.
+- **CONF-4, BLOQUEANTE.** Lo incluye tu opción A: son estados que §3.4 nombra. Hoy sólo se rechaza el de "cancelled".
+- **CONF-3 y RF2-3, DEUDA** del paso 5 (`senior-solo-en-verify`). **RF2-4, DEUDA.** **RF2-5:** sin regresiones.
+- **CONF-1.** Que la reinstalación espere tu OK cumple §3.6 punto 4, y `instalacion-sana/proposal.md:6` ya pedía un OK aparte. Pero los puntos 1 a 3 (snapshot, manifiesto, ensayo aislado, falla inducida, restore) no los posterga nadie. Y "excluida por Juani" (`tasks.md:241`) no tiene una decisión tuya escrita que lo respalde. Queda como **condición antes de archivar `instalacion-sana`**: los puntos 1 a 4 de §3.6 registrados en su `tasks.md` con su evidencia, más tu OK escrito para el 4. No entra en la vuelta 3.
+
+**Lo que corrige el constructor en la vuelta 3 (lista cerrada)**
+1. **§3.3.** Cada uno de los seis mutantes se rechaza por el vocabulario de su regla, en el bloque compuesto de claude, codex y opencode y en `opsx/verify.md`. Por ejemplo, `ready (to|for) archive`. Terminado cuando: N6 y N7 del informe 14 dan FAIL en un test con nombre, y M1 a M8 siguen en FAIL.
+2. **§3.4, en las dos copias de ship.** Un mutante que diga que es verde un job pendiente, omitido, de otro SHA, con cero runs o con la consulta fallida da FAIL. Terminado cuando: hay 5 estados × 2 copias de ship = 10 FAIL registrados, cada uno con comando, salida, SHA y hora.
+3. **Regresiones RF1.** Terminado cuando: N9, N10 y N11 del informe 14 dan FAIL en su test con nombre.
+4. **RF2-2.** Se borra la excepción de `verify_loop_test.go:85`. Terminado cuando: el bloque compuesto sin `review` en claude, codex y opencode declara el verify habitual y anuncia los toggles que faltan. Además, sin `review` y sin `auditor`, pide tu decisión escrita y no nombra rompedor, tres lentes ni "the auditor decides".
+
+DECISIÓN: NO APROBADO (vuelta 2 de 3)
