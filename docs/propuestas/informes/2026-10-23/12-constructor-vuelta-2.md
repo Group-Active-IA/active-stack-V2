@@ -283,3 +283,83 @@ ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.008s
 
 exit=0
 ```
+## Ítem 4 — RF1-3, alcance explícito del CI
+
+Los tests de ambas copias prohíben `For this repository` y exigen `For active-stack`. Rojo antes de corregir cada copia. Goldens: sólo cambia el sujeto del requisito de workflow, sin cambiar jobs ni eventos.
+
+Hora: 2026-10-23T10:24:14.418216-03:00; SHA: `13ce7f23fad84c951bf6f01995bab9b0ad3490ad`; HOME: `/tmp/active-stack-v2-home-s8nsqirb`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.00s)
+    ship_ci_test.go:10: CI ambiguo: For this repository
+    --- FAIL: TestShipEsperaCICompleto/For_active-stack,_require_.github/workflows/ci.yml_on_push,_with_test_on_Ubuntu_and_Windows. (0.00s)
+        ship_ci_test.go:33: falta contrato de CI: For active-stack, require .github/workflows/ci.yml on push, with test on Ubuntu and Windows.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:24:14.813401-03:00; SHA: `13ce7f23fad84c951bf6f01995bab9b0ad3490ad`; HOME: `/tmp/active-stack-v2-home-s8nsqirb`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.00s)
+    ship_ci_test.go:16: CI ambiguo: For this repository
+    --- FAIL: TestComandoShipEsperaCICompleto/For_active-stack,_require_.github/workflows/ci.yml_on_push,_with_test_on_Ubuntu_and_Windows. (0.00s)
+        ship_ci_test.go:39: falta contrato de CI: For active-stack, require .github/workflows/ci.yml on push, with test on Ubuntu and Windows.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.003s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:24:15.016476-03:00; SHA: `13ce7f23fad84c951bf6f01995bab9b0ad3490ad`; HOME: `/tmp/active-stack-v2-home-s8nsqirb`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.00s)
+    ship_ci_test.go:10: CI ambiguo: For this repository
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+FAIL
+
+exit=1
+```
+La primera aserción abarcaba también la frase legítima de autenticación de gh, fuera del contrato CI. Se acotó a `For this repository, require`; no se modifica esa otra instrucción. La salida roja anterior queda registrada para trazabilidad.
+
+Hora: 2026-10-23T10:24:35.951516-03:00; SHA: `13ce7f23fad84c951bf6f01995bab9b0ad3490ad`; HOME: `/tmp/active-stack-v2-home-55xjt12u`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.005s
+
+exit=0
+```
+
+Hora: 2026-10-23T10:24:36.351599-03:00; SHA: `13ce7f23fad84c951bf6f01995bab9b0ad3490ad`; HOME: `/tmp/active-stack-v2-home-55xjt12u`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/assets	0.002s
+
+exit=0
+```
+
+Hora: 2026-10-23T10:24:36.568438-03:00; SHA: `13ce7f23fad84c951bf6f01995bab9b0ad3490ad`; HOME: `/tmp/active-stack-v2-home-55xjt12u`.
+
+Comando: `go test ./internal/harness/config -run ^TestCompose_AllToggles -update -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+
+exit=0
+```

@@ -1750,7 +1750,7 @@ Discover runs with `gh run list --commit <sha>`, then the orchestrator uses
 
 Inspect the jobs of every expected run; never choose only the favorable run.
 
-For this repository, require .github/workflows/ci.yml on push, with test on Ubuntu and Windows.
+For active-stack, require .github/workflows/ci.yml on push, with test on Ubuntu and Windows.
 
 For a PR, inspect its required checks and verify the source SHA, not the synthetic merge SHA.
 

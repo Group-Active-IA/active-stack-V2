@@ -7,6 +7,9 @@ import (
 
 func TestShipEsperaCICompleto(t *testing.T) {
 	body := shipFragment(t)
+	if strings.Contains(body, "for this repository, require") {
+		t.Error("CI ambiguo: For this repository")
+	}
 	if strings.Contains(body, "a cancelled job counts as green when its rerun passes.") {
 		t.Error("CI contradictorio: A cancelled job counts as green when its rerun passes.")
 	}
@@ -16,7 +19,7 @@ func TestShipEsperaCICompleto(t *testing.T) {
 		"gh run list --commit <sha>",
 		"gh run watch",
 		"Inspect the jobs of every expected run; never choose only the favorable run.",
-		"For this repository, require .github/workflows/ci.yml on push, with test on Ubuntu and Windows.",
+		"For active-stack, require .github/workflows/ci.yml on push, with test on Ubuntu and Windows.",
 		"For a PR, inspect its required checks and verify the source SHA, not the synthetic merge SHA.",
 		"In other repositories, derive the required set from their workflows and required checks; a tag release is not required for a branch push.",
 		"One successful job with another pending is not green.",
