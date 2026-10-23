@@ -497,3 +497,98 @@ ok  	github.com/Group-Active-IA/active-stack/assets	0.002s
 
 exit=0
 ```
+## Trazabilidad y límites
+
+Se actualizaron los nueve tasks.md: vuelta 2 de 3 en curso, NO APROBADO de vuelta 1 con referencia al informe 11, correcciones y evidencia. Los changes sin corrección de producto lo declaran explícitamente. openspec está ignorado por diseño: no se fuerza su versionado. Se conserva todo el contenido de tareas/evidencia anterior salvo el estado obsoleto de la sección del bucle. Cada change recibe copia íntegra de esta evidencia, sin reemplazar sus informes anteriores.
+
+Los SHA registrados son HEAD al ejecutar, con los tests o el mutante de trabajo encima; no se presentan como árbol limpio. Mutantes restaurados antes de cada verde y commit. No se atribuye aprobación: ésta corresponde al auditor.
+### Diffs exactos de mutación
+
+```diff
+M1 internal/harness/config/assets/ship.md y M1b assets/commands/claude/opsx/ship.md:
+- timed_out are not green.
++ timed_out are not green. A cancelled job counts as green when its rerun passes.
+M2 internal/harness/config/assets/review.md (antes del encabezado The loop):
++ If blockers remain, start round 4 automatically.
+M3 mismo archivo:
+- Wait for the senior report before launching the auditor.
++ Launch the auditor in parallel with the senior.
+M4 internal/harness/config/assets/auditor.md:
+- Missing required reports prevent approval.
+M5 assets/commands/claude/opsx/verify.md:
+- Conformity evaluated, pending final decision.
++ All checks passed. Proceed to archive.
+M6 internal/harness/config/assets/knowledge-base.md (prompt):
+- Only append lessons.
++ Rewrite old lessons freely.
+M7 internal/harness/config/assets/governance.md (antes del encabezado):
++ An agent may fill it after chat approval.
+M8 internal/verify/delivery.go (ambos contadores):
+- != 1
++ < 1
+```
+
+M2 y M7 agregan la frase dentro del fragmento compuesto sin borrar el contrato correcto: se detecta la contradicción por la aserción propia. M4 es una eliminación: la aserción exige expresamente la negación correcta.
+### Diff de goldens inspeccionado
+
+Comando: `git diff 8d05c4e -- internal/harness/config/testdata`. Resultado: exactamente tres hunks por variante (Claude y OpenCode): condición del archivista, tres líneas de cita del senior reemplazadas por regla local, y sujeto active-stack en CI. Ningún otro cambio de golden. Regeneraciones sólo después de cambios de texto, nunca durante mutación.
+
+Hora: 2026-10-23T10:26:09.958033-03:00; SHA: `24a865aadaad4ca92f4ffb51f4e203c0cbb2182f`; HOME: `/tmp/active-stack-v2-home-f5jyv6il`.
+
+Comando: `git diff --check`
+
+```text
+
+exit=0
+```
+## Validación final — suite completa
+
+Se ejecuta el comando requerido con HOME temporal. No se ejecuta go build. La salida completa sigue; hora de inicio y SHA se registran junto al comando, hora de fin a continuación.
+
+Hora: 2026-10-23T10:26:09.963756-03:00; SHA: `24a865aadaad4ca92f4ffb51f4e203c0cbb2182f`; HOME: `/tmp/active-stack-v2-home-f5jyv6il`.
+
+Comando: `go test ./...`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/assets	0.009s
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack	0.608s
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack/headless	2.545s
+ok  	github.com/Group-Active-IA/active-stack/e2e/starter	0.717s
+ok  	github.com/Group-Active-IA/active-stack/internal/agents	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/claude	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/codex	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/opencode	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/backup	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/catalog	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/filemerge	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/command	0.012s
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	2.780s
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config/permissions	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/external	0.041s
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/skill	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/i18n	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/install	0.243s
+ok  	github.com/Group-Active-IA/active-stack/internal/model	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/pipeline	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/planner	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/roles	0.097s
+ok  	github.com/Group-Active-IA/active-stack/internal/system	0.024s
+ok  	github.com/Group-Active-IA/active-stack/internal/tui	0.034s
+ok  	github.com/Group-Active-IA/active-stack/internal/uninstall	0.029s
+ok  	github.com/Group-Active-IA/active-stack/internal/verify	0.047s
+
+exit=0
+```
+Hora de fin de suite completa: 2026-10-23T10:26:14.315008-03:00
+### Commits por ítem
+
+```text
+24a865a test(verify): comprobar M3 en cada contrato nombrado
+61b23ea fix(ship): eliminar la cita de autoridad paralela del senior
+140f5d5 fix(ship): limitar el contrato de CI a active-stack
+13ce7f2 fix(archive): condicionar la ausencia de fuente del auditor
+c325955 test(verify): rechazar bloques de orquestador duplicados
+f3f72af test(verify): detectar los ocho mutantes de sentido del auditor
+```
+
+El commit documental posterior sólo incorpora esta evidencia; no cambia el código probado. Se requiere aún la decisión de auditoría de vuelta 2, sin simular informe de conformidad ni senior.
