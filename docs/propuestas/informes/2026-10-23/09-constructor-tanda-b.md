@@ -719,3 +719,269 @@ Salida: 0
 ```
 
 Revisión del diff de goldens de archive-base-completa: El diff cambia archive de haiku a sonnet con sustitución declarada, exige la unión de impacto y diff, agrega decisiones, lecciones L-NNN y deuda con evidencia, y etiqueta APPEND sin REWRITE como SUSPICIOUS: append-only. Conserva reporte por documento y arrastre PENDING. Sólo se regeneran Claude y OpenCode por cambios de texto compuesto. No se modifican markers ni lógica de instalación.
+
+## archive-base-completa: cierre-post-commit
+
+### cierre-post-commit
+
+```text
+Hora: 2026-10-23T10:11:52.445183-03:00
+SHA: 84c570d86cb5622c659a975a4e1c02b10d81db8c
+Comando: go test ./...
+ok  	github.com/Group-Active-IA/active-stack/assets	(cached)
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack	(cached)
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack/headless	(cached)
+ok  	github.com/Group-Active-IA/active-stack/e2e/starter	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/claude	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/codex	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/opencode	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/backup	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/catalog	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/filemerge	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/command	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config/permissions	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/external	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/skill	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/i18n	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/install	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/model	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/pipeline	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/planner	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/roles	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/system	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/tui	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/uninstall	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/verify	(cached)
+Salida: 0
+```
+
+## governance-aprobacion: rojo
+
+### rojo
+
+```text
+Hora: 2026-10-23T10:12:17.443422-03:00
+SHA: 84c570d86cb5622c659a975a4e1c02b10d81db8c
+Comando: go test ./internal/harness/config -run ^TestGovernanceAprobacionHumanaEnProposal$ -count=1
+--- FAIL: TestGovernanceAprobacionHumanaEnProposal (0.00s)
+    governance_approval_test.go:17: falta contrato de firma: ## aprobación
+    governance_approval_test.go:17: falta contrato de firma: proposal.md
+    governance_approval_test.go:17: falta contrato de firma: | elección | persona | fecha | alcance |
+    governance_approval_test.go:17: falta contrato de firma: no agent fills
+    governance_approval_test.go:17: falta contrato de firma: written, dated and explicit scope
+    governance_approval_test.go:17: falta contrato de firma: missing or ambiguous approval stops construction
+    governance_approval_test.go:17: falta contrato de firma: new rule after signature
+    governance_approval_test.go:17: falta contrato de firma: own row
+    governance_approval_test.go:17: falta contrato de firma: before construction
+    governance_approval_test.go:17: falta contrato de firma: l-029
+    governance_approval_test.go:17: falta contrato de firma: cryptographic verification
+    governance_approval_test.go:17: falta contrato de firma: not implemented
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.003s
+FAIL
+Salida: 1
+```
+
+## governance-aprobacion: verde-dirigido
+
+### verde-dirigido
+
+```text
+Hora: 2026-10-23T10:12:17.842384-03:00
+SHA: 84c570d86cb5622c659a975a4e1c02b10d81db8c
+Comando: go test ./internal/harness/config -run ^TestGovernanceAprobacionHumanaEnProposal$ -count=1
+--- FAIL: TestGovernanceAprobacionHumanaEnProposal (0.00s)
+    governance_approval_test.go:17: falta contrato de firma: | elección | persona | fecha | alcance |
+    governance_approval_test.go:17: falta contrato de firma: no agent fills
+    governance_approval_test.go:17: falta contrato de firma: missing or ambiguous approval stops construction
+    governance_approval_test.go:17: falta contrato de firma: new rule after signature
+    governance_approval_test.go:17: falta contrato de firma: own row
+    governance_approval_test.go:17: falta contrato de firma: before construction
+    governance_approval_test.go:17: falta contrato de firma: l-029
+    governance_approval_test.go:17: falta contrato de firma: cryptographic verification
+    governance_approval_test.go:17: falta contrato de firma: not implemented
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.003s
+FAIL
+Salida: 1
+```
+
+## governance-aprobacion: goldens
+
+### goldens
+
+```text
+Hora: 2026-10-23T10:12:18.326285-03:00
+SHA: 84c570d86cb5622c659a975a4e1c02b10d81db8c
+Comando: go test ./internal/harness/config -run TestCompose_AllToggles -update -count=1
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+Salida: 0
+```
+
+## governance-aprobacion: verde
+
+### verde
+
+```text
+Hora: 2026-10-23T10:12:18.582404-03:00
+SHA: 84c570d86cb5622c659a975a4e1c02b10d81db8c
+Comando: go test ./...
+ok  	github.com/Group-Active-IA/active-stack/assets	(cached)
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack	0.517s
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack/headless	2.333s
+ok  	github.com/Group-Active-IA/active-stack/e2e/starter	0.599s
+ok  	github.com/Group-Active-IA/active-stack/internal/agents	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/claude	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/codex	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/opencode	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/backup	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/catalog	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/filemerge	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/command	(cached)
+--- FAIL: TestGovernanceAprobacionHumanaEnProposal (0.00s)
+    governance_approval_test.go:17: falta contrato de firma: | elección | persona | fecha | alcance |
+    governance_approval_test.go:17: falta contrato de firma: no agent fills
+    governance_approval_test.go:17: falta contrato de firma: missing or ambiguous approval stops construction
+    governance_approval_test.go:17: falta contrato de firma: new rule after signature
+    governance_approval_test.go:17: falta contrato de firma: own row
+    governance_approval_test.go:17: falta contrato de firma: before construction
+    governance_approval_test.go:17: falta contrato de firma: l-029
+    governance_approval_test.go:17: falta contrato de firma: cryptographic verification
+    governance_approval_test.go:17: falta contrato de firma: not implemented
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	2.612s
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config/permissions	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/external	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/skill	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/i18n	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/install	0.210s
+ok  	github.com/Group-Active-IA/active-stack/internal/model	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/pipeline	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/planner	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/roles	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/system	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/tui	0.032s
+ok  	github.com/Group-Active-IA/active-stack/internal/uninstall	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/verify	0.034s
+FAIL
+Salida: 1
+```
+
+Revisión del diff de goldens de governance-aprobacion: El diff agrega únicamente el artefacto de aprobación humana en proposal.md, tabla vacía con elección, persona, fecha y alcance, freno ante firma ausente o ambigua y fila propia previa para reglas nuevas L-029. No implementa verificación criptográfica ni completa la firma de nadie. Sólo se regeneran Claude y OpenCode por cambios de texto compuesto. No se modifican markers ni lógica de instalación.
+
+## governance-aprobacion: cierre-post-commit
+
+### cierre-post-commit
+
+```text
+Hora: 2026-10-23T10:12:22.226524-03:00
+SHA: 7f467d534485318778bc17db4efcf98e182ded8f
+Comando: go test ./...
+ok  	github.com/Group-Active-IA/active-stack/assets	(cached)
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack	(cached)
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack/headless	(cached)
+ok  	github.com/Group-Active-IA/active-stack/e2e/starter	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/claude	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/codex	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/opencode	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/backup	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/catalog	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/filemerge	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/command	(cached)
+--- FAIL: TestGovernanceAprobacionHumanaEnProposal (0.00s)
+    governance_approval_test.go:17: falta contrato de firma: | elección | persona | fecha | alcance |
+    governance_approval_test.go:17: falta contrato de firma: no agent fills
+    governance_approval_test.go:17: falta contrato de firma: missing or ambiguous approval stops construction
+    governance_approval_test.go:17: falta contrato de firma: new rule after signature
+    governance_approval_test.go:17: falta contrato de firma: own row
+    governance_approval_test.go:17: falta contrato de firma: before construction
+    governance_approval_test.go:17: falta contrato de firma: l-029
+    governance_approval_test.go:17: falta contrato de firma: cryptographic verification
+    governance_approval_test.go:17: falta contrato de firma: not implemented
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	2.350s
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config/permissions	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/external	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/skill	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/i18n	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/install	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/model	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/pipeline	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/planner	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/roles	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/system	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/tui	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/uninstall	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/verify	(cached)
+FAIL
+Salida: 1
+```
+
+## governance-aprobacion: rojo-aserciones-helper-corregido
+
+### rojo-aserciones-helper-corregido
+
+```text
+Hora: 2026-10-23T10:12:43.792366-03:00
+SHA: 7f467d534485318778bc17db4efcf98e182ded8f
+Comando: go test ./internal/harness/config -run ^TestGovernanceAprobacionHumanaEnProposal$ -count=1
+--- FAIL: TestGovernanceAprobacionHumanaEnProposal (0.00s)
+    governance_approval_test.go:22: falta contrato de firma: ## aprobación
+    governance_approval_test.go:22: falta contrato de firma: proposal.md
+    governance_approval_test.go:22: falta contrato de firma: | elección | persona | fecha | alcance |
+    governance_approval_test.go:22: falta contrato de firma: no agent fills
+    governance_approval_test.go:22: falta contrato de firma: written, dated and explicit scope
+    governance_approval_test.go:22: falta contrato de firma: missing or ambiguous approval stops construction
+    governance_approval_test.go:22: falta contrato de firma: new rule after signature
+    governance_approval_test.go:22: falta contrato de firma: own row
+    governance_approval_test.go:22: falta contrato de firma: before construction
+    governance_approval_test.go:22: falta contrato de firma: l-029
+    governance_approval_test.go:22: falta contrato de firma: cryptographic verification
+    governance_approval_test.go:22: falta contrato de firma: not implemented
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.003s
+FAIL
+Salida: 1
+```
+
+## governance-aprobacion: verde-corregido
+
+### verde-corregido
+
+```text
+Hora: 2026-10-23T10:12:44.233810-03:00
+SHA: 7f467d534485318778bc17db4efcf98e182ded8f
+Comando: go test ./...
+ok  	github.com/Group-Active-IA/active-stack/assets	(cached)
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack	(cached)
+ok  	github.com/Group-Active-IA/active-stack/cmd/active-stack/headless	(cached)
+ok  	github.com/Group-Active-IA/active-stack/e2e/starter	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/claude	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/codex	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/agents/opencode	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/backup	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/catalog	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/filemerge	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/command	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	2.370s
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config/permissions	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/external	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/skill	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/i18n	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/install	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/model	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/pipeline	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/planner	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/roles	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/system	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/tui	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/uninstall	(cached)
+ok  	github.com/Group-Active-IA/active-stack/internal/verify	(cached)
+Salida: 0
+```
+
+Corrección del constructor en paso 7: el helper de secciones cortaba en el encabezado del ejemplo Markdown. Se acotó por el inicio del fragmento completo, se repitió rojo contra governance del padre 84c570d y verde completo. Se enmienda el commit local para conservar uno por paso; se conservan los intentos fallidos como evidencia, no se los presenta como verde.
