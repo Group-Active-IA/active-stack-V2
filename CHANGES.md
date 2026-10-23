@@ -418,3 +418,32 @@ Es la cadena más larga; el resto corre en paralelo o es independiente.
 
 **Próximo paso**: archivar `tui-menu-hub` (implementado, suite verde) y luego encarar
 en paralelo `tui-update-stack` y `tui-configure-models` (ambos cuelgan del hub).
+
+---
+
+# Epic: metodología de PropTech dentro de OPSX (2026-10-23)
+
+> Estado: **PROPUESTO, sin firma.** Plan completo, riesgos, tests que se mueven y tabla
+> `## Aprobación`: `docs/propuestas/2026-10-23-metodologia-proptech-en-opsx.md`. Exploración:
+> `docs/exploraciones/2026-10-23-metodologia-proptech.md` (§8, decisiones de Juani).
+> Sin toggle nuevo: apply = constructor, verify = conformidad → rompedor → senior → auditor con tope
+> de 3 vueltas, archive reescribe la base con evidencia, ship espera el CI.
+
+| # | Change | Governance | Depende de |
+|---|---|---|---|
+| 0 | `instalacion-sana` | MEDIO | — |
+| 1 | `opencode-mcp-command-array` (cherry-pick `fae8bbf`) | MEDIO | — |
+| 2 | `ship-espera-ci` | BAJO | — |
+| 3 | `apply-constructor` | BAJO | — |
+| 4 | `verify-rompedor-auditor` | BAJO | 3 |
+| 5 | `senior-solo-en-verify` | BAJO | 4 |
+| 6 | `archive-base-completa` | BAJO | 4 |
+| 7 | `governance-aprobacion` | BAJO | 4 |
+| 8 | `aprobacion-firmada` (sólo si hay firma GPG/SSH) | ALTO | 7 |
+| 9 | `informes-por-hook` | MEDIO | 4 |
+| 10 | `opencode-permission-replace` (reimplementa `ddeb94f`) | ALTO | — |
+| 11 | `instalar-roles` | ALTO | 9 |
+| 12 | `bloque-compacto` | MEDIO | todos |
+
+**Camino crítico**: `apply-constructor → verify-rompedor-auditor → {senior, archive, governance} → ... → bloque-compacto`.
+Los pasos 2 a 7 regeneran los mismos dos goldens: van en secuencia, no en paralelo.
