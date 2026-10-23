@@ -188,3 +188,28 @@ o este mismo gate los va a ignorar sin avisar.
   historial con `rebase` real (el propose menciona "rebase" como causa de
   bloqueo; hoy sólo se prueba vía SHA ambiguo/STALE, no un rebase real
   simulado con `git rebase`).
+
+## Primer uso real (orquestador, 23/10/2026 12:55 a 12:58)
+
+EVIDENCIA. Con la suite en verde sobre `6642a62`, el comando real fallaba siempre:
+
+```
+$ active-stack approval --change docs/propuestas/2026-10-23-fase-2-pasos-1-4.md --commit d26131e
+error: approval.Verify: RepoDir, ProposalPath y Commit son obligatorios   (exit 1)
+```
+
+`main` llamaba `runApprovalDispatch(..., "", ...)` y ningún test cubría el directorio vacío. Rojo por aserción en `TestRunApprovalDispatch_EmptyDirUsesWorkingDirectory` (12:55:52, código 1 en vez de 2); arreglo en `53d4d4e`.
+
+Segundo hallazgo de uso real (era la deuda D-3): `isDirty` usaba `-uall` y cualquier `.log` sin trackear volvía INVALID una firma válida. Rojo en `TestApprovalVerify_UntrackedUnrelatedFile_StillWrittenUnverified` (12:56:31); arreglo en `1edd7f7` (`--untracked-files=no`); `TestApprovalVerify_TrackedProposalModified_ReturnsInvalid` cubre que un archivo trackeado modificado sigue bloqueando. `gofmt` además reformateó `render.go`.
+
+Estado final sobre la firma real:
+
+```
+$ active-stack approval --change docs/propuestas/2026-10-23-fase-2-pasos-1-4.md --commit d26131e
+estado: INVALID (código 1)
+causa: el commit de aprobación no referencia el SHA completo (P) de la propuesta revisada
+```
+
+JUICIO (orquestador, confianza alta): diagnóstico correcto. `d26131e` es anterior al contrato (D-2). No se reescribe el commit de Juani; los scripts de firma siguientes agregan `Propuesta-revisada: <sha completo de P>`.
+
+Lección para el método: el constructor probó la función y el dispatch con un dir explícito, nunca el binario como lo llama `main`. Tests verdes no acreditan que el comando ande; correrlo una vez sí.
