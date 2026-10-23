@@ -1,0 +1,5 @@
+EVIDENCIA (2026-10-23 14:32 UTC): `git log -5 --oneline` mostró `3619e8e docs: corregir bloqueantes del propose de fase 2`; `nl -ba docs/propuestas/2026-10-23-metodologia-fase-2.md` mostró:
+- **AN-1: CERRADO.** §8 define entrada sin A, estados, códigos, efecto sobre apply y constructor responsable del manifiesto, en `docs/propuestas/2026-10-23-metodologia-fase-2.md:21`; la fila 8 exige probarlo en `:96`.
+- **AN-2: CERRADO.** Senior informa y Juani decide por escrito con auditor apagado, tanto con review como sin review, en `docs/propuestas/2026-10-23-metodologia-fase-2.md:68` y `:72`; la matriz lo exige en `:102` y la deuda coincide en `:112`.
+
+JUICIO (analista funcional, confianza alta): ambos cumplen los criterios observables del auditor contra el texto normativo del propose. No detecté roturas de mi incumbencia introducidas por estas correcciones. Confirmación documental, sin acreditar implementación ni autorizar apply.

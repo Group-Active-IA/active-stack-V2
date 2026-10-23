@@ -1,0 +1,3 @@
+**QA-1: CERRADO. JUICIO de QA, confianza alta**, contra el criterio observable del auditor.
+**EVIDENCIA**, 2026-10-23 11:33 -03: `nl -ba docs/propuestas/2026-10-23-metodologia-fase-2.md`, salida en **docs/propuestas/2026-10-23-metodologia-fase-2.md:101**: la fila 11 incluye los cuatro paquetes exigidos, plan real en home temporal, snapshot/recuperación de assets, fallo posterior, rollback y desinstalación preservando personales; definición vacía o ausente diferenciada de clasificación vacía en health checks y CLI.
+No detecté roturas de incumbencia QA en esa corrección. Cierre documental del propose; no ejecuté tests ni build ni acredito comportamiento implementado.

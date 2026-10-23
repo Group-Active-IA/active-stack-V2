@@ -1,0 +1,5 @@
+- **AR-1: ABIERTO. JUICIO del arquitecto, confianza alta.** El propose define destino, validadores, alternativa y reversión en `docs/propuestas/2026-10-23-metodologia-fase-2.md:29–42`, pero no satisface el chequeo observable exigido.
+  **EVIDENCIA, 2026-10-23 11:32 -03:** `git check-ignore -v openspec/changes/metodologia-fase-2/informes/example.md` devuelve `.gitignore:36:openspec/`, exit **0**; se exige **1**. El propio texto reconoce el gate pendiente en `docs/propuestas/2026-10-23-metodologia-fase-2.md:42`.
+- **AR-2: CERRADO. JUICIO del arquitecto, confianza alta.** `docs/propuestas/2026-10-23-metodologia-fase-2.md:60` asigna resolución de ruta/hash al installer mediante adapter, explicita la dependencia y el enlace puro posterior a Compose, contempla project/global y chequeo instalado, descarta referencias relativas y registra el costo de reversión.
+  **EVIDENCIA, misma fecha/hora:** `nl -ba docs/propuestas/2026-10-23-metodologia-fase-2.md` muestra esos contratos en §11, línea 60.
+- **JUICIO del arquitecto, confianza alta:** no observé roturas nuevas de mi incumbencia en estas correcciones. Revisión sólo de texto, sin modificaciones.
