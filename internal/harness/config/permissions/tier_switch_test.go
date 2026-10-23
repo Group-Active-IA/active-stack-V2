@@ -17,10 +17,11 @@ import (
 // otro distinto: cada caso arrancaba de un TempDir limpio. Por ese hueco vivio
 // el bug de que el tier viejo sobrevivia al nuevo.
 //
-// El invariante no se cumple todavia para permission.bash de opencode: ver
-// TestOpencodeBashResidueSurvivesTierSwitch, que documenta el residuo, y
-// TestOpencodeEveryTierDeclaresBashWildcard, que sostiene lo unico que hoy lo
-// vuelve inofensivo.
+// El invariante tampoco se cumplia para permission.bash de opencode hasta
+// 2026-10-23: TestOpencodeEveryTierDeclaresBashWildcard sostenia la unica
+// razon por la que el residuo era inofensivo (el "*" del tier nuevo quedaba
+// despues); el fix (centinela __replace__ sobre "bash") lo elimino del todo,
+// ver TestOpencodeTierSwitchFullyReplacesBash.
 
 // installTiers instala los tiers en orden sobre el mismo home y devuelve el home.
 func installTiers(t *testing.T, adapter permissions.PermissionsAdapter, tiers ...model.PermissionTier) string {
@@ -186,19 +187,44 @@ func TestOpencodeTiersDeclareTheSameKeys(t *testing.T) {
 	}
 }
 
+// TestOpencodeNeverWritesEmptyPermissionVerb es una regresion real encontrada
+// en el uso real (binario compilado, home falso con opencode.json
+// preexistente), no anticipada por ningun test anterior: la reescritura de
+// composeOpencodeOverlay con un map[string]any en vez del struct con
+// `omitempty` perdio ese omitempty para "task" (el unico campo que ningun
+// tier fija), y escribio literalmente "task": "" en el archivo real. El
+// comentario original de opencodePermissionShape ya advertia que el string
+// vacio "seria peor que omitir la clave": "" no es un verbo valido de
+// opencode. Ningun tier declara Task todavia, asi que el invariante que
+// importa es "ninguna clave de permission vale string vacio", no un valor
+// fijo para "task".
+func TestOpencodeNeverWritesEmptyPermissionVerb(t *testing.T) {
+	for _, tier := range allTiers() {
+		t.Run(string(tier), func(t *testing.T) {
+			home := installTiers(t, openCodeAdapter(), tier)
+			perm := readOpencodePermission(t, opencodePath(home))
+
+			for key, value := range perm {
+				if key == "bash" {
+					continue // objeto, no verbo escalar
+				}
+				if value == "" {
+					t.Errorf("%s: permission.%s = \"\" (string vacio no es un verbo valido de opencode; "+
+						"se esperaba que la clave no se escriba en absoluto)", tier, key)
+				}
+			}
+		})
+	}
+}
+
 // ── opencode: permission.bash ───────────────────────────────────────────────
 
-// TestOpencodeEveryTierDeclaresBashWildcard sostiene la unica razon por la que
-// el residuo documentado abajo es inofensivo.
-//
-// permission.bash NO cumple el invariante "el archivo describe solo el tier
-// nuevo": el merge fusiona el objeto en vez de reemplazarlo, asi que los
-// patrones de un tier anterior siguen ahi. Hoy no hacen nada porque opencode es
-// last-match-wins y el "*" del tier nuevo llega despues y los tapa.
-//
-// Esa inercia depende enteramente de que TODO tier declare "*". Un tier nuevo
-// sin "*", o un "*" restringido a un subconjunto, activa el residuo en silencio
-// y sin que falle nada. Este test es lo que impide que eso pase callado.
+// TestOpencodeEveryTierDeclaresBashWildcard ya no sostiene un residuo (el
+// centinela __replace__ sobre "bash" lo elimino, ver
+// TestOpencodeTierSwitchFullyReplacesBash): queda como defensa en profundidad,
+// porque "*" sigue siendo lo que hace inofensivo CUALQUIER patron ajeno que
+// una instalacion futura deje en el objeto que se reemplaza (por ejemplo, si
+// algun dia un tier deja de reemplazar "bash" entero por error).
 func TestOpencodeEveryTierDeclaresBashWildcard(t *testing.T) {
 	for _, tier := range allTiers() {
 		home := installTiers(t, openCodeAdapter(), tier)
@@ -211,51 +237,145 @@ func TestOpencodeEveryTierDeclaresBashWildcard(t *testing.T) {
 			}
 		}
 		if !found {
-			t.Errorf("%s no declara \"*\" en permission.bash: sin ese comodin, los patrones "+
-				"que dejo el tier anterior dejan de estar tapados y vuelven a aplicar. Ver "+
-				"TestOpencodeBashResidueSurvivesTierSwitch", tier)
+			t.Errorf("%s no declara \"*\" en permission.bash", tier)
 		}
 	}
 }
 
-// TestOpencodeBashResidueSurvivesTierSwitch documenta un residuo REAL que este
-// fix no elimina, para que quede visible y no se redescubra en seis meses.
-//
-// Instalar balanceado y despues estricto deja los cuatro allow de balanceado
-// ("go test *", "go build *", "git status", "git diff *") dentro de
-// permission.bash, porque MergeJSONObjects fusiona objetos en vez de
-// reemplazarlos. El arreglo estructural es el centinela __replace__ sobre la
-// clave bash; es un cambio mas grande que este fix y no entra aca.
-//
-// Mientras tanto el residuo es inerte por UNA razon y este test la fija: el "*"
-// del tier nuevo queda DESPUES de los patrones heredados, y opencode es
-// last-match-wins. Si algun dia el orden se invierte, esto se pone rojo.
-func TestOpencodeBashResidueSurvivesTierSwitch(t *testing.T) {
-	home := installTiers(t, openCodeAdapter(), model.TierBalanceado, model.TierEstricto)
-	order := opencodeBashOrder(t, opencodePath(home))
+// expectedBashPairsByTier es la politica de permission.bash, escrita una sola
+// vez, en el mismo orden que composeOpencodeOverlay en overlays.go. Cambiar un
+// patron ahi sin cambiarlo aca tiene que poner esto en rojo.
+func expectedBashPairsByTier(tier model.PermissionTier) [][2]string {
+	switch tier {
+	case model.TierEstricto:
+		return [][2]string{
+			{"*", "ask"},
+			{"rm -rf *", "deny"},
+			{"rm -rf /*", "deny"},
+		}
+	case model.TierBypass:
+		return [][2]string{
+			{"*", "allow"},
+			{"rm -rf /*", "deny"},
+			{"rm -rf ~/", "deny"},
+		}
+	default: // TierBalanceado
+		return [][2]string{
+			{"*", "ask"},
+			{"go test *", "allow"},
+			{"go build *", "allow"},
+			{"git status", "allow"},
+			{"git diff *", "allow"},
+			{"rm -rf *", "deny"},
+			{"rm -rf /*", "deny"},
+		}
+	}
+}
 
-	position := map[string]int{}
-	for i, key := range order {
-		position[key] = i
+// TestOpencodeTierSwitchFullyReplacesBash es el invariante FUERTE que el test
+// que este reemplaza ("TestOpencodeBashResidueSurvivesTierSwitch") pedia
+// afirmar el dia que permission.bash pasara a reemplazarse entero: ese dia
+// llego con el centinela __replace__ sobre la clave "bash" (igual al patron ya
+// usado para las entradas MCP en internal/harness/external/mcp.go).
+//
+// Matriz 3x3 CON la diagonal (mismo tier → mismo tier incluido, a proposito:
+// reinstalar el tier que ya esta instalado tiene que ser un no-op real, no
+// solo "no empeora"). Para cada (from, to), instalar from y despues to tiene
+// que dejar permission.bash describiendo EXACTAMENTE los pares de "to", en el
+// mismo orden — ningun patron de "from" sobrevive, sin importar si "from" es
+// mas permisivo o mas estricto que "to".
+func TestOpencodeTierSwitchFullyReplacesBash(t *testing.T) {
+	for _, from := range allTiers() {
+		for _, to := range allTiers() {
+			t.Run(string(from)+"→"+string(to), func(t *testing.T) {
+				home := installTiers(t, openCodeAdapter(), from, to)
+
+				raw, err := os.ReadFile(opencodePath(home))
+				if err != nil {
+					t.Fatalf("read opencode.json: %v", err)
+				}
+				got, err := extractBashOrderedPairs(raw)
+				if err != nil {
+					t.Fatalf("extractBashOrderedPairs: %v", err)
+				}
+
+				want := expectedBashPairsByTier(to)
+				if len(got) != len(want) {
+					t.Fatalf("%s → %s: permission.bash = %v, se esperaban exactamente %v (sin residuo de %s)",
+						from, to, got, want, from)
+				}
+				for i := range want {
+					if got[i] != want[i] {
+						t.Errorf("%s → %s: permission.bash[%d] = %v, se esperaba %v", from, to, i, got[i], want[i])
+					}
+				}
+			})
+		}
+	}
+}
+
+// TestOpencodeTierSwitchPreservesPersonalSiblingKeyInPermission es la
+// diferencia deliberada contra la alternativa rechazada del propose (el fix
+// ddeb94f de otra rama, que envolvia el objeto "permission" ENTERO en
+// __replace__). Esta implementacion envuelve solo "permission.bash": una
+// clave hermana de bash dentro de permission que ningun tier administra tiene
+// que sobrevivir a cualquier instalacion/reinstalacion.
+func TestOpencodeTierSwitchPreservesPersonalSiblingKeyInPermission(t *testing.T) {
+	home := t.TempDir()
+	settingsPath := opencodePath(home)
+	if err := os.MkdirAll(filepath.Dir(settingsPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	// "mcp_tool_x" no es una clave que ningun tier declare: es una regla
+	// personal que el usuario (o un agent/MCP futuro) agrego a mano dentro de
+	// "permission", hermana de "bash", no dentro de el.
+	seed := `{"permission": {"mcp_tool_x": "allow", "bash": {"*": "ask"}}}`
+	if err := os.WriteFile(settingsPath, []byte(seed), 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
 	}
 
-	wildcard, hasWildcard := position["*"]
-	if !hasWildcard {
-		t.Fatalf("permission.bash quedo sin \"*\" tras balanceado → estricto: %v", order)
+	if _, err := permissions.Install(home, []permissions.PermissionsAdapter{openCodeAdapter()}, model.TierBypass); err != nil {
+		t.Fatalf("Install(bypass) error = %v", err)
 	}
 
-	// El residuo existe. No es una regresion: es el estado conocido.
-	residue := []string{"go test *", "go build *", "git status", "git diff *"}
-	for _, key := range residue {
-		at, present := position[key]
-		if !present {
-			t.Fatalf("el residuo de balanceado ya no esta: %q desaparecio de %v. Si permission.bash "+
-				"paso a reemplazarse entero, borra este test y afirma el invariante fuerte", key, order)
-		}
-		if at > wildcard {
-			t.Errorf("%q quedo DESPUES del \"*\" de estricto (posiciones %d > %d): con last-match-wins "+
-				"el allow heredado de balanceado vuelve a aplicar", key, at, wildcard)
-		}
+	perm := readOpencodePermission(t, settingsPath)
+	if perm["mcp_tool_x"] != "allow" {
+		t.Errorf("mcp_tool_x = %v, se esperaba que sobreviva: reemplazar solo permission.bash no debe "+
+			"tocar sus hermanas dentro de permission", perm["mcp_tool_x"])
+	}
+}
+
+// TestOpencodeTierSwitchReplacesPersonalBashRule documenta la perdida
+// ACEPTADA y deliberada: una regla que el usuario agrego a mano DENTRO de
+// permission.bash (no hermana de bash, sino dentro del objeto que bash
+// reemplaza entero) no sobrevive a una reinstalacion. El propose la acepta
+// explicitamente ("Perdida deliberada de bash personal exige diff/aprobacion
+// y snapshot") y deja pendiente el gate de mostrar el diff (J6, TBD) — ver
+// deuda en el informe de apply. Este test fija el comportamiento actual para
+// que no se lo lea como un bug nuevo si alguien lo redescubre.
+func TestOpencodeTierSwitchReplacesPersonalBashRule(t *testing.T) {
+	home := t.TempDir()
+	settingsPath := opencodePath(home)
+	if err := os.MkdirAll(filepath.Dir(settingsPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	seed := `{"permission": {"bash": {"my-deploy-script.sh *": "allow", "*": "ask"}}}`
+	if err := os.WriteFile(settingsPath, []byte(seed), 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	if _, err := permissions.Install(home, []permissions.PermissionsAdapter{openCodeAdapter()}, model.TierBalanceado); err != nil {
+		t.Fatalf("Install(balanceado) error = %v", err)
+	}
+
+	perm := readOpencodePermission(t, settingsPath)
+	bash, ok := perm["bash"].(map[string]any)
+	if !ok {
+		t.Fatalf("permission.bash ausente o con tipo raro: %#v", perm["bash"])
+	}
+	if _, present := bash["my-deploy-script.sh *"]; present {
+		t.Errorf("la regla personal sobrevivio: se esperaba que el reemplazo de bash la descarte " +
+			"(perdida aceptada por el propose, no un bug)")
 	}
 }
 

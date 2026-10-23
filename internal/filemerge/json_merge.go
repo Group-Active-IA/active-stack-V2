@@ -6,6 +6,24 @@ import (
 	"fmt"
 )
 
+// ValidateJSONObject reports whether raw is a parseable JSON object, tolerating
+// the same JSONC dialect MergeJSONObjects accepts for a base file: line/block
+// comments and trailing commas (see normalizeJSON). Empty or all-whitespace
+// input is valid — an absent settings file is a legitimate base for a first
+// install, not an error.
+//
+// This exists because MergeJSONObjects deliberately does NOT reject a
+// malformed base: decodeOrderedOrEmpty swallows the parse error and treats it
+// as {}, so the overlay just wins on its own — "overlay prevalence is safe and
+// preferable to aborting the install" per the comment below. That is the right
+// default for most consumers, but a caller that needs to abort BEFORE touching
+// the file instead of silently discarding whatever was there (unparseable JSON
+// is not the same claim as "nothing was there") calls this first.
+func ValidateJSONObject(raw []byte) error {
+	_, err := decodeOrderedOrEmpty(raw)
+	return err
+}
+
 func MergeJSONObjects(baseJSON []byte, overlayJSON []byte) ([]byte, error) {
 	base, err := decodeOrderedOrEmpty(baseJSON)
 	if err != nil {

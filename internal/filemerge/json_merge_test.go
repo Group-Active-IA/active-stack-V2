@@ -238,3 +238,51 @@ func TestMergeJSONObjectsReplaceSentinelNotInOutput(t *testing.T) {
 	}
 	walk(got)
 }
+
+// TestValidateJSONObject_RejectsUnparseable es la RED de QA-1 al revés: antes
+// de escribir ValidateJSONObject no existe, así que esto ni compila. Una vez
+// que exista, el caso que tiene que fallar es un JSON realmente roto —
+// MergeJSONObjects nunca lo rechaza (decodeOrderedOrEmpty lo trata como {} y
+// el overlay gana solo), que es exactamente el comportamiento que un
+// instalador que necesita abortar sin pisar la base no puede heredar.
+func TestValidateJSONObject_RejectsUnparseable(t *testing.T) {
+	broken := []byte(`{"permission": {"bash": {`) // truncado, sin cerrar
+
+	if err := ValidateJSONObject(broken); err == nil {
+		t.Fatalf("ValidateJSONObject(%q) = nil, se esperaba error por JSON roto", broken)
+	}
+}
+
+// TestValidateJSONObject_AcceptsJSONCWithCommentsAndTrailingCommas es QA-1:
+// la deuda aceptada en el propose explícitamente pide no romper JSONC real
+// (comentarios de línea/bloque y comas finales), que es el formato que un
+// opencode.json escrito a mano normalmente tiene.
+func TestValidateJSONObject_AcceptsJSONCWithCommentsAndTrailingCommas(t *testing.T) {
+	jsonc := []byte(`{
+  // comentario de línea
+  "permission": {
+    "read": "allow", // comentario al final de la línea
+    /* comentario
+       de bloque */
+    "bash": {
+      "*": "ask",
+    },
+  },
+}
+`)
+
+	if err := ValidateJSONObject(jsonc); err != nil {
+		t.Fatalf("ValidateJSONObject() rechazó JSONC válido (comentarios + comas finales): %v", err)
+	}
+}
+
+// TestValidateJSONObject_AcceptsEmpty: un archivo ausente/vacío es la base
+// legítima de una primera instalación, no un error.
+func TestValidateJSONObject_AcceptsEmpty(t *testing.T) {
+	if err := ValidateJSONObject(nil); err != nil {
+		t.Fatalf("ValidateJSONObject(nil) = %v, se esperaba nil (archivo ausente es base válida)", err)
+	}
+	if err := ValidateJSONObject([]byte("   \n")); err != nil {
+		t.Fatalf("ValidateJSONObject(blank) = %v, se esperaba nil", err)
+	}
+}

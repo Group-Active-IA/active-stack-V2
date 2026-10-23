@@ -205,26 +205,54 @@ type opencodePermissionShape struct {
 	LSP               string           `json:"lsp,omitempty"`
 }
 
-// opencodeSettingsShape is the top-level opencode.json structure.
-type opencodeSettingsShape struct {
-	Permission opencodePermissionShape `json:"permission"`
-}
-
 // composeOpencodeOverlay returns the JSON overlay bytes for opencode given a
 // permission tier. Zero-value tier normalizes to TierBalanceado (never TierBypass).
 //
 // LAST-MATCH-WINS: deny rules MUST be the last entries in the bash pattern-object.
 // orderedBashBlock guarantees serialization order (deny-last).
+//
+// REPLACE SCOPE, 2026-10-23: only "permission.bash" is wrapped in the
+// __replace__ sentinel (same mechanism already used for MCP server entries —
+// see buildStdioOverlay in internal/harness/external/mcp.go). The OTHER keys
+// of "permission" (read, edit, external_directory, ...) stay as plain
+// overwrites, which was already correct: every tier declares every scalar
+// field explicitly (TestOpencodeTiersDeclareTheSameKeys), so a plain merge
+// already discards the previous tier's scalar value.
+//
+// Only "bash" needed __replace__, because it is the one key whose value is
+// itself a pattern-object: MergeJSONObjects deep-merges nested objects key by
+// key, so a per-command override left by a previous tier (e.g. balanceado's
+// "go test *": "allow") survived a switch to a stricter tier inside that
+// nested object, where a plain scalar overwrite does not apply. Until
+// 2026-10-23 that survival was accepted as a documented, provably-inert
+// residue (see git history of this file and
+// TestOpencodeTierSwitchFullyReplacesBash, which replaced the test that used
+// to assert the residue on purpose).
+//
+// REJECTED ALTERNATIVE: wrapping the WHOLE "permission" object in
+// __replace__ (done on another branch, commit ddeb94f) fixes the same bug but
+// also destroys any sibling key inside "permission" that no tier here manages
+// — a field a future opencode version adds, or one a human added by hand.
+// Scoping the sentinel to "bash" alone keeps those siblings alive; see
+// TestOpencodeTierSwitchPreservesPersonalSiblingKeyInPermission.
+//
+// ACCEPTED LOSS: a personal pattern added by hand INSIDE permission.bash
+// itself (not a sibling of bash, but an entry of the object bash replaces)
+// does NOT survive a reinstall — see
+// TestOpencodeTierSwitchReplacesPersonalBashRule. The propose accepts this
+// ("perdida deliberada de bash personal exige diff/aprobación y snapshot")
+// and leaves the diff/approval gate as TBD (J6); this function does not
+// implement that gate — see the apply report's deuda nueva.
 func composeOpencodeOverlay(tier model.PermissionTier) []byte {
 	tier = tier.Normalize()
 
-	var shape opencodeSettingsShape
+	var shape opencodePermissionShape
 
 	switch tier {
 	case model.TierEstricto:
 		// Everything → ask; external_directory → deny for extra hardening.
 		// bash: wildcard ask first, then deny floor LAST (last-wins guarantee).
-		shape.Permission = opencodePermissionShape{
+		shape = opencodePermissionShape{
 			Read:              "ask",
 			Edit:              "ask",
 			Glob:              "ask",
@@ -244,7 +272,7 @@ func composeOpencodeOverlay(tier model.PermissionTier) []byte {
 
 	case model.TierBypass:
 		// Everything → allow; only the most catastrophic commands denied LAST.
-		shape.Permission = opencodePermissionShape{
+		shape = opencodePermissionShape{
 			Read:              "allow",
 			Edit:              "allow",
 			Glob:              "allow",
@@ -264,7 +292,7 @@ func composeOpencodeOverlay(tier model.PermissionTier) []byte {
 
 	default: // TierBalanceado (and zero-value after normalize)
 		// Safe operations auto-allowed; deny floor LAST in bash.
-		shape.Permission = opencodePermissionShape{
+		shape = opencodePermissionShape{
 			Read:              "allow",
 			Edit:              "ask",
 			Glob:              "allow",
@@ -288,7 +316,46 @@ func composeOpencodeOverlay(tier model.PermissionTier) []byte {
 		}
 	}
 
-	b, err := json.Marshal(shape)
+	// Every scalar field is a plain value: MergeJSONObjects overwrites it
+	// outright because every tier that sets it sets it on every tier (no
+	// omitempty gap for Read/Edit/Glob/Grep/List/ExternalDirectory/Webfetch/
+	// Websearch/LSP). "bash" is the one field wrapped in
+	// {"__replace__": ...} so the merge discards the previous tier's
+	// pattern-object instead of merging into it; filemerge strips the
+	// sentinel key before anything reaches disk (see
+	// TestMergeJSONObjectsReplaceSentinelNotInOutput), so no "__replace__"
+	// literal ever lands in opencode.json.
+	//
+	// "task" is omitted when empty, same as the struct's original
+	// `json:"task,omitempty"` tag: NO tier sets it today, and "" is not a
+	// legal opencode verb (see the comment on opencodePermissionShape) — it
+	// would be worse than not writing the key at all. Found the hard way:
+	// TestOpencodeNeverWritesEmptyPermissionVerb caught "task": "" landing in
+	// a real opencode.json during the "Primer uso real" check for this fix,
+	// after the switch from the struct (omitempty) to this map literal
+	// (no omitempty) dropped that guarantee for the one field that relied on
+	// it.
+	permission := map[string]any{
+		"read":               shape.Read,
+		"edit":               shape.Edit,
+		"glob":               shape.Glob,
+		"grep":               shape.Grep,
+		"list":               shape.List,
+		"external_directory": shape.ExternalDirectory,
+		"webfetch":           shape.Webfetch,
+		"websearch":          shape.Websearch,
+		"lsp":                shape.LSP,
+		"bash": map[string]any{
+			"__replace__": shape.Bash,
+		},
+	}
+	if shape.Task != "" {
+		permission["task"] = shape.Task
+	}
+
+	overlay := map[string]any{"permission": permission}
+
+	b, err := json.Marshal(overlay)
 	if err != nil {
 		panic("permissions: composeOpencodeOverlay: marshal failed: " + err.Error())
 	}

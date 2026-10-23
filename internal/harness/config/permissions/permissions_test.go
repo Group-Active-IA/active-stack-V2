@@ -254,6 +254,140 @@ func TestInstallOpenCodeGitDefaultsToAsk(t *testing.T) {
 	}
 }
 
+// --- opencode-permission-replace: base invalida aborta sin escribir ---
+
+// TestInstallOpenCode_InvalidBaseJSONAbortsWithoutWriting cubre "Installer
+// valida base antes del merge: JSON invalido/no interpretable da error sin
+// escritura, sin fallback a vacio" (propose, sección 3). Sin esta validación,
+// MergeJSONObjects trata una base rota como {} y el overlay gana solo —
+// el usuario pierde en silencio lo que tuviera en el archivo, que es
+// exactamente lo que este gate existe para impedir.
+func TestInstallOpenCode_InvalidBaseJSONAbortsWithoutWriting(t *testing.T) {
+	home := t.TempDir()
+	settingsPath := filepath.Join(home, ".config", "opencode", "opencode.json")
+	if err := os.MkdirAll(filepath.Dir(settingsPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	broken := []byte(`{"permission": {"bash": {`) // truncado: no es JSON ni JSONC válido
+	if err := os.WriteFile(settingsPath, broken, 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+	infoBefore, err := os.Stat(settingsPath)
+	if err != nil {
+		t.Fatalf("Stat before: %v", err)
+	}
+
+	_, err = permissions.Install(home, []permissions.PermissionsAdapter{openCodeAdapter()}, model.TierBalanceado)
+	if err == nil {
+		t.Fatal("Install() error = nil, se esperaba error por base JSON invalida")
+	}
+
+	content, err := os.ReadFile(settingsPath)
+	if err != nil {
+		t.Fatalf("read opencode.json: %v", err)
+	}
+	if string(content) != string(broken) {
+		t.Fatalf("opencode.json cambio tras un error de validacion\ngot:  %s\nwant: %s", content, broken)
+	}
+	infoAfter, err := os.Stat(settingsPath)
+	if err != nil {
+		t.Fatalf("Stat after: %v", err)
+	}
+	if infoAfter.Mode() != infoBefore.Mode() {
+		t.Errorf("los permisos del archivo cambiaron: antes %v, despues %v", infoBefore.Mode(), infoAfter.Mode())
+	}
+}
+
+// TestInstallOpenCode_ValidJSONCBaseStillMerges es QA-1 a nivel instalador
+// (no solo a nivel filemerge.ValidateJSONObject): un opencode.json real,
+// escrito a mano con comentarios y comas finales, tiene que seguir
+// instalando sin error y sin perder lo que ya tenia.
+func TestInstallOpenCode_ValidJSONCBaseStillMerges(t *testing.T) {
+	home := t.TempDir()
+	settingsPath := filepath.Join(home, ".config", "opencode", "opencode.json")
+	if err := os.MkdirAll(filepath.Dir(settingsPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	jsonc := []byte(`{
+  // configuracion personal de Juani, con comentarios y coma final
+  "theme": "dracula",
+  "permission": {
+    "mcp_tool_x": "allow",
+    "bash": {
+      "my-deploy-script.sh *": "allow",
+    },
+  },
+}
+`)
+	if err := os.WriteFile(settingsPath, jsonc, 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	result, err := permissions.Install(home, []permissions.PermissionsAdapter{openCodeAdapter()}, model.TierBalanceado)
+	if err != nil {
+		t.Fatalf("Install() error = %v, se esperaba que JSONC valido (comentarios + comas finales) no rompa el install", err)
+	}
+	if !result.Changed {
+		t.Fatal("Install() changed = false")
+	}
+
+	content, err := os.ReadFile(settingsPath)
+	if err != nil {
+		t.Fatalf("read opencode.json: %v", err)
+	}
+	var settings map[string]any
+	if err := json.Unmarshal(content, &settings); err != nil {
+		t.Fatalf("unmarshal (el output tiene que ser JSON estricto): %v", err)
+	}
+
+	if settings["theme"] != "dracula" {
+		t.Errorf(`theme = %v, se esperaba "dracula" (configuracion personal preservada)`, settings["theme"])
+	}
+	perm, ok := settings["permission"].(map[string]any)
+	if !ok {
+		t.Fatalf("permission node missing: %#v", settings)
+	}
+	if perm["mcp_tool_x"] != "allow" {
+		t.Errorf(`permission.mcp_tool_x = %v, se esperaba "allow" (hermana personal de bash, preservada)`, perm["mcp_tool_x"])
+	}
+}
+
+// --- opencode-permission-replace: backup fallido aborta la escritura ---
+
+// TestInstallOpenCode_BackupFailureAbortsWrite cierra, para opencode
+// especificamente, el mismo gate que TestInstallBackupFailureAbortsWrite ya
+// prueba para claude — la matriz del propose lo pide explicito ("backup
+// fallido... preservan/restauran bytes y permisos").
+func TestInstallOpenCode_BackupFailureAbortsWrite(t *testing.T) {
+	home := t.TempDir()
+	settingsPath := filepath.Join(home, ".config", "opencode", "opencode.json")
+	if err := os.MkdirAll(filepath.Dir(settingsPath), 0o755); err != nil {
+		t.Fatalf("MkdirAll: %v", err)
+	}
+	original := []byte(`{"permission": {"mcp_tool_x": "allow"}}`)
+	if err := os.WriteFile(settingsPath, original, 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	restore := permissions.SetSnapshotterCreate(func(snapshotDir string, paths []string) error {
+		return fmt.Errorf("injected backup failure")
+	})
+	defer restore()
+
+	_, err := permissions.Install(home, []permissions.PermissionsAdapter{openCodeAdapter()}, model.TierBypass)
+	if err == nil {
+		t.Fatal("Install() error = nil, se esperaba error al fallar el backup")
+	}
+
+	content, err := os.ReadFile(settingsPath)
+	if err != nil {
+		t.Fatalf("read opencode.json: %v", err)
+	}
+	if string(content) != string(original) {
+		t.Fatalf("opencode.json cambio tras una falla de backup\ngot:  %s\nwant: %s", content, original)
+	}
+}
+
 // --- Task 4.4: Gemini uses auto_edit, no permissions key ---
 
 func TestInstallGeminiCLI(t *testing.T) {

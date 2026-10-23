@@ -103,12 +103,45 @@ func installOne(homeDir string, adapter PermissionsAdapter, tier model.Permissio
 		return false, "", err
 	}
 
-	writeResult, err := mergeJSONFile(settingsPath, overlay)
+	var writeResult filemerge.WriteResult
+	if adapter.Agent() == model.AgentOpenCode {
+		// opencode-permission-replace (2026-10-23): the installer validates the
+		// base BEFORE merging, instead of inheriting MergeJSONObjects's default
+		// "malformed base becomes {}" tolerance. That default is fine for most
+		// consumers — overlay prevalence beats aborting — but it means an
+		// unparseable opencode.json would be silently discarded rather than
+		// reported, and the user loses whatever was in it with no error. JSONC
+		// (comments, trailing commas) still passes: ValidateJSONObject applies
+		// the same normalization MergeJSONObjects already does for the base.
+		writeResult, err = mergeOpencodeJSONFile(settingsPath, overlay)
+	} else {
+		writeResult, err = mergeJSONFile(settingsPath, overlay)
+	}
 	if err != nil {
 		return false, "", fmt.Errorf("permissions: merge settings for agent %q: %w", adapter.Agent(), err)
 	}
 
 	return writeResult.Changed, settingsPath, nil
+}
+
+// mergeOpencodeJSONFile is mergeJSONFile plus a pre-merge validation of the
+// base file. See the comment at its call site in installOne for why opencode
+// specifically needs this instead of the shared mergeJSONFile.
+func mergeOpencodeJSONFile(path string, overlay []byte) (filemerge.WriteResult, error) {
+	baseJSON, err := osReadFile(path)
+	if err != nil {
+		return filemerge.WriteResult{}, err
+	}
+	if err := filemerge.ValidateJSONObject(baseJSON); err != nil {
+		return filemerge.WriteResult{}, fmt.Errorf("opencode settings file %q is not valid JSON/JSONC: %w", path, err)
+	}
+
+	merged, err := filemerge.MergeJSONObjects(baseJSON, overlay)
+	if err != nil {
+		return filemerge.WriteResult{}, fmt.Errorf("merge json objects: %w", err)
+	}
+
+	return filemerge.WriteFileAtomic(path, merged, 0o644)
 }
 
 // mergeCodexTOMLFile writes codex's permission keys for the given tier.
