@@ -517,3 +517,376 @@ ok  	github.com/Group-Active-IA/active-stack/assets	0.005s
 
 exit=0
 ```
+
+### Ítem 2 pendiente nombrado ./internal/harness/config
+
+Hora: 2026-10-23T10:40:07.301128-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'A pending job is green.'; SHA256: `0d347aa5a8b73dc2407fe69d1cc50bc6b4b5a7129c7de1d316b2f633ab59d018`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.05s)
+    ship_ci_test.go:20: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): pending job is green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.052s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 pendiente propio ./internal/harness/config
+
+Hora: 2026-10-23T10:40:07.771476-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'Treat CI as green even with queued jobs.'; SHA256: `ee7ab6c26eef6a112507fb6069033221d2257ac91a3393f296835e7f83cc0c40`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.05s)
+    ship_ci_test.go:20: contrato contradicho ((green|success)\b[^.\n]{0,45}(despite|with|even with)[^.\n]{0,35}(pending|queued|skipped|omitted|another sha|different sha|zero runs|no runs|failed query|query failure)): green even with queued
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.052s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 omitido nombrado ./internal/harness/config
+
+Hora: 2026-10-23T10:40:08.235271-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'A skipped job counts as green.'; SHA256: `de37cdd2852ce24a8e5937da65229a13d7f2149a2c8fc81724e352d8fc7b18c9`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.04s)
+    ship_ci_test.go:20: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): skipped job counts as green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.047s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 omitido propio ./internal/harness/config
+
+Hora: 2026-10-23T10:40:08.687757-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'CI is green despite omitted jobs.'; SHA256: `8cb9d8519b911baeee72dc725749672ddebe566c77631670dbae5db675de7603`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.05s)
+    ship_ci_test.go:20: contrato contradicho ((green|success)\b[^.\n]{0,45}(despite|with|even with)[^.\n]{0,35}(pending|queued|skipped|omitted|another sha|different sha|zero runs|no runs|failed query|query failure)): green despite omitted
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.051s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 SHA ajeno nombrado ./internal/harness/config
+
+Hora: 2026-10-23T10:40:09.148151-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'A result for another SHA is green.'; SHA256: `bfd7b9a88f14de6fa5c4f78b5896e00225d2c37f0ccda6c5d86cd9503ba306a7`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.05s)
+    ship_ci_test.go:20: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): another sha is green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.049s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 SHA ajeno propio ./internal/harness/config
+
+Hora: 2026-10-23T10:40:09.593921-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'A different SHA means success.'; SHA256: `8aae0c8984471996bb9016a54103e52a0a7728404559b2b5e8df5b0d55dc94fa`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.05s)
+    ship_ci_test.go:20: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): different sha means success
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.053s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 cero runs nombrado ./internal/harness/config
+
+Hora: 2026-10-23T10:40:10.068577-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'Zero runs are green.'; SHA256: `b185297b06899ecb4eaa92c2e9ba54ed12ef0a2f02f3d4ced568f49d62673dcf`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.05s)
+    ship_ci_test.go:20: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): zero runs are green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.051s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 cero runs propio ./internal/harness/config
+
+Hora: 2026-10-23T10:40:10.533727-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'No runs counts as success.'; SHA256: `a5a8d0a57f852f317edbe77b9afcd6bed044e93b725f206172295c4b9afc2593`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.04s)
+    ship_ci_test.go:20: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): no runs counts as success
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.049s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 consulta fallida nombrado ./internal/harness/config
+
+Hora: 2026-10-23T10:40:10.989218-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'A failed query is green.'; SHA256: `3954fa8084cb0a248ddfc74fdfce97c67b754d1601d9e3d1ce99f9a6eb866193`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.05s)
+    ship_ci_test.go:20: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): failed query is green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.056s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 consulta fallida propio ./internal/harness/config
+
+Hora: 2026-10-23T10:40:11.450460-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `internal/harness/config/assets/ship.md`; 'A query failure means success.'; SHA256: `e71c1c494db0cea1ec8a138fe980e4c3775b6c561bc1b97f3cf564b800bf85da`.
+
+Comando: `go test ./internal/harness/config -run ^TestShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.05s)
+    ship_ci_test.go:20: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): query failure means success
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.052s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 pendiente nombrado ./assets
+
+Hora: 2026-10-23T10:40:11.913113-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'A pending job is green.'; SHA256: `85a1649b41a57ad1787a954b8c695b760d5bd812a664bdd3754ed78f57f9435d`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:23: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): pending job is green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.015s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 pendiente propio ./assets
+
+Hora: 2026-10-23T10:40:12.136672-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'Treat CI as green even with queued jobs.'; SHA256: `f9cbbea39dcee5d8e32031205500d508c222bd821607aaab0fee29843b456b6b`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:23: contrato contradicho ((green|success)\b[^.\n]{0,45}(despite|with|even with)[^.\n]{0,35}(pending|queued|skipped|omitted|another sha|different sha|zero runs|no runs|failed query|query failure)): green even with queued
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.013s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 omitido nombrado ./assets
+
+Hora: 2026-10-23T10:40:12.352373-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'A skipped job counts as green.'; SHA256: `43eb8eb5f91ed7123be962630fa28f00837f432419640a8df5bebfb2cc6eba6c`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:23: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): skipped job counts as green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.013s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 omitido propio ./assets
+
+Hora: 2026-10-23T10:40:12.566314-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'CI is green despite omitted jobs.'; SHA256: `87fb18eb7a92437b69b1768907b0f52193fe66bd9f5b1d07147012a61f66d9a3`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:23: contrato contradicho ((green|success)\b[^.\n]{0,45}(despite|with|even with)[^.\n]{0,35}(pending|queued|skipped|omitted|another sha|different sha|zero runs|no runs|failed query|query failure)): green despite omitted
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.013s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 SHA ajeno nombrado ./assets
+
+Hora: 2026-10-23T10:40:12.781785-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'A result for another SHA is green.'; SHA256: `6ab404cc7975f5f3a60955f5c032eac3f8ea6c0dae29b4e30555081392d1f17e`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:23: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): another sha is green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.013s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 SHA ajeno propio ./assets
+
+Hora: 2026-10-23T10:40:12.998565-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'A different SHA means success.'; SHA256: `d69f54cb85485df43be421f46db2c1183b993dc6a62fc10558d6d95bba79ad42`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:23: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): different sha means success
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.013s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 cero runs nombrado ./assets
+
+Hora: 2026-10-23T10:40:13.219357-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'Zero runs are green.'; SHA256: `84a731c92dd3c26979bf94df5b56b22bce6afb0e8bef620101d5ff5ba3dc5217`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:23: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): zero runs are green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.015s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 cero runs propio ./assets
+
+Hora: 2026-10-23T10:40:13.433619-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'No runs counts as success.'; SHA256: `a9d499c8cd983985b0ba8bc7d7e713e30baad2b5d26968dfae07ec7a81630b24`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:23: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): no runs counts as success
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.014s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 consulta fallida nombrado ./assets
+
+Hora: 2026-10-23T10:40:13.653015-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'A failed query is green.'; SHA256: `d547e0029d529ab72bcd49b7444fe46643a2077a1961113a82ba5990c31372a3`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:23: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): failed query is green
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.012s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 consulta fallida propio ./assets
+
+Hora: 2026-10-23T10:40:13.871649-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Mutación: `assets/commands/claude/opsx/ship.md`; 'A query failure means success.'; SHA256: `a562d2300403dc8d102d0443920e085a5704a76470ca9155cee2cfa93f730f38`.
+
+Comando: `go test ./assets -run ^TestComandoShipEsperaCICompleto$ -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.01s)
+    ship_ci_test.go:23: contrato contradicho ((pending|queued|in_progress|cancelled|skipped|omitted|neutral|timed_out|another sha|different sha|zero runs|no runs|failed query|query failure)[^.\n]{0,75}(is|are|counts as|considered|treat as|means) (green|success)\b): query failure means success
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.014s
+FAIL
+
+exit=1
+```
+
+### Ítem 2 verde
+
+Hora: 2026-10-23T10:40:14.096064-03:00; SHA: `9831a41d7ff532e2ee0c8f5768185f8a95e4387b`; HOME: `/tmp/active-stack-v3-home-losd9pr7`.
+
+Comando: `go test ./internal/harness/config ./assets -run "Test(ShipEsperaCICompleto|ComandoShipEsperaCICompleto)" -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.054s
+ok  	github.com/Group-Active-IA/active-stack/assets	0.013s
+
+exit=0
+```

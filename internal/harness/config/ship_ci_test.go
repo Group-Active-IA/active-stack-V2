@@ -1,18 +1,26 @@
 package config_test
 
 import (
+	"github.com/Group-Active-IA/active-stack/internal/contracttest"
+	"github.com/Group-Active-IA/active-stack/internal/harness/config"
 	"strings"
 	"testing"
 )
 
 func TestShipEsperaCICompleto(t *testing.T) {
-	body := shipFragment(t)
+	body, err := config.Compose(config.KnownToggles(), "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	body = strings.ToLower(body)
 	if strings.Contains(body, "for this repository, require") {
 		t.Error("CI ambiguo: For this repository")
 	}
 	if strings.Contains(body, "a cancelled job counts as green when its rerun passes.") {
 		t.Error("CI contradictorio: A cancelled job counts as green when its rerun passes.")
 	}
+	contracttest.Reject(t, body, contracttest.CI...)
+
 	for _, want := range []string{
 		"Before evaluating CI, record the pushed SHA, expected workflows/events and expanded matrix jobs.",
 		"Every required job must finish in success on the pushed SHA.",
