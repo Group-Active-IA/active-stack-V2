@@ -450,3 +450,29 @@ func TestReportsCapture_OversizedContent_RejectedWithoutTruncation(t *testing.T)
 		t.Fatalf("contenido que excede MaxContentBytes tenía que rechazarse con error, nunca truncarse en silencio")
 	}
 }
+
+// El repo de un usuario no tiene la regla de .retenidos/ en su .gitignore
+// (PropTech, por ejemplo). newRepo copia el .gitignore de active-stack y por
+// eso el test de arriba no lo veía: acá el repo arranca sin .gitignore y
+// `git add -A` no puede subir el original retenido.
+func TestReportsCapture_Retained_NeverStagedInRepoWithoutGitignore(t *testing.T) {
+	repo := t.TempDir()
+	testGit(t, repo, "init", "-q", "-b", "main")
+	testGit(t, repo, "commit", "-q", "--allow-empty", "-m", "inicial")
+	const fakeToken = "ghp_FAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKEFAKE"
+	in := baseInput(repo)
+	in.Source.Text = "Credencial: " + fakeToken + "\n"
+
+	res, err := Capture(in)
+	if err != nil {
+		t.Fatalf("Capture: %v", err)
+	}
+	if res.Status != StatusRetained {
+		t.Fatalf("Status = %s, quería RETAINED", res.Status)
+	}
+	testGit(t, repo, "add", "-A")
+	staged := testGit(t, repo, "diff", "--cached", "--name-only")
+	if strings.Contains(staged, ".retenidos") {
+		t.Fatalf("el original retenido quedó en staging en un repo sin .gitignore:\n%s", staged)
+	}
+}

@@ -79,6 +79,12 @@ func writeFiles(root, dir string, m manifest, rawContent string) (manifest, erro
 		if err := os.MkdirAll(retDir, 0o700); err != nil {
 			return m, fmt.Errorf("crear %s: %w", retDir, err)
 		}
+		// La carpeta se ignora sola: el repo del usuario no tiene por qué
+		// tener la regla en su .gitignore, y sin esto `git add -A` sube el
+		// original con el secreto adentro. Va ANTES del original.
+		if err := atomicWriteFile(filepath.Join(retDir, ".gitignore"), []byte("*\n"), 0o644); err != nil {
+			return m, err
+		}
 		retPath := filepath.Join(retDir, m.ContentHash[:12]+".txt")
 		if err := atomicWriteFile(retPath, []byte(rawContent), 0o600); err != nil {
 			return m, err
