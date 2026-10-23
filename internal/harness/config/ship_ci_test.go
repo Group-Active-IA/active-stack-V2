@@ -7,6 +7,9 @@ import (
 
 func TestShipEsperaCICompleto(t *testing.T) {
 	body := shipFragment(t)
+	if strings.Contains(body, "a cancelled job counts as green when its rerun passes.") {
+		t.Error("CI contradictorio: A cancelled job counts as green when its rerun passes.")
+	}
 	for _, want := range []string{
 		"Before evaluating CI, record the pushed SHA, expected workflows/events and expanded matrix jobs.",
 		"Every required job must finish in success on the pushed SHA.",

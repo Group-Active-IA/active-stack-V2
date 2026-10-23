@@ -714,6 +714,13 @@ func TestCatalog_OrchestratorDescriptionIsNotStaleAboutToggles(t *testing.T) {
 }
 
 func TestArchiveBaseCompletaConEvidencia(t *testing.T) {
+	composed, err := config.Compose([]string{"knowledge-base", "auditor"}, "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(strings.ToLower(composed), "rewrite old lessons freely.") {
+		t.Error("historia contradictoria: Rewrite old lessons freely.")
+	}
 	body := kbSection(t, "### in archive")
 	for _, frase := range []string{"union of knowledge base impact and the actual diff", "even when the impact section exists", "lessons l-nnn", "only append lessons", "lecciones", "deuda", "each entry", "what changed", "sha, test or decision", "typed evidence", "auditor source absent", "written decision", "do not invent"} {
 		if !strings.Contains(body, frase) {

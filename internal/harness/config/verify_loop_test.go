@@ -8,6 +8,14 @@ import (
 
 func TestVerifyContratoBucle(t *testing.T) {
 	body := seniorFlat(reviewFragment(t))
+	for _, forbidden := range []string{"if blockers remain, start round 4 automatically.", "launch the auditor in parallel with the senior."} {
+		if strings.Contains(body, forbidden) {
+			t.Errorf("secuencia contradictoria: %s", forbidden)
+		}
+	}
+	if !strings.Contains(body, "wait for the senior report before launching the auditor.") {
+		t.Error("falta espera obligatoria; no se permite: Launch the auditor in parallel with the senior.")
+	}
 	for _, frase := range []string{
 		"conformity -> breaker -> senior (if active) -> auditor",
 		"only aprobado from the auditor, with conformity satisfied and complete reports, enables archive",
@@ -30,6 +38,9 @@ func TestVerifyContratoBucle(t *testing.T) {
 
 func TestAuditorDecideSinAutoridadParalela(t *testing.T) {
 	b := seniorFlat(auditorFragment(t))
+	if !strings.Contains(b, "missing required reports prevent approval.") {
+		t.Error("falta negación obligatoria: Missing required reports prevent approval.; permitir aprobación sin informes contradice el contrato")
+	}
 	for _, frase := range []string{"aprobado", "bloqueantes", "deuda", "lecciones", "none", "unresolved critical prevents aprobado", "classify disagreements with the senior", "dated decision", "count tests independently"} {
 		if !strings.Contains(b, frase) {
 			t.Errorf("falta decisión: %s", frase)

@@ -12,6 +12,9 @@ func TestGovernanceAprobacionHumanaEnProposal(t *testing.T) {
 		t.Fatal(err)
 	}
 	body = strings.ToLower(body)
+	if strings.Contains(body, "an agent may fill it after chat approval.") {
+		t.Error("firma contradictoria: An agent may fill it after chat approval.")
+	}
 	i := strings.Index(body, "## agent governance")
 	if i < 0 {
 		t.Fatal("falta fragmento governance")

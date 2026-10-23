@@ -1,0 +1,208 @@
+# Constructor — vuelta 2 de verify, fase 1
+
+Base firmada: `4748680`. Rama: `feat/metodologia-proptech`. Alcance: exclusivamente los cinco ítems del auditor 11; notas RF1-4, RF1-5b y RF1-6 sin cambios. No se ejecuta build, instalación ni push; no se lee .env ni se modifica configuración global. Los logs preexistentes no se incluyen.
+
+## Ítem 1 — contratos de sentido y mutantes aislados
+
+Tests reforzados antes de mutar; cada archivo se restaura en finally, sin regenerar goldens. M4 elimina una regla: su mensaje muestra la negación requerida ausente (no introduce frase nueva). HOME temporal en todas las corridas. GOCACHE/GOPATH reutilizan la caché existente.
+### M1
+
+Hora: 2026-10-23T10:22:41.703080-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./internal/harness/config -run TestShipEsperaCICompleto -count=1`
+
+```text
+--- FAIL: TestShipEsperaCICompleto (0.00s)
+    ship_ci_test.go:11: CI contradictorio: A cancelled job counts as green when its rerun passes.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:22:42.179514-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./internal/harness/config -run TestShipEsperaCICompleto -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+
+exit=0
+```
+### M1b
+
+Hora: 2026-10-23T10:22:42.566785-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./assets -run TestComandoShipEsperaCICompleto -count=1`
+
+```text
+--- FAIL: TestComandoShipEsperaCICompleto (0.00s)
+    ship_ci_test.go:17: CI contradictorio: A cancelled job counts as green when its rerun passes.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.003s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:22:42.785034-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./assets -run TestComandoShipEsperaCICompleto -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/assets	0.003s
+
+exit=0
+```
+### M2
+
+Hora: 2026-10-23T10:22:42.989519-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./internal/harness/config -run TestVerifyContratoBucle -count=1`
+
+```text
+--- FAIL: TestVerifyContratoBucle (0.00s)
+    verify_loop_test.go:13: secuencia contradictoria: if blockers remain, start round 4 automatically.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.005s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:22:43.456284-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./internal/harness/config -run TestVerifyContratoBucle -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+
+exit=0
+```
+### M3
+
+Hora: 2026-10-23T10:22:43.695227-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./internal/harness/config -run TestVerifyContratoBucle|TestAuditorDecide -count=1`
+
+```text
+--- FAIL: TestVerifyContratoBucle (0.00s)
+    verify_loop_test.go:13: secuencia contradictoria: launch the auditor in parallel with the senior.
+    verify_loop_test.go:17: falta espera obligatoria; no se permite: Launch the auditor in parallel with the senior.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.008s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:22:44.186185-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./internal/harness/config -run TestVerifyContratoBucle|TestAuditorDecide -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.008s
+
+exit=0
+```
+### M4
+
+Hora: 2026-10-23T10:22:44.411904-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./internal/harness/config -run TestAuditorDecide -count=1`
+
+```text
+--- FAIL: TestAuditorDecideSinAutoridadParalela (0.00s)
+    verify_loop_test.go:42: falta negación obligatoria: Missing required reports prevent approval.; permitir aprobación sin informes contradice el contrato
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:22:44.890972-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./internal/harness/config -run TestAuditorDecide -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+
+exit=0
+```
+### M5
+
+Hora: 2026-10-23T10:22:45.115274-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./assets -run TestVerifyConformidadNoHabilitaArchive -count=1`
+
+```text
+--- FAIL: TestVerifyConformidadNoHabilitaArchive (0.00s)
+    commands_test.go:116: conformidad anuncia cierre: All checks passed. Proceed to archive.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/assets	0.002s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:22:45.330498-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./assets -run TestVerifyConformidadNoHabilitaArchive -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/assets	0.003s
+
+exit=0
+```
+### M6
+
+Hora: 2026-10-23T10:22:45.501840-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./internal/harness/config -run TestArchiveBaseCompletaConEvidencia -count=1`
+
+```text
+--- FAIL: TestArchiveBaseCompletaConEvidencia (0.00s)
+    knowledge_base_toggle_test.go:720: historia contradictoria: Rewrite old lessons freely.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:22:45.986365-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./internal/harness/config -run TestArchiveBaseCompletaConEvidencia -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.004s
+
+exit=0
+```
+### M7
+
+Hora: 2026-10-23T10:22:46.213936-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./internal/harness/config -run TestGovernance -count=1`
+
+```text
+--- FAIL: TestGovernanceAprobacionHumanaEnProposal (0.00s)
+    governance_approval_test.go:16: firma contradictoria: An agent may fill it after chat approval.
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/harness/config	0.003s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:22:46.672607-03:00; SHA: `8d05c4eefca7d3fe4ed3c1667806c7c3580402f7`; HOME: `/tmp/active-stack-v2-home-4_ciocdq`.
+
+Comando: `go test ./internal/harness/config -run TestGovernance -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.003s
+
+exit=0
+```
