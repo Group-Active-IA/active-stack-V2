@@ -1,13 +1,11 @@
-# Active Stack — Arquitectura (blueprint v0)
+# Active Stack — Arquitectura vigente
 
 > Instalador **methodology-first** del harness de desarrollo asistido por IA.
 > Materializa el `MANUAL-METODOLOGICO.md`: un comando instala y configura el
 > sustrato (harnesses), y un único orquestador de fundación deja el proyecto
 > listo para el ciclo OPSX (`explore → propose → apply → verify → archive`).
 
-Estado: **planificación**. Este documento es la fuente de verdad del diseño
-mientras arrancamos. Se construye desde cero, portando la infraestructura
-probada del active-stack actual (no reescribiéndola a ciegas).
+Estado: núcleo implementado; fase 1 metodológica construida y archivada parcialmente. La entrega real de `instalacion-sana` continúa pendiente por CONF-1. EVIDENCIA: `84fcf0e`, informe 22 y [base metodológica](docs/metodologia-opsx.md).
 
 ---
 
@@ -84,7 +82,7 @@ agrega una pieza al bloque (en orden de composición):
   secuencia de pasos sino un diagnóstico: mira en qué estado está el
   repositorio (trunk, rama sin remoto, PR abierto, trunk que avanzó, cambios
   sin commitear, sin remoto) y decide. Push a `main` siempre pregunta, a una
-  rama propia no; PR o directo se propone con fundamento; nunca mergea.
+  rama propia no; PR o directo se propone con fundamento; espera el CI completo sobre el SHA pusheado y nunca mergea.
 - `engram` — memoria persistente entre sesiones y compactaciones, cableada a
   las fases OPSX.
 - `tdd` — TDD estricto en la fase apply: no hay código de producción sin un
@@ -156,34 +154,43 @@ skills, en este orden (evolución de la skill `active-orchestrator`):
 
 ### 4.3 Ciclo iterativo (por change)
 
-`explore → propose → apply → verify → archive`, vía OPSX. El orquestador
-delega a sub-agentes; OpenSpec CLI es la fuente de verdad del estado.
+El ciclo vigente es `explore → propose → apply → verify → archive`, seguido de `ship` cuando se publica:
+
+- **Propose:** con governance activo, ALTO o CRÍTICO requiere informes de arquitecto, analista funcional y QA, más especialistas por capa, convocados de a uno sin leer los otros informes; el auditor lee los N originales antes de la aprobación humana escrita. La tabla `## Aprobación` registra elección, persona, fecha y alcance; ningún agente la completa. Una regla nueva necesita aprobación propia.
+- **Apply constructor:** rojo y verde por tarea en `tasks.md`, con comando, salida, hora y SHA; si el test nació verde, mutante que falle en su aserción y se revierta. Declara consumidores, conflictos y familia del modelo. En vueltas 2 y 3 corrige sólo la lista del auditor.
+- **Verify:** conformidad → rompedor con tres lentes (correctitud, cableado, documentación) → senior si está activo → auditor. La conformidad sola no habilita archive. El auditor decide y el orquestador ejecuta; sólo APROBADO con informes completos y conformidad satisfecha habilita el cierre ordinario. El contador y los informes viven en el change: máximo tres vueltas, sin cuarta automática. En la tercera con bloqueantes se exige decisión humana escrita sobre alcance nuevo, deuda justificada o freno; no se fabrica APROBADO.
+- **Archive:** lee la unión del impacto declarado y el diff; reescribe las descripciones actuales y agrega decisiones, lecciones numeradas y deuda del auditor con fecha, costo y evidencia tipada. Deja `knowledge-base-report.md` por change con REWRITTEN, APPENDED y PENDING por documento; sólo APPEND se justifica y se señala como `SUSPICIOUS: append-only` cuando correspondía reescribir.
+- **Ship:** espera todo el CI requerido sobre el SHA pusheado, inspeccionando workflows, eventos y jobs. En active-stack exige `ci.yml` en push con tests Ubuntu y Windows; en otros repos deriva su conjunto. Cero runs, consulta fallida, SHA ajeno o estados incompletos no confirman entrega. `main` exige permiso y nunca se mergea el PR automáticamente.
+
+Si falta un toggle se declara la degradación; sin review no hay rompedor ni bucle. Sin auditor se necesita decisión escrita de Juani para cerrar con alcance degradado. Un informe obligatorio faltante detiene el cierre.
+
+EVIDENCIA: [contratos, decisiones y deuda de fase 1](docs/metodologia-opsx.md). OpenSpec CLI conserva el estado; no actualiza por sí solo esta base.
 
 ---
 
 ## 5. Arquitectura del instalador (Go + Bubbletea)
 
-Se **porta** la infraestructura probada del active-stack actual (260+ tests):
+La infraestructura implementada se organiza así:
 
 ```
 cmd/active-stack/            entrypoint CLI
 internal/
-  system/                detección OS/arch/WSL/Termux, deps, guards   [PORT]
-  catalog/               parseo del harnesses.yaml embebido           [NEW]
-  model/                 tipos de dominio (harness, agente, modo)     [PORT/adapt]
-  planner/               grafo de dependencias, orden, review payload [PORT]
-  agents/                adapters por agente (claude/opencode/...)    [PORT, slim]
-  harness/               install/inject por tipo de harness           [NEW]
+  system/                detección OS/arch/WSL/Termux, deps, guards
+  catalog/               parseo del harnesses.yaml embebido
+  model/                 tipos de dominio (harness, agente, modo)
+  planner/               grafo de dependencias, orden, review payload
+  agents/                adapters por agente (claude/opencode/...)
+  harness/               install/inject por tipo de harness
     skill/  config/  external/
-  filemerge/             merge por markers (inyectar sin pisar)       [PORT]
-  backup/                snapshot + restore de configs                [PORT]
-  pipeline/              ejecución por etapas + rollback              [PORT]
-  verify/                health checks post-install                   [PORT]
-  tui/                   Bubbletea (sin theme cosmético del viejo)    [PORT, slim]
+  filemerge/             merge por markers (inyectar sin pisar)
+  backup/                snapshot + restore de configs
+  pipeline/              ejecución por etapas + rollback
+  verify/                health checks post-install
+  tui/                   Bubbletea (sin theme cosmético del viejo)
 assets/                  catálogo + configs bundleadas (sdd-orchestrator, etc.)
 ```
 
-`[PORT]` = traer del repo actual y limpiar. `[NEW]` = construir.
+Procedencia histórica: port del repo anterior. Los paquetes listados ya existen.
 Se descarta: `components/gga`, `components/theme`, `components/persona`
 (marketing), `components/permissions` se mantiene (seguridad no es opcional).
 
@@ -191,16 +198,9 @@ Se descarta: `components/gga`, `components/theme`, `components/persona`
 
 ## 6. Roadmap de construcción (incrementos)
 
-1. **Esqueleto + fundación** ← (en curso) repo, go.mod, .gitignore, este doc, openspec init.
-2. **Modelo + catálogo**: tipos `Harness`, parser de `harnesses.yaml`, catálogo inicial.
-3. **Port de infra**: system, filemerge, backup, planner desde el active-stack actual (limpios).
-4. **Adapters slim**: claude + opencode primero (P0), resto después.
-5. **Harness installers**: `skill` (clone+copy), `external` (engram/openspec), `config` (sdd-orchestrator componible).
-6. **TUI**: flujo Lite/Full/Custom leyendo catálogo.
-7. **active-orchestrator como orquestador de fundación**: lazy-load del flujo §4.2.
-8. **Verify + E2E**: health checks + Docker E2E portados.
+El núcleo y el roadmap C-01…C-25 están implementados (historial en `CHANGES.md`). La fase 1 integra constructor, verify, archive y ship en los toggles existentes. Ocho changes están archivados con autorización escrita; `instalacion-sana` conserva CONF-1. Fases siguientes, firmas criptográficas, hooks, roles y compactación: (TBD), sin aprobación implícita.
 
-Cada incremento será un **change OPSX** (dogfooding) en `openspec/` (ignorado por git).
+EVIDENCIA: propuesta firmada `4748680`, decisión `5ab0f4f`; estado detallado en `CHANGES.md`.
 
 ---
 

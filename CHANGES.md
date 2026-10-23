@@ -423,7 +423,7 @@ en paralelo `tui-update-stack` y `tui-configure-models` (ambos cuelgan del hub).
 
 # Epic: metodología de PropTech dentro de OPSX (2026-10-23)
 
-> Estado: **PROPUESTO, sin firma.** Plan completo, riesgos, tests que se mueven y tabla
+> Estado: **FASE 1 construida, ocho changes archivados con OK escrito**; `instalacion-sana` abierto por CONF-1. Plan, riesgos, tests y tabla
 > `## Aprobación`: `docs/propuestas/2026-10-23-metodologia-proptech-en-opsx.md`. Exploración:
 > `docs/exploraciones/2026-10-23-metodologia-proptech.md` (§8, decisiones de Juani).
 > Sin toggle nuevo: apply = constructor, verify = conformidad → rompedor → senior → auditor con tope
@@ -439,6 +439,7 @@ en paralelo `tui-update-stack` y `tui-configure-models` (ambos cuelgan del hub).
 | 5 | `senior-solo-en-verify` | BAJO | 4 |
 | 6 | `archive-base-completa` | BAJO | 4 |
 | 7 | `governance-aprobacion` | BAJO | 4 |
+| 7b | `propose-multirol` | BAJO | 7 |
 | 8 | `aprobacion-firmada` (sólo si hay firma GPG/SSH) | ALTO | 7 |
 | 9 | `informes-por-hook` | MEDIO | 4 |
 | 10 | `opencode-permission-replace` (reimplementa `ddeb94f`) | ALTO | — |
@@ -447,3 +448,11 @@ en paralelo `tui-update-stack` y `tui-configure-models` (ambos cuelgan del hub).
 
 **Camino crítico**: `apply-constructor → verify-rompedor-auditor → {senior, archive, governance} → ... → bloque-compacto`.
 Los pasos 2 a 7 regeneran los mismos dos goldens: van en secuencia, no en paralelo.
+
+## Estado de cierre de fase 1 — 2026-10-23
+
+Los ocho changes `opencode-mcp-command-array`, `ship-espera-ci`, `apply-constructor`, `verify-rompedor-auditor`, `senior-solo-en-verify`, `archive-base-completa`, `governance-aprobacion` y `propose-multirol` se archivaron con el OK escrito de Juani (informe 22, `5ab0f4f`) después de la corrección RF3-1 (`ce7899e`). No se afirma APROBADO del auditor en vuelta 3: su decisión fue NO APROBADO; Juani habilitó corrección fuera del bucle y archive. EVIDENCIA: informes 21–23.
+
+`instalacion-sana`: **ABIERTO por CONF-1**, aunque el CLI lo mostraba Complete por las tareas de código tildadas. Faltan receta §3.6 puntos 1–4 con evidencia y OK separado para reinstalar. `version` y checks están implementados (`84fcf0e`); instalación/restore reales no acreditados.
+
+El ciclo vigente y la deuda se consultan en [metodologia-opsx.md](docs/metodologia-opsx.md). REWRITE de esta ficha: reemplaza “propuesto, sin firma” y agrega el paso 7b omitido. APPEND histórico: decisión de cierre excepcional, lecciones L-001…L-004 y deuda consolidada quedan en esa base; costo: tres vueltas y una corrección posterior. Los pasos 8–12 quedan fuera de fase 1; sus decisiones abiertas siguen (TBD), sin aprobación nueva. Próximo trabajo metodológico: pagar CONF-1 antes de cerrar el paso 0; fase 2 requiere su propio propose y firma según governance.

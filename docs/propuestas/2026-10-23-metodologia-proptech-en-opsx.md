@@ -1,13 +1,9 @@
 # Propuesta: la metodología de PropTech dentro de las fases OPSX
 
-Fecha: 2026-10-23 · Rama: `feat/metodologia-proptech` · Fase: propose (no se implementa nada).
+Fecha: 2026-10-23 · Rama: `feat/metodologia-proptech` · Estado: propuesta firmada; fase 1 construida y autorizada para archive parcial (informe 22).
 Sale de: `docs/exploraciones/2026-10-23-metodologia-proptech.md`, §8 (decisiones de Juani del 23/10).
 
-**Dónde vive esta propuesta y por qué.** La convención del repo es que cada incremento sea un change
-OPSX y que el plan esté en `CHANGES.md`. `openspec/` está ignorado por git y en esta máquina no está
-inicializado (`openspec list` → "No OpenSpec root found"), así que un `proposal.md` ahí no quedaría en
-ningún commit. Por eso el plan va acá y en `CHANGES.md` (epic nuevo, al final). Cuando Juani firme,
-cada paso del §5 se abre con `openspec new change "<id>"` y su `proposal.md` cita esta página.
+**Estado documental vigente.** Esta propuesta conserva el alcance firmado en `4748680`; los análisis de “hoy” y alternativas del cuerpo son el diagnóstico de propose, no la descripción actual del producto. OpenSpec está inicializado y registra los changes; se archivaron ocho, mientras `instalacion-sana` permanece abierto por CONF-1. El contrato actual se describe en [la base metodológica](../metodologia-opsx.md). EVIDENCIA: decisión escrita de Juani en [informe 22](informes/2026-10-23/22-decision-juani-rf3-1.md), `5ab0f4f`; corrección `ce7899e`. Se reemplaza el diagnóstico inicial “No OpenSpec root found” porque ya dejó de describir el entorno.
 
 ---
 
@@ -301,3 +297,7 @@ La completa Juani, a mano. Ningún agente la escribe.
 | Fronteras del alcance | AR-3, AR-4, OPS-3 | §8: firma, hook, roles y compactación excluidos de la firma de fase 1 con TBD y motivo. Apply/archive siguen en el bloque; los contratos, alternativas y reversión futuros requieren propose propio. |
 
 Se conserva el criterio de las cinco recomendaciones provisorias. Las razones fuertes para ajustar su redacción son AN-1/AR-2/QA-3 (autoridad y transición) y AN-2/QA-4 (regresiones fuera del recorte); no justifican sumar infraestructura en fase 1. Las notas AR-5/QA-5 se cubren con revisión de goldens y test de ocho variantes; OPS-5 con aislamiento de PATH y binario. La tabla de aprobación sigue vacía.
+
+## Registro de archive parcial — 2026-10-23
+
+EVIDENCIA: el informe 21 cierra la vuelta 3 sin aprobación; el 22 registra decisión B y OK escrito tras la corrección RF3-1. Se conserva la tabla humana original sin atribuir firma al agente. Costo: corrección adicional fuera del bucle; la deuda consolidada y RF3-1 cerrado se preservan en [la base metodológica](../metodologia-opsx.md). No se ejecutan aquí §3.6 ni fases 2/3. JUICIO: archivar el alcance habilitado no prueba instalación sana ni cobertura semántica exhaustiva.

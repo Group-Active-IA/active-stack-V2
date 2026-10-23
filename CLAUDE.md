@@ -34,23 +34,23 @@ de marketing, framing "supercharge any agent" / relación con Gentleman.Dots.
 ```
 cmd/active-stack/            entrypoint CLI
 internal/
-  system/                detección OS/arch/WSL/Termux, deps, guards   [PORT]
-  catalog/               parseo del harnesses.yaml embebido           [NEW]  ← existe
-  model/                 tipos de dominio (harness, agente, modo)     [NEW]  ← existe
-  planner/               grafo de dependencias, orden, review payload [PORT]
-  agents/                adapters por agente (claude/opencode/...)    [PORT, slim]
-  harness/               install/inject por tipo de harness           [NEW]
+  system/                detección OS/arch/WSL/Termux, deps, guards
+  catalog/               parseo del harnesses.yaml embebido
+  model/                 tipos de dominio (harness, agente, modo)
+  planner/               grafo de dependencias, orden, review payload
+  agents/                adapters por agente (claude/opencode/...)
+  harness/               install/inject por tipo de harness
     skill/  config/  external/
-  filemerge/             merge por markers (inyectar sin pisar)       [PORT]
-  backup/                snapshot + restore de configs                [PORT]
-  pipeline/              ejecución por etapas + rollback              [PORT]
-  verify/                health checks post-install                   [PORT]
-  tui/                   Bubbletea (sin theme cosmético del viejo)    [PORT, slim]
+  filemerge/             merge por markers (inyectar sin pisar)
+  backup/                snapshot + restore de configs
+  pipeline/              ejecución por etapas + rollback
+  verify/                health checks post-install
+  tui/                   Bubbletea (sin theme cosmético del viejo)
 assets/                  catálogo + configs bundleadas (sdd-orchestrator, etc.)
 ```
 
-`[PORT]` = traer del repo viejo (`E:\ESCRITORIO\programar\2026\jr-stack`) y limpiar.
-`[NEW]` = construir. Se descarta: `components/gga`, `components/theme`,
+Procedencia histórica: port del repo viejo (`E:\ESCRITORIO\programar\2026\jr-stack`), limpiado de branding excluido.
+Los paquetes listados ya existen. Se descarta: `components/gga`, `components/theme`,
 `components/persona` (marketing). `components/permissions` **se mantiene** (la
 seguridad no es opcional).
 
@@ -90,7 +90,7 @@ Los toggles, en orden de composición, y qué agrega cada uno (la lista canónic
 - `review`: un rompedor con tres lentes obligatorias y bucle de hasta tres vueltas; el auditor decide y el orquestador ejecuta.
 - `knowledge-base`: en archive reescribe la base que impacto y diff tocaron; agrega decisiones, lecciones L-NNN y deuda del auditor con evidencia por entrada. Sólo APPEND sin REWRITE se reporta SUSPICIOUS: append-only.
 - `senior`: sólo en verify, después del rompedor y antes del auditor; aporta contexto de decisiones fechadas, uno por vuelta y hasta tres por change.
-- `ship` — publica el trabajo de un change cerrado: diagnostica el estado del repo y decide. `main` pregunta, PR o directo se propone, nunca mergea.
+- `ship` — diagnostica la publicación y espera el CI completo del SHA pusheado; `main` pregunta, PR o directo se propone, nunca mergea.
 - `engram` — memoria persistente entre sesiones y compactaciones.
 - `tdd` — TDD estricto en apply: sin test que falle primero no hay código.
 
@@ -139,14 +139,30 @@ El nivel de autonomía es proporcional a la criticidad del paquete tocado.
 | Qué harnesses existen y de qué tipo | `internal/catalog/harnesses.yaml` |
 | Los tipos de dominio | `internal/model/harness.go` |
 | Cargar/validar el catálogo | `internal/catalog/catalog.go` |
-| Infra a portar (backup, filemerge, planner, agents, pipeline, verify, tui) | repo viejo: `E:\ESCRITORIO\programar\2026\jr-stack\internal\` |
-| Configs bundleadas (sdd-orchestrator por agente) | repo viejo: `internal/assets/` |
+| Infra implementada (backup, filemerge, planner, agents, pipeline, verify, tui) | `internal/`; procedencia histórica: repo viejo `jr-stack/internal/` |
+| Configs bundleadas (sdd-orchestrator por agente) | `internal/harness/config/assets/` |
 | Estado real de los changes | `openspec` CLI (`openspec list`, `openspec status`) — fuente de verdad |
 | El orquestador SDD global | `~/.claude/CLAUDE.md` (NO duplicar acá) |
 
 ---
 
-## 6. Notas
+## 6. Ciclo vigente y evidencia
+
+El ciclo vigente es `explore → propose → apply → verify → archive`, seguido de `ship` cuando se publica:
+
+- **Propose:** con governance activo, ALTO o CRÍTICO requiere informes de arquitecto, analista funcional y QA, más especialistas por capa, convocados de a uno sin leer los otros informes; el auditor lee los N originales antes de la aprobación humana escrita. La tabla `## Aprobación` registra elección, persona, fecha y alcance; ningún agente la completa. Una regla nueva necesita aprobación propia.
+- **Apply constructor:** rojo y verde por tarea en `tasks.md`, con comando, salida, hora y SHA; si el test nació verde, mutante que falle en su aserción y se revierta. Declara consumidores, conflictos y familia del modelo. En vueltas 2 y 3 corrige sólo la lista del auditor.
+- **Verify:** conformidad → rompedor con tres lentes (correctitud, cableado, documentación) → senior si está activo → auditor. La conformidad sola no habilita archive. El auditor decide y el orquestador ejecuta; sólo APROBADO con informes completos y conformidad satisfecha habilita el cierre ordinario. El contador y los informes viven en el change: máximo tres vueltas, sin cuarta automática. En la tercera con bloqueantes se exige decisión humana escrita sobre alcance nuevo, deuda justificada o freno; no se fabrica APROBADO.
+- **Archive:** lee la unión del impacto declarado y el diff; reescribe las descripciones actuales y agrega decisiones, lecciones numeradas y deuda del auditor con fecha, costo y evidencia tipada. Deja `knowledge-base-report.md` por change con REWRITTEN, APPENDED y PENDING por documento; sólo APPEND se justifica y se señala como `SUSPICIOUS: append-only` cuando correspondía reescribir.
+- **Ship:** espera todo el CI requerido sobre el SHA pusheado, inspeccionando workflows, eventos y jobs. En active-stack exige `ci.yml` en push con tests Ubuntu y Windows; en otros repos deriva su conjunto. Cero runs, consulta fallida, SHA ajeno o estados incompletos no confirman entrega. `main` exige permiso y nunca se mergea el PR automáticamente.
+
+Si falta un toggle se declara la degradación; sin review no hay rompedor ni bucle. Sin auditor se necesita decisión escrita de Juani para cerrar con alcance degradado. Un informe obligatorio faltante detiene el cierre.
+
+`active-stack version` informa versión y SHA disponibles. El chequeo instalado valida `cmd/active-stack`, `roles --help` y contenido contra `Compose`; no acredita reinstalación real. CONF-1 mantiene `instalacion-sana` abierto hasta §3.6 puntos 1–4 y OK escrito para reinstalar.
+
+EVIDENCIA: `84fcf0e`, `c325955` y [base metodológica](docs/metodologia-opsx.md) (commits por fase, decisiones, lecciones y deuda; informe 22 autoriza sólo ocho archives).
+
+## 7. Notas
 
 - `openspec/` está versionado-ignorado por git (dogfooding interno).
 - Cada incremento del roadmap es un change OPSX (ver `CHANGES.md`).
