@@ -136,8 +136,14 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 
    **Final Assessment**:
    - If CRITICAL issues: "X critical issue(s) found. Fix before archiving."
-   - If only warnings: "No critical issues. Y warning(s) to consider. Ready for archive (with noted improvements)."
-   - If all clear: "All checks passed. Ready for archive."
+   - If only warnings: "No critical issues. Y warning(s) to consider. Conformity evaluated, pending final decision (with noted improvements)."
+   - If all clear: "Conformity evaluated, pending final decision."
+
+9. **Chain the final decision**
+
+   This report evaluates conformity, not approval of the full cycle. Follow the review fragment when active: conformity, breaker, senior (if active), then auditor after the senior returns. Only the auditor enables archive in the complete cycle, with conformity satisfied and complete reports; unresolved CRITICAL prevents APROBADO. Follow the loop and persisted counter in that fragment, not a separate loop here.
+
+   Announce missing toggles and record degradation in tasks.md. If review is absent there is no breaker or three-round loop; an active auditor decides on available reports. If auditor is absent, request Juani's written decision to enable it or explicitly accept degraded scope, with no automatic approval or return to apply. TDD absent means no strict TDD claim; senior absent means no invented historical context; knowledge-base absent leaves LECCIONES/DEUDA in the change with destination pending. KB active with auditor absent may update facts but must mark auditor sources absent and request that written decision. A missing required report stops closure until recovered or escalated, never replaced by a summary.
 
 **Verification Heuristics**
 

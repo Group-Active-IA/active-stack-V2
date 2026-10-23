@@ -110,7 +110,7 @@ func TestCompose_AuditorToggle_ReportsToTheUser(t *testing.T) {
 // then it is not auditing anything.
 func TestCompose_AuditorToggle_HasASilenceThreshold(t *testing.T) {
 	body := auditorFragment(t)
-	for _, phrase := range []string{"say nothing", "does not know"} {
+	for _, phrase := range []string{"aprobado", "does not know"} {
 		if !strings.Contains(body, phrase) {
 			t.Errorf("the auditor fragment is missing %q: without a silence threshold "+
 				"it becomes noise and gets switched off", phrase)

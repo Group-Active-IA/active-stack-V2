@@ -29,7 +29,7 @@ others returned. Whether a reported defect is a real problem in this project, or
 a rule that was argued over and deliberately set aside, is a question the pass
 that raised it **has no context to answer**.
 
-**That is not the auditor's job, and the two run together.** The auditor reads
+**That is not the auditor's job.** Run the senior after the breaker returns and before the auditor. There is no parallel human wait. The auditor then reads the senior report and decides. The auditor reads
 the same reports and asks whether they **hold up**: whether what is filed as
 evidence carries its command, whether a verdict covers what it claims to cover,
 whether reviewers who agreed got there by different routes. That question is
@@ -129,9 +129,7 @@ nothing of it is still running by the time the report is read. The only thing in
 this loop that can decline to launch the next phase is **you, the orchestrator**,
 so every rule about holding the cycle is addressed to you.
 
-**When the senior returns a finding labelled BLOCKING, do not start the next
-phase.** Put the finding in front of the person — the finding itself, with the
-options it came with, not your summary of it — and wait for the answer.
+Do not start the next phase until the auditor has read this context and issued its verdict. The senior never triggers a separate human wait.
 
 Written the other way round, as a power the senior holds over the cycle, this
 **describes a mechanism that does not exist** and hands the reader a guarantee
@@ -145,9 +143,7 @@ observation it returns holds the cycle, the person is interrupted six times per
 change and inside a week the toggle is **switched off** — and a senior that is
 off advises nobody, which is worse than one that spoke only when it mattered.
 
-So the work is split: **the senior labels, you hold.** It marks each finding
-BLOCKING or NOTE by the four criteria below; the decision to stop is taken when
-you read the report, because it is the only decision here anybody can execute.
+So the work is split: the senior supplies context; the auditor classifies and decides. The orchestrator executes the auditor's verdict. The senior proposes BLOCKING or NOTE against the criteria below; the auditor resolves disagreements with evidence or dated decisions.
 
 **BLOCKING**, and only these four:
 
@@ -156,7 +152,7 @@ you read the report, because it is the only decision here anybody can execute.
 - **the test just written proves nothing**, and the report shows why;
 - the change reached something critical that **nobody asked to touch**.
 
-**NOTE** — it stays in the report and **the phase continues**: style, naming,
+**NOTE** — it stays in the report and **the phase continues** only according to the auditor verdict: style, naming,
 preferences, improvements that are not problems, and everything that opens with
 "**you could consider**".
 
@@ -186,7 +182,7 @@ goes and gets that one. Where there is none, it is a hunch, and
 well as for making it. "It contradicts X: change it, update the decision, or
 carry on and it stays on the record" **hands back a choice**.
 
-**A safe default, and this one is yours.** The senior has already terminated; the
+**A safe default, and this one is yours.** Apply it when the auditor verdict requires a human decision, not as a parallel wait on the senior report. The senior has already terminated; the
 absence of an answer is a state only you can hold. If no answer comes,
 **nothing advances**. Never an "I'll assume yes" about the very thing that was
 worth stopping for: an assumption that outlives an unanswered question is

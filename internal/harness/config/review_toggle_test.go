@@ -142,13 +142,14 @@ func TestCompose_ReviewToggle_ConformityFirstThenRupture(t *testing.T) {
 // the second reviewer reads the first verdict, agrees, and the count is
 // decoration.
 func TestCompose_ReviewToggle_ThreeIndependentPasses(t *testing.T) {
-	body := reviewSection(t, "### three independent passes")
-	requirePhrases(t, body, map[string]string{
-		"three independent passes":                        "the count, stated as a requirement and not a suggestion",
-		"none of them sees the conclusions of the others": "the definition, without which 'independent' is a word",
-		"converge on the first opinion":                   "the mechanism that destroys independence",
-		"stop being three":                                "the consequence: convergence collapses the count to one",
-	}, "the three-passes section")
+	body := reviewFragment(t)
+	if !strings.Contains(body, "one breaker covers all three mandatory lenses") {
+		t.Errorf("falta contrato: %s", "one breaker covers all three mandatory lenses")
+	}
+	if !strings.Contains(body, "not independent between lenses") {
+		t.Errorf("falta contrato: %s", "not independent between lenses")
+	}
+
 }
 
 // TestCompose_ReviewToggle_IndependenceIsByConstructionNotByMechanism asserts
@@ -159,11 +160,17 @@ func TestCompose_ReviewToggle_ThreeIndependentPasses(t *testing.T) {
 // cannot stop is a pass reading a verdict already written into the change
 // directory, which is why the ordering rule exists.
 func TestCompose_ReviewToggle_IndependenceIsByConstructionNotByMechanism(t *testing.T) {
-	body := reviewSection(t, "### three independent passes")
-	requirePhrases(t, body, map[string]string{
-		"can read the change directory": "the hole: shared state defeats prompts that were kept apart",
-		"before writing any verdict":    "the ordering rule that closes it",
-	}, "the three-passes section")
+	body := reviewFragment(t)
+	if !strings.Contains(body, "declare sources read") {
+		t.Errorf("falta contrato: %s", "declare sources read")
+	}
+	if !strings.Contains(body, "contamination") {
+		t.Errorf("falta contrato: %s", "contamination")
+	}
+	if !strings.Contains(body, "not proof of isolation") {
+		t.Errorf("falta contrato: %s", "not proof of isolation")
+	}
+
 }
 
 // TestCompose_ReviewToggle_DoesNotClaimTheLaunchEnforcesIsolation is the guard
@@ -300,14 +307,17 @@ func TestCompose_ReviewToggle_NamesTheDiscriminatingDatum(t *testing.T) {
 // have; claiming independence while a shared memory key is open is denying a
 // mechanism that is there.
 func TestCompose_ReviewToggle_NamesTheSharedMemoryChannel(t *testing.T) {
-	body := reviewSection(t, "### three independent passes")
-	requirePhrases(t, body, map[string]string{
-		"topic_key":                    "the channel, named by the key the block actually passes",
-		"the same key":                 "why it is a channel: same change and same phase collapse to one topic",
-		"after every completed action": "when the writes happen — mid-pass, which is why the ordering rule misses them",
-		"what is missing":              "the absent lever, in roles.md's own words",
-		"one key per pass":             "the concrete proposal, so the gap is actionable and not just confessed",
-	}, "the three-passes section")
+	body := reviewFragment(t)
+	if !strings.Contains(body, "opsx/{change}/verify/round-{n}/{role}") {
+		t.Errorf("falta contrato: %s", "opsx/{change}/verify/round-{n}/{role}")
+	}
+	if !strings.Contains(body, "do not search sibling roles") {
+		t.Errorf("falta contrato: %s", "do not search sibling roles")
+	}
+	if !strings.Contains(body, "after every completed action") {
+		t.Errorf("falta contrato: %s", "after every completed action")
+	}
+
 }
 
 // TestCompose_ReviewToggle_VerdictIsTypedAndNamed asserts the verdict lives
@@ -323,10 +333,10 @@ func TestCompose_ReviewToggle_NamesTheSharedMemoryChannel(t *testing.T) {
 func TestCompose_ReviewToggle_VerdictIsTypedAndNamed(t *testing.T) {
 	body := reviewSection(t, "### it reports")
 	requirePhrases(t, body, map[string]string{
-		"review-verdict.md": "a concrete filename: 'into the change' names nothing anybody can open",
-		"evidence":          "the typed categories the verdict is filed under",
-		"judgment":          "a finding is a judgment and carries its confidence",
-		"confidence":        "the field evidence-report.md demands of any judgment",
+		"verify-round-{n}.md": "a concrete filename: 'into the change' names nothing anybody can open",
+		"evidence":            "the typed categories the verdict is filed under",
+		"judgment":            "a finding is a judgment and carries its confidence",
+		"confidence":          "the field evidence-report.md demands of any judgment",
 	}, "the reports-not-blocks section")
 }
 

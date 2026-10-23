@@ -20,43 +20,11 @@ The two questions fail differently, so they are asked separately. Conformity
 alone certifies that the change does what was imagined, and says nothing at all
 about what was not.
 
-### Three independent passes
+### One breaker, three mandatory lenses
 
-Ask the rupture question as **three independent passes**, not as one.
+One breaker covers all three mandatory lenses in one report. This is not independent between lenses. Declare sources read, whether the auditor dictated exact cases, and contamination; dictated agreement is not independent convergence. These declarations are not proof of isolation: a reviewer can read the change directory and shared memory.
 
-Independent means exactly one thing:
-**none of them sees the conclusions of the others** — not their findings, not
-their verdicts, not a summary of either. Reviewers who read each other
-**converge on the first opinion**, because the second finds the first one's
-framing already convincing and spends its effort confirming it. Three reviewers
-that converged that way **stop being three**: what comes back looks like
-agreement and is repetition.
-
-One part of that the orchestrator genuinely controls, because it writes each
-prompt itself: withholding the other passes' output is a matter of what it
-chooses to put in there. Two channels stay open behind it, and neither is closed
-by a careful prompt.
-
-**The change directory.** A pass **can read the change directory**, so if the
-first verdict is already sitting in it, keeping that verdict out of the prompt
-bought nothing. Launch all three and collect every result
-**before writing any verdict** anywhere a later pass could open it.
-
-**Shared memory, which is the larger one.** The sub-agent prompt this block
-constructs carries `topic_key: "opsx/{change-name}/{phase}"`. Three passes on one
-change in one phase land on **the same key** — and the Engram protocol, when it
-is active, is mandatory rather than optional: it asks for a search before
-starting work that may already have been done, and a save
-**after every completed action**. So pass two can find pass one's conclusions
-with both of them following the rules, and the ordering rule above does not help:
-those writes do not happen when the verdict is written, they happen mid-pass.
-
-**What is missing** to close it: **one key per pass** — a topic like
-`opsx/{change-name}/verify/pass-{n}` — so the three do not share a topic, plus an
-instruction not to search the sibling passes' keys. Until the phase key is split
-that way, treat the independence of the three passes as **asked for and partly
-achieved**, and say so in the verdict rather than reporting three passes as if
-nothing connected them.
+When Engram is active, use topic_key `opsx/{change}/verify/round-{n}/{role}` for every save, including after every completed action; do not search sibling roles or their conclusions. The same key for every role would leak conclusions. Round and role keys reduce contamination but do not enforce isolation.
 
 ### Different lenses, not three of the same
 
@@ -76,12 +44,12 @@ point — the coverage is.
   true is worse than no comment, because it is read with authority and nobody
   goes back to check it.
 
-Give each pass one lens and record which pass got which. A pass told only to
+Give the breaker all three lenses and record work and result for each. A breaker told only to
 "review it" reviews correctness, because correctness is what everybody reviews.
 
 ### It reports, it does not block
 
-The verdict is written into the change as `review-verdict.md`, next to the other
+The verdict is written into the change as `verify-round-{n}.md`, next to the other
 artifacts, and is **archived with it**. Give it a name, not a place: a verdict
 filed as "somewhere in the change" is one nothing can open later.
 
@@ -110,7 +78,7 @@ gets discovered later and called a surprise.
 
 ### An empty verdict is a finding
 
-If the three passes **found nothing, say so** — one line, naming the three lenses
+If all three lenses **found nothing, say so** — one line, naming the three lenses
 and what each one actually covered.
 
 That line is not a formality. Without it, a clean review and a review that never
@@ -132,3 +100,34 @@ one branch discriminates nothing, it confirms.
 Then check that the evidence is **from this run**. Output from an earlier run
 describes a tree that no longer exists, and it is the most persuasive wrong
 answer on offer, because it looks exactly like the right one.
+
+### The loop
+
+Run conformity -> breaker -> senior (if active) -> auditor, in that order on a quiet diff. Wait for the senior report before launching the auditor. Only APROBADO from the auditor, with conformity satisfied and complete reports, enables archive. Unresolved CRITICAL prevents APROBADO. The breaker reports; the auditor decides; the orchestrator executes that verdict, never substitutes its own approval.
+
+Before convening reviewers, write `## Bucle de verify` in the change's tasks.md: round 1, 2 or 3, in progress or closed, SHA or reviewed diff, report paths, blockers and decision. Resume reads tasks.md, not Engram as authority. Session recovery or failed capture does not increment or reset the counter. A round begins with verify on a quiet diff and closes with the auditor verdict.
+
+Blockers in round 1 or 2 return only the auditor's list to apply. Increment only after correcting those blockers, at the next verify. In rounds 2 and 3 the breaker checks corrections, consumers and regressions outside the diff. New blocking findings go to the auditor; other findings become debt assigned to the first change that uses the piece. A new rule requires human signature before construction (L-029).
+
+Round 3 closes the loop, including open blockers. No automatic fourth round. Present the open list to Juani for a written decision in tasks.md: correct in a newly approved scope, accept justified debt, or stop the change. Without a written answer nothing advances. Human acceptance neither resolves a CRITICAL nor fabricates APROBADO.
+
+The breaker delivers these three sections even with no findings:
+- Correctness: record boundary cases, command, output and result.
+- Wiring: trace consumers and connections, command, output and result.
+- Comments/documentation: compare contracts with behavior, sources and result.
+Each failure has a concrete reproduction with command and output, and a failing test or a surviving mutant. The breaker and auditor count tests themselves, independently of the constructor's count. Before acting, read numbered lessons when KB is available; record the path read or its absence. With an external identity provider, request a real walkthrough with Juani at the keyboard before archive. Unvisited paths are explicit debt and a limitation for the auditor, never validated.
+
+### Degraded operation
+
+Announce missing toggles at verify start and record degradation in tasks.md. These are conditional rules, not mandatory catalog dependencies:
+- Auditor absent with review active: no automatic approval or return to apply. Stop closure and ask Juani for a written decision in tasks.md to enable auditor or accept degraded scope. Do not impersonate an auditor.
+- TDD absent: apply keeps its usual behavior; do not claim strict TDD or accredited red/green. Disclose absence to the auditor; verify still evaluates evidence and its loop.
+- Senior absent: omit its report, announce this and let the auditor decide on conformity and breaker; do not invent historical context.
+- Knowledge-base absent: do not promise automatic KB updates. Preserve LECCIONES and DEUDA in the change, with destination pending for Juani.
+- Knowledge-base active with auditor absent: archive may update facts with evidence; do not invent auditor lessons or debt. Mark the source absent; closure needs Juani's written decision on degraded scope.
+- Review absent: no breaker or three-round loop. Declare ordinary verify. If auditor is active, it decides on available reports; otherwise report conformity and request Juani's written decision, never approval of the complete cycle.
+A missing required report stops closure, including an incomplete return: identify it, recover it or escalate to Juani; never replace it with a summary or assumed APROBADO. This is not an absent toggle.
+
+### Complete reports
+
+A full round has conformity, breaker, senior and auditor reports; omit only the senior when its toggle is off and declare other degradation as above. Keep the constructor's apply report separate. Store full return or textual transcript under openspec/changes/<change>/informes/ with phase, round and role in the filename. LEEME.md indexes author, declared model/provider, shared family, SHA, provenance, orchestration mediation and missing reports. Identity without dispatch records is ASSUMPTION. Reviewers receive no Write. verify-round-{n}.md references the originals and verdict, not replacements. A return that cannot be recovered in full stops closure. Reports declare sources, dictated cases and contamination.

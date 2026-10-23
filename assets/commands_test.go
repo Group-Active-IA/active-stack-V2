@@ -104,3 +104,19 @@ func TestCommandsFS_NoStarterLogicInBody(t *testing.T) {
 		}
 	}
 }
+
+func TestVerifyConformidadNoHabilitaArchive(t *testing.T) {
+	data, err := fs.ReadFile(assets.CommandsFS, "commands/claude/opsx/verify.md")
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := strings.ToLower(string(data))
+	for _, frase := range []string{"9. **", "pending final decision", "only the auditor", "review fragment", "missing toggles", "written decision", "missing required report"} {
+		if !strings.Contains(body, frase) {
+			t.Errorf("falta encadenamiento: %s", frase)
+		}
+	}
+	if strings.Contains(body, "ready for archive") {
+		t.Error("conformidad anuncia archive antes del auditor")
+	}
+}

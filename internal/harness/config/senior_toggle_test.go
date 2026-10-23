@@ -411,9 +411,9 @@ func TestCompose_SeniorToggle_TheStopIsAddressedToTheOrchestrator(t *testing.T) 
 func TestCompose_SeniorToggle_SplitsLabellingFromHolding(t *testing.T) {
 	body := seniorSection(t, "### the threshold")
 	requirePhrases(t, body, map[string]string{
-		"the senior labels, you hold":                            "the split, in one line",
-		"the decision to stop is taken when you read the report": "where the stop actually happens",
-		"blocking or note":                                       "the two labels the senior may attach, which is the whole of its half",
+		"the senior supplies context; the auditor classifies and decides": "the split, in one line",
+		"the orchestrator executes the auditor's verdict":                 "where the stop actually happens",
+		"blocking or note": "the two labels the senior may attach, which is the whole of its half",
 	}, "the threshold section")
 }
 
