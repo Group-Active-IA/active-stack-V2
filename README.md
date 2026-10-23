@@ -192,9 +192,9 @@ Los toggles, en orden de composición, y qué agrega cada uno:
 - `evidence` — reporte tipado: cada afirmación etiquetada EVIDENCIA, JUICIO o SUPOSICIÓN, y la evidencia exige comando, salida y hora.
 - `auditor` — alguien lee a los revisores: marca evidencia sin comando, salida vieja y suposiciones ascendidas a evidencia.
 - `roles` — convoca un rol con estándar fijo y "listo" observable, en vez de fabricar un sub-agente genérico distinto cada vez.
-- `review` — revisión adversarial: después de la conformidad de `/opsx:verify`, pregunta qué se rompe que nadie escribió.
+- `review`: un rompedor con tres lentes obligatorias y bucle de hasta tres vueltas; el auditor decide y el orquestador ejecuta.
 - `knowledge-base` — hace que el ciclo vuelva a escribir sobre la knowledge base y reporte su deriva, en vez de creerle a un mapa viejo.
-- `senior` — acompañante de todas las fases: aporta memoria de lo que ya pasó, frente a pasadas adversariales que tienen foco y arrancan limpias.
+- `senior`: sólo en verify, después del rompedor y antes del auditor; aporta contexto de decisiones fechadas, uno por vuelta y hasta tres por change.
 - `ship` — publicar en GitHub el trabajo de un change cerrado: no corre comandos fijos, diagnostica dónde está parado el repositorio y decide. Push a `main` siempre pregunta, push a una rama propia no; PR o directo se propone con fundamento; y nunca mergea el PR.
 - `engram` — memoria persistente entre sesiones y compactaciones, cableada a las fases OPSX.
 - `tdd` — TDD estricto en la fase apply: no hay código de producción sin un test que falle primero.

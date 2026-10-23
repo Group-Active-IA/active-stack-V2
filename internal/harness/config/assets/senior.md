@@ -1,28 +1,25 @@
 ## The Senior — A Companion, Not A Phase
 
-Every other role in this block is attached to a point in the cycle: the explorer
-explores, the reviewer reads a diff, the archivist archives. This one is
-attached to none of them. It is convened in **every phase**, and what it brings
-is not a skill the others lack — it is **everything that happened before**.
+The senior is convened only in **verify**, after the breaker and before the auditor. It brings **everything that happened before**: context from earlier phases and closed changes, not another bug hunt.
 
 ### It is not a fifth reviewer
 
-Run it beside the adversarial passes and the objection is fair: one more launch
+Run it after the adversarial report and the objection is fair: one more launch
 on a phase that already convenes several, buying what?
 
 The difference is not depth. It is what each one carries.
 
-**The adversarial passes have focus and no memory.** A pass sees a diff, asks one
+**The adversarial lenses have focus and no memory.** A breaker sees a diff, asks one
 question of it, and terminates. Each one **starts clean**, and that is precisely
 what makes it independent — a reviewer arriving with the last three changes in
 its head arrives with the last three opinions too.
 
 **The senior has memory and no focus.** It saw the earlier phases of this change,
 and the changes that closed before it. Its value is not finding the bug in the
-diff: three sharper readers are already doing that, through three lenses, and it
+diff: the breaker already does that, through three mandatory lenses, and it
 would be the fourth pass through a lens already covered. Its value is saying
 **this contradicts a decision taken two weeks ago** — a sentence that is
-unavailable to all three of them, because **none of them was there**.
+unavailable to the lenses, because **none of them was there**.
 
 So in `verify` the senior **does not hunt for bugs. It judges the findings** the
 others returned. Whether a reported defect is a real problem in this project, or
@@ -93,34 +90,15 @@ exactly like this one. An empty result therefore means
 **"nothing was saved", never "nothing was decided"**, and the senior reports
 which of the two it is looking at rather than reading silence as an all-clear.
 
-### What it looks at, phase by phase
-
-One prompt reused five times returns the same generic observation five times, and
-a generic observation is exactly the noise that gets the whole thing turned off.
-The useful question is different at every point:
+### What it looks at in verify
 
 | Phase | What the senior asks |
 |---|---|
-| explore | Is this **already solved in the repo**? Is something about to be rewritten that already exists? |
-| propose | Is this **the real problem or the symptom**? Which alternative was **discarded without saying so**? |
-| apply | Does this **look like the rest of the code**? Was this test **watched failing**? |
 | verify | Are the findings **real or noise**? **What was not tested**? |
-| archive | What was learned here that is **lost if nobody writes it down**? |
 
-**Launch it at the close of each phase**, on what the phase returned — never
-alongside a phase still running. In `apply` that is not a preference: the role
-specialists convene nobody while the implementation sub-agent is still writing,
-because **a diff that is still moving gets read three times and judged on none of
-its versions**, and that reason applies to the senior unchanged. Wait for the
-implementation sub-agent to return, then read the diff that stopped moving —
-which is also the only point where declining to open the next phase costs
-nothing.
+Compare findings against dated decisions, citing the decision and date to distinguish a real defect from a deliberate tradeoff. Launch only after the breaker returns and before the auditor, on a quiet diff, never alongside a phase still running. The auditor receives the full senior report before deciding.
 
-**The senior is not one of the seven role specialists.** It is not chosen by what
-the change touches, and **the ledger of roles you did not convene does not
-account for it**: it is convened in every phase, or its toggle is off. Filing it
-as an eighth role puts it in a table that decides attendance by layer, which is
-the one criterion that never applies to it.
+The senior is not one of the seven role specialists. The ledger of roles you did not convene does not account for it: it runs once per verify round when active, never in explore, propose, apply or archive. Its attendance is controlled by its toggle, not by layer.
 
 ### It stops nothing. You do.
 
@@ -194,8 +172,7 @@ confidence, and anything taken for granted is an ASSUMPTION.
 
 ### What it costs
 
-**One more sub-agent per phase: five per change** when the cycle runs once end to
-end, and six or more when apply or verify go round twice. That is paid on every
+**One more sub-agent per verify round: at most three per change**, following the persisted verify counter where review is active. There is no fourth automatic round. That is paid on every
 change, including the ones where the senior has **nothing to say**.
 
 It is a toggle. If the reports stop being read, **turn it off** rather than

@@ -259,3 +259,24 @@ func excerpt(text string) string {
 	}
 	return text[:max] + "…"
 }
+
+func TestDocsSeniorSoloVerify(t *testing.T) {
+	for _, nombre := range docsThatEnumerateToggles {
+		data, err := os.ReadFile(filepath.Join("..", "..", "..", nombre))
+		if err != nil {
+			t.Fatal(err)
+		}
+		encontrada := false
+		for n, linea := range strings.Split(string(data), "\n") {
+			if strings.HasPrefix(linea, "- `senior`") {
+				encontrada = true
+				if !strings.Contains(linea, "sólo en verify") {
+					t.Errorf("%s:%d: falta senior sólo en verify", nombre, n+1)
+				}
+			}
+		}
+		if !encontrada {
+			t.Errorf("%s: falta descripción de senior", nombre)
+		}
+	}
+}

@@ -77,12 +77,10 @@ agrega una pieza al bloque (en orden de composición):
   vieja y suposiciones ascendidas a evidencia.
 - `roles` — convoca un rol con estándar fijo y un "listo" observable, en vez de
   fabricar un sub-agente genérico distinto cada vez.
-- `review` — revisión adversarial: después de la conformidad de `/opsx:verify`,
-  pregunta qué se rompe que nadie escribió.
+- `review`: un rompedor con tres lentes obligatorias y bucle de hasta tres vueltas; el auditor decide y el orquestador ejecuta.
 - `knowledge-base` — hace que el ciclo vuelva a escribir sobre la KB y reporte
   su deriva, en vez de creerle a un mapa viejo con autoridad.
-- `senior` — acompañante de todas las fases: aporta memoria de lo que ya pasó,
-  frente a pasadas adversariales que tienen foco y arrancan limpias.
+- `senior`: sólo en verify, después del rompedor y antes del auditor; aporta contexto de decisiones fechadas, uno por vuelta y hasta tres por change.
 - `ship` — publicar en GitHub el trabajo de un change cerrado. No es una
   secuencia de pasos sino un diagnóstico: mira en qué estado está el
   repositorio (trunk, rama sin remoto, PR abierto, trunk que avanzó, cambios

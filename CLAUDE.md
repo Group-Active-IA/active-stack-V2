@@ -87,9 +87,9 @@ Los toggles, en orden de composición, y qué agrega cada uno (la lista canónic
 - `evidence` — reporte tipado: EVIDENCIA (comando, salida, hora), JUICIO, SUPOSICIÓN.
 - `auditor` — lee los reportes de los otros y marca lo que no se sostiene.
 - `roles` — convoca un rol con estándar fijo y "listo" observable.
-- `review` — revisión adversarial: qué se rompe que nadie escribió.
+- `review`: un rompedor con tres lentes obligatorias y bucle de hasta tres vueltas; el auditor decide y el orquestador ejecuta.
 - `knowledge-base` — el ciclo vuelve a escribir sobre la KB y reporta su deriva.
-- `senior` — acompañante de todas las fases: aporta memoria, no foco.
+- `senior`: sólo en verify, después del rompedor y antes del auditor; aporta contexto de decisiones fechadas, uno por vuelta y hasta tres por change.
 - `ship` — publica el trabajo de un change cerrado: diagnostica el estado del repo y decide. `main` pregunta, PR o directo se propone, nunca mergea.
 - `engram` — memoria persistente entre sesiones y compactaciones.
 - `tdd` — TDD estricto en apply: sin test que falle primero no hay código.

@@ -63,6 +63,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Group-Active-IA/active-stack/internal/catalog"
 	"github.com/Group-Active-IA/active-stack/internal/harness/config"
 )
 
@@ -193,11 +194,12 @@ func TestCompose_SeniorToggle_ComposesAfterTheReviewFamily(t *testing.T) {
 // the four phases where it had something nobody else could say go unasked.
 func TestCompose_SeniorToggle_PreambleSaysItIsEveryPhase(t *testing.T) {
 	body := seniorPreamble(t)
-	requirePhrases(t, body, map[string]string{
-		"attached to a point in the cycle": "what every other role is, and what this one is not",
-		"in **every phase**":               "the defining property, emphasised so it is not read as a suggestion",
-		"everything that happened before":  "what it brings, which is not a skill the others lack",
-	}, "the fragment preamble")
+	if !strings.Contains(body, "only in **verify**") {
+		t.Errorf("falta alcance de senior: %s", "only in **verify**")
+	}
+	if !strings.Contains(body, "everything that happened before") {
+		t.Errorf("falta alcance de senior: %s", "everything that happened before")
+	}
 }
 
 // TestCompose_SeniorToggle_IsNotAFifthReviewer asserts the asymmetry that
@@ -337,14 +339,13 @@ func TestCompose_SeniorToggle_SaysWhatEngramActuallyOffers(t *testing.T) {
 // mistake than a missing question — in `apply` it is the difference between
 // reading a diff that stopped moving and one that has not.
 func TestCompose_SeniorToggle_AsksADifferentQuestionInEachPhase(t *testing.T) {
-	body := seniorSection(t, "### what it looks at, phase by phase")
-	requirePhrases(t, body, map[string]string{
-		"| explore | is this **already solved in the repo**? is something about to be rewritten that already exists? |":     "explore, with its question attached to it",
-		"| propose | is this **the real problem or the symptom**? which alternative was **discarded without saying so**? |": "propose, with both of its questions",
-		"| apply | does this **look like the rest of the code**? was this test **watched failing**? |":                      "apply, whose questions only work on a diff that stopped moving",
-		"| verify | are the findings **real or noise**? **what was not tested**? |":                                         "verify, where it judges instead of hunting",
-		"| archive | what was learned here that is **lost if nobody writes it down**? |":                                    "archive, the last moment the learning is still recoverable",
-	}, "the phase-by-phase section")
+	body := seniorSection(t, "### what it looks at")
+	if !strings.Contains(body, "| verify | are the findings **real or noise**? **what was not tested**? |") {
+		t.Errorf("falta alcance de senior: %s", "| verify | are the findings **real or noise**? **what was not tested**? |")
+	}
+	if !strings.Contains(body, "dated decisions") {
+		t.Errorf("falta alcance de senior: %s", "dated decisions")
+	}
 }
 
 // TestCompose_SeniorToggle_RunsAtTheCloseOfEachPhase asserts the clash with
@@ -357,13 +358,16 @@ func TestCompose_SeniorToggle_AsksADifferentQuestionInEachPhase(t *testing.T) {
 // close of the phase, on what the phase returned. That is also the only point
 // where declining to open the next phase is free.
 func TestCompose_SeniorToggle_RunsAtTheCloseOfEachPhase(t *testing.T) {
-	body := seniorSection(t, "### what it looks at, phase by phase")
-	requirePhrases(t, body, map[string]string{
-		"launch it at the close of each phase":                                                 "when, stated as an instruction to whoever launches it",
-		"never alongside a phase still running":                                                "the prohibition that makes the timing checkable",
-		"a diff that is still moving gets read three times and judged on none of its versions": "roles.md's own reason, quoted rather than contradicted",
-		"wait for the implementation sub-agent to return":                                      "what that means concretely in apply, the phase where the clash is real",
-	}, "the phase-by-phase section")
+	body := seniorSection(t, "### what it looks at")
+	if !strings.Contains(body, "after the breaker returns and before the auditor") {
+		t.Errorf("falta alcance de senior: %s", "after the breaker returns and before the auditor")
+	}
+	if !strings.Contains(body, "quiet diff") {
+		t.Errorf("falta alcance de senior: %s", "quiet diff")
+	}
+	if !strings.Contains(body, "never alongside a phase still running") {
+		t.Errorf("falta alcance de senior: %s", "never alongside a phase still running")
+	}
 }
 
 // TestCompose_SeniorToggle_IsNotAnEighthRole asserts the second clash with
@@ -375,12 +379,16 @@ func TestCompose_SeniorToggle_RunsAtTheCloseOfEachPhase(t *testing.T) {
 // eighth role it lands in a table whose only criterion never applies to it, and
 // the ledger silently under-reports forever.
 func TestCompose_SeniorToggle_IsNotAnEighthRole(t *testing.T) {
-	body := seniorSection(t, "### what it looks at, phase by phase")
-	requirePhrases(t, body, map[string]string{
-		"not one of the seven role specialists":                           "the statement, using roles.md's own count",
-		"the ledger of roles you did not convene does not account for it": "the concrete consequence for the other fragment's reporting",
-		"convened in every phase, or its toggle is off":                   "the only two states it has, which is why attendance-by-layer cannot describe it",
-	}, "the phase-by-phase section")
+	body := seniorSection(t, "### what it looks at")
+	if !strings.Contains(body, "not one of the seven role specialists") {
+		t.Errorf("falta alcance de senior: %s", "not one of the seven role specialists")
+	}
+	if !strings.Contains(body, "the ledger of roles you did not convene does not account for it") {
+		t.Errorf("falta alcance de senior: %s", "the ledger of roles you did not convene does not account for it")
+	}
+	if !strings.Contains(body, "once per verify round when active") {
+		t.Errorf("falta alcance de senior: %s", "once per verify round when active")
+	}
 }
 
 // TestCompose_SeniorToggle_TheStopIsAddressedToTheOrchestrator is the anti-trap.
@@ -500,12 +508,18 @@ func TestCompose_SeniorToggle_StopsWithDatumOptionsAndDefault(t *testing.T) {
 // to turn it off, not to leave it running and ignored.
 func TestCompose_SeniorToggle_DeclaresItsCost(t *testing.T) {
 	body := seniorSection(t, "### what it costs")
-	requirePhrases(t, body, map[string]string{
-		"one more sub-agent per phase": "the unit of the cost",
-		"five per change":              "the number, so it can be weighed",
-		"nothing to say":               "that the cost is paid even on the quiet changes",
-		"turn it off":                  "that it is a toggle and switching it off is the supported answer",
-	}, "the cost section")
+	if !strings.Contains(body, "one more sub-agent per verify round") {
+		t.Errorf("falta alcance de senior: %s", "one more sub-agent per verify round")
+	}
+	if !strings.Contains(body, "at most three per change") {
+		t.Errorf("falta alcance de senior: %s", "at most three per change")
+	}
+	if !strings.Contains(body, "nothing to say") {
+		t.Errorf("falta alcance de senior: %s", "nothing to say")
+	}
+	if !strings.Contains(body, "turn it off") {
+		t.Errorf("falta alcance de senior: %s", "turn it off")
+	}
 }
 
 // TestCompose_SeniorToggle_DoesNotClaimAMechanismItLacks is the anti-assert, and
@@ -582,4 +596,18 @@ func TestCatalog_OffersTheSeniorToggle(t *testing.T) {
 	}
 	t.Errorf("the catalog does not offer the `senior` toggle (offers: %s): the "+
 		"fragment composes and no user can ask for it", strings.Join(toggles, ", "))
+}
+
+func TestSeniorCatalogoDescribeVerify(t *testing.T) {
+	cat, err := catalog.Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	h, ok := cat.ByID("sdd-orchestrator")
+	if !ok {
+		t.Fatal("falta orquestador")
+	}
+	if !strings.Contains(h.LongDescription["es"], "senior sólo en verify") {
+		t.Error("catálogo no describe senior sólo en verify")
+	}
 }
