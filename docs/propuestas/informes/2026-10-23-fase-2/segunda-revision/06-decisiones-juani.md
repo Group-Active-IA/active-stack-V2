@@ -6,3 +6,7 @@ Juani aceptó las cinco recomendaciones del auditor (`05-auditor.md`):
 3. **Senior sin auditor (AN-2):** el senior informa y decide Juani (lo que ya dice `senior-without-review.md`).
 4. **Cierre de los bloqueantes:** el constructor corrige y cada rol confirma sólo el suyo, sobre su delta; no hay otra ronda completa.
 5. **Primera revisión (01 a 05 de la carpeta principal):** se conserva como historia, rotulada "custodia no verificable"; no cuenta como revisión.
+
+## J5 (23/10/2026)
+
+Juani eligió **A** (recomendada): la lectura semántica entra como regla de verify, con un lector separado bajo `review`, antes del senior y del auditor, dentro del mismo tope de tres vueltas. Es una regla nueva: se construye en el paso 5 con esta aprobación escrita como respaldo.
