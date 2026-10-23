@@ -1,0 +1,13 @@
+JUICIO: revisión de conformidad sobre `4748680..0b5d0d4`, limitada a código, fragmentos y tests; documentos usados sólo como criterios. Casos dictados por la lista del auditor, sin afirmar independencia.
+
+1. **ABIERTO. CONF3-1 ADVERTENCIA**, `internal/contracttest/text.go:22`: exige puntuación inmediatamente después de `archive`; todavía ata el rechazo a redacción ajena al vocabulario de la regla. N6 literal y N7 quedan cubiertos; las seis reglas se aplican a los tres compuestos y al comando (`verify_loop_test.go:98`, `assets/commands_test.go:116`).
+   **EVIDENCIA**, 10:46:11 -03: `python3` leyendo las regex de `text.go` y evaluándolas con `re.search` → `Ready to archive.`: RECHAZADO; `Ready to archive`: NO RECHAZADO; `Ready for archive after conformity.`: NO RECHAZADO; N7: RECHAZADO. Es comprobación estática, no ejecución de Go.
+2. **CERRADO en implementación; ejecución no acreditada por esta revisión.** `internal/contracttest/ci.go:4` cubre pendiente, omitido, otro SHA, cero runs y consulta fallida; ambas copias invocan ese control (`internal/harness/config/ship_ci_test.go:24`, `assets/ship_ci_test.go:26`). No puedo certificar los diez FAIL exigidos.
+3. **CERRADO en implementación; ejecución no acreditada por esta revisión.** `internal/contracttest/rf1.go:4` incorpora vocabulario para N9, N10 y N11; lo consumen los tests de KB, ship y autoridad del senior. No puedo certificar sus FAIL con nombre.
+4. **CERRADO por inspección.** `verify_loop_test.go:88` elimina la excepción; `:110` comprueba tres agentes, con y sin auditor. `compose.go` incorpora degradación y reemplaza el fragmento del senior; `assets/verify-without-review.md:3` declara verify habitual y `:5` exige decisión escrita cuando falta auditor.
+
+**EVIDENCIA**, 10:45:46 -03: `go test ./assets ./internal/harness/config ./internal/verify ./internal/catalog ./cmd/active-stack` → `go: creating work dir: mkdir /tmp/go-build159821652: read-only file system`. El sandbox impide ejecutar tests, también con HOME temporal.
+
+**CONF-1:** no figura registrada explícitamente como condición pendiente de archive. `openspec/changes/instalacion-sana/tasks.md:241` dice “Reinstalación excluida por Juani de esta entrega”; no registra pendiente la receta completa de §3.6. Fuera de la lista de esta vuelta.
+
+**SUPUESTO:** ninguno sobre resultados de tests o mutantes Go no ejecutados. Las paráfrasis enviadas a deuda por la decisión 16 no se reabren.

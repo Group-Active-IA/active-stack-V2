@@ -1,8 +1,6 @@
-Corregidos los cuatro ítems de la lista cerrada, con un commit por ítem.
-Informe: `docs/propuestas/informes/2026-10-23/18-constructor-vuelta-3.md`.
-Incluye SUPUESTO, FAIL de N6/N7/N9/N10/N11, variantes propias y M1–M8.
-CI: diez FAIL exigidos más diez variantes en ambas copias.
-Las seis composiciones sin review, con y sin auditor, pasan.
-Cuatro tasks.md afectados actualizados localmente a vuelta 3 de 3.
+Corregidos los cuatro ítems, con un commit por ítem.
+Registrados los FAIL exigidos, variantes propias y M1–M8.
+Las seis composiciones degradadas pasan; tasks.md afectados en vuelta 3 de 3.
 `go test ./...` pasó con HOME temporal; salida, SHA y hora registrados.
-Sin build, instalaciones ni push; pendiente veredicto del auditor.
+[Informe detallado](docs/propuestas/informes/2026-10-23/18-constructor-vuelta-3.md) · [Respuesta separada](docs/propuestas/informes/2026-10-23/18-constructor-vuelta-3-respuesta.md).
+Pendiente veredicto del auditor. Sin build, instalación ni push.
