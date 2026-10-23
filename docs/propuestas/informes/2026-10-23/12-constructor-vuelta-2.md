@@ -206,3 +206,33 @@ ok  	github.com/Group-Active-IA/active-stack/internal/harness/config	0.003s
 
 exit=0
 ```
+## Ítem 2 — M8, rechazo de bloques duplicados
+
+Fixture: instalación en HOME de test y duplicación del bloque entero en Claude y Codex. Se invoca específicamente config:compose y se exige error de markers duplicados; no alcanza otro check fallido. OpenCode entrega un prompt JSON sin markers y queda cubierto por TestEntregaComparaCompose.
+
+Hora: 2026-10-23T10:23:20.878013-03:00; SHA: `f3f72af3d2d53c2271b944b45145f4ed1ab4dbea`; HOME: `/tmp/active-stack-v2-home-1lqtgeyh`.
+
+Comando: `go test ./internal/verify -run TestEntregaRechazaBloqueDuplicado -count=1`
+
+```text
+--- FAIL: TestEntregaRechazaBloqueDuplicado (0.00s)
+    --- FAIL: TestEntregaRechazaBloqueDuplicado/claude (0.00s)
+        delivery_test.go:77: bloque duplicado debe fallar por markers duplicados; resultado: <nil>
+    --- FAIL: TestEntregaRechazaBloqueDuplicado/codex (0.00s)
+        delivery_test.go:77: bloque duplicado debe fallar por markers duplicados; resultado: <nil>
+FAIL
+FAIL	github.com/Group-Active-IA/active-stack/internal/verify	0.005s
+FAIL
+
+exit=1
+```
+
+Hora: 2026-10-23T10:23:21.400470-03:00; SHA: `f3f72af3d2d53c2271b944b45145f4ed1ab4dbea`; HOME: `/tmp/active-stack-v2-home-1lqtgeyh`.
+
+Comando: `go test ./internal/verify -count=1`
+
+```text
+ok  	github.com/Group-Active-IA/active-stack/internal/verify	0.023s
+
+exit=0
+```

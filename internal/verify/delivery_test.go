@@ -56,3 +56,35 @@ func TestEntregaComparaCompose(t *testing.T) {
 		})
 	}
 }
+
+func TestEntregaRechazaBloqueDuplicado(t *testing.T) {
+	for _, a := range []config.AgentAdapter{claude.NewAdapter(), codex.NewAdapter()} {
+		t.Run(string(a.Agent()), func(t *testing.T) {
+			home := t.TempDir()
+			h := model.Harness{ID: "sdd-orchestrator", Type: model.HarnessConfig, Toggles: []string{"tdd"}}
+			if _, err := config.Install(h, []config.AgentAdapter{a}, home); err != nil {
+				t.Fatal(err)
+			}
+			path := a.InstructionsPath(home)
+			data, err := os.ReadFile(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(path, append(data, data...), 0600); err != nil {
+				t.Fatal(err)
+			}
+			checks := verify.ChecksForHarness(h, []verify.Adapter{a.(verify.Adapter)}, home)
+			for _, c := range checks {
+				if c.ID != "config:compose:"+string(a.Agent()) {
+					continue
+				}
+				err := c.Run(context.Background())
+				if err == nil || !strings.Contains(err.Error(), "duplicados") {
+					t.Fatalf("bloque duplicado debe fallar por markers duplicados; resultado: %v", err)
+				}
+				return
+			}
+			t.Fatal("falta check config:compose para bloque duplicado")
+		})
+	}
+}
