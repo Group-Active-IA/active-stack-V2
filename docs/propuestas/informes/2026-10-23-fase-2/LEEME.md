@@ -4,19 +4,19 @@ Fecha: 2026-10-23. Base de código observada: `0204022`. Árbol documental en el
 
 ## Procedencia
 
-01–04 preservan íntegro el retorno final de cada subagente convocado secuencialmente, copiado por el orquestador a archivo separado. Revisores recibieron sólo lectura y declararon no leer otros informes; el auditor recibió los cuatro originales. Mediación: SÍ, copia textual del retorno por el orquestador; no captura automática ni prueba criptográfica. Logs ocultos preexistentes, incluido `.00.log`, no son fuente de estos informes ni se agregan al commit.
+**Primera revisión, archivos 01 a 05: custodia no verificable, no cuenta como revisión.** Se conservan como historia. La segunda auditoría no pudo contrastar los textos archivados con despachos y respuestas originales; las afirmaciones anteriores de originales completos e independencia no se acreditan. El veredicto histórico PRESENTABLE no cubre el estado actual del propose.
 
-Familia/modelo/proveedor de los revisores: configuración heredada del agente principal, sin override; nombre exacto y proveedor verificables en registro de despacho no disponibles aquí: SUPOSICIÓN, no atribución de diversidad. Filesystem compartido, sin aislamiento técnico demostrado. Especialistas revisaron revisiones sucesivas del borrador, no un SHA documental congelado común; auditor lee el resultado final y los originales, sin presentar coincidencia como convergencia independiente sobre idéntico árbol.
+| Archivo histórico | Estado |
+|---|---|
+| 01-arquitecto.md | custodia no verificable, no cuenta como revisión |
+| 02-funcional.md | custodia no verificable, no cuenta como revisión |
+| 03-qa.md | custodia no verificable, no cuenta como revisión |
+| 04-devops-seguridad.md | custodia no verificable, no cuenta como revisión |
+| 05-auditor.md | custodia no verificable, no cuenta como revisión |
 
-| Archivo | Rol / despacho | Estado |
-|---|---|---|
-| 01-arquitecto.md | arquitecto_fase2 | Original completo; ARQ-1 y notas incorporados |
-| 02-funcional.md | funcional_fase2 | Original completo; ambigüedades de crypto y faltantes corregidas |
-| 03-qa.md | qa_fase2 | Original completo; estados y gates incorporados |
-| 04-devops-seguridad.md | devops_fase2 | Original completo; contratos de hooks, paths y confianza agregados |
-| 05-auditor.md | auditor_propose_fase2 | Original completo; PRESENTABLE para decisión humana, sin autorización de apply |
+La [segunda revisión](segunda-revision/05-auditor.md) registra AN-1, AR-1, AN-2, AR-2, OPS-1, QA-1 y AUD-1. Las [decisiones de Juani](segunda-revision/06-decisiones-juani.md) disponen corrección del constructor y confirmación individual del emisor sobre su delta, sin otra ronda completa. Correcciones presentadas en el propose; confirmaciones pendientes. No se acredita aislamiento técnico ni diversidad de modelos. Los logs ocultos preexistentes se conservan sin agregarlos al commit.
 
-## Respuesta del autor a los hallazgos
+## Respuesta histórica del autor a los hallazgos (sin acreditar revisión)
 
 - ARQ-1: antes del merge, JSON inválido aborta sin escritura; prueba de bytes exactos. ARQ-2: dispatch por ID y assets antes de referencias. ARQ-3: recuperación interna del paso fallido. ARQ-4: delta permitido P→A definido, tabla humana sin autorreferencia de hashes.
 - Funcional 1: aprobación escrita por alcance; crypto sólo tras elección J1. Funcional 2: degradación prospectiva no convierte faltante en válido ni permite cierre ordinario.

@@ -24,7 +24,7 @@ Fuentes oficiales consultadas el 23/10: [git verify-commit](https://git-scm.com/
 
 JUICIO: proponer `active-stack approval --change`, inicialmente verificador de sólo lectura. Un commit de aprobación A firmado por identidad autorizada debe contener la decisión y un manifiesto con change, elección, alcance, SHA completo P del propose revisado y hashes de sus documentos/informes. A no puede referenciar su propio SHA. Se verifica A y se resuelve P; cualquier cambio de alcance o material normativo exige otra aprobación. Rebases que cambien P requieren revalidación. Ni el agente completa la tabla ni una firma de documentación incidental autoriza apply.
 
-(TBD) Juani no confirmó configuración GPG/SSH. Se necesitan opciones: SSH, GPG, o continuar con aprobación escrita explícitamente no criptográfica. Sin respuesta no se activa obligatoriedad de firma ni se simula éxito; si se adopta modo firmado y falta llave/verificador/confianza, apply ALTO se detiene. El modo escrito conserva la regla vigente de fase 1 y su limitación probatoria.
+Actualización por [decisión escrita de Juani del 23/10/2026](../propuestas/informes/2026-10-23-fase-2/segunda-revision/06-decisiones-juani.md): aprobación escrita para este propose y SSH con lista de firmantes confiables como objetivo del primer change. Raíz de confianza/configuración final (TBD). Si se adopta modo firmado y falta llave/verificador/confianza, apply ALTO se detiene. El modo escrito conserva la regla vigente de fase 1 y su limitación probatoria; tabla completa sin A se desarrolla en §8 del propose. Los originales se versionarán bajo openspec/changes/*/informes/ mediante excepción acotada, todavía no instalada en este trabajo documental. Con senior encendido y auditor apagado, el senior informa y decide Juani por escrito, con y sin review.
 
 ## 4. Paso 9: contratos reales de captura
 
@@ -67,4 +67,4 @@ RF3-1 ya fue cerrado excepcionalmente con evidencia y autorización posterior; n
 
 ## 8. Resultado y límites
 
-La viabilidad exige separación de verificación, confianza y alcance; captura por proveedor y versión; propiedad explícita de archivos; y revisión semántica falible con auditor como decisor. El [propose de fase 2](../propuestas/2026-10-23-metodologia-fase-2.md) convierte estos hallazgos en pasos revisables. Ninguna pregunta pendiente se considera respondida. No se corrieron tests de producto ni build: sólo lectura, investigación y documentos.
+La viabilidad exige separación de verificación, confianza y alcance; captura por proveedor y versión; propiedad explícita de archivos; y revisión semántica falible con auditor como decisor. El [propose de fase 2](../propuestas/2026-10-23-metodologia-fase-2.md) convierte estos hallazgos en pasos revisables. Sólo J1 y las otras cuatro decisiones de segunda revisión constan respondidas en el propose; las restantes preguntas siguen (TBD). No se corrieron tests de producto ni build: sólo lectura, investigación y documentos.
