@@ -1,0 +1,2 @@
+{"session_id":"session-fixture","cwd":"/fixture","hook_event_name":"PostToolUse","agent_id":"child-fixture","tool_name":"SubagentHandback","tool_input":{"message":"Informe inventado: revisión completa."},"tool_use_id":"tool-fixture"}
+{"session_id":"session-fixture","cwd":"/fixture","hook_event_name":"SubagentStop","agent_id":"child-fixture","agent_type":"reviewer","stop_hook_active":false,"last_assistant_message":"Hasta luego.","background_tasks":[],"session_crons":[]}

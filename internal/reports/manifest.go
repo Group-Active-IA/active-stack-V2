@@ -35,8 +35,10 @@ type manifest struct {
 	Provider string `json:"provider,omitempty"`
 	Model    string `json:"model,omitempty"`
 
-	ContentHash string `json:"content_hash"`
-	SizeBytes   int    `json:"size_bytes"`
+	RawHash      string `json:"raw_hash,omitempty"`
+	RawSizeBytes int    `json:"raw_size_bytes,omitempty"`
+	ContentHash  string `json:"content_hash"`
+	SizeBytes    int    `json:"size_bytes"`
 
 	Status     Status `json:"-"`
 	StatusText string `json:"status"`

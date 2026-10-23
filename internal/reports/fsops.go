@@ -69,7 +69,7 @@ func readManifest(dir string) (manifest, bool, error) {
 // manifest.json legible" implica "la escritura anterior terminó", que es
 // exactamente lo que readManifest necesita para distinguir "nada capturado
 // todavía" de "capturado y confirmado".
-func writeFiles(root, dir string, m manifest, rawContent string) (manifest, error) {
+func writeFiles(root, dir string, m manifest, rawContent, text string) (manifest, error) {
 	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return m, fmt.Errorf("crear %s: %w", dir, err)
 	}
@@ -99,7 +99,7 @@ func writeFiles(root, dir string, m manifest, rawContent string) (manifest, erro
 		if err := atomicWriteFile(rawPath, []byte(rawContent), 0o644); err != nil {
 			return m, err
 		}
-		if err := atomicWriteFile(filepath.Join(dir, "informe.md"), []byte(rawContent), 0o644); err != nil {
+		if err := atomicWriteFile(filepath.Join(dir, "informe.md"), []byte(text), 0o644); err != nil {
 			return m, err
 		}
 		// Contraste byte/hash tras persistir (propose §2a): releer lo que
@@ -109,7 +109,7 @@ func writeFiles(root, dir string, m manifest, rawContent string) (manifest, erro
 		if err != nil {
 			return m, fmt.Errorf("releer %s para contraste: %w", rawPath, err)
 		}
-		if sha256hex(string(back)) != m.ContentHash {
+		if sha256hex(string(back)) != m.RawHash {
 			return m, fmt.Errorf("fallo de integridad: %s no coincide con el hash declarado tras persistir", rawPath)
 		}
 	}

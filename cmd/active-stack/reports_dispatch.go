@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/Group-Active-IA/active-stack/internal/reports"
 )
@@ -15,8 +16,7 @@ import (
 // "reports capture" (núcleo, propose 2026-10-23-fase-2-pasos-1-4.md §2a):
 // persiste un informe ya resuelto (texto, identidad, SHA/diff) antes del
 // despacho de la fase siguiente. Los adapters de proveedor (2b Claude, 2c
-// Codex, 2d OpenCode) NO están implementados: esto es sólo el núcleo que
-// ellos van a llamar.
+// Codex, 2d OpenCode) se resuelven según su contrato versionado.
 //
 // dir es el repositorio a inspeccionar (vacío = el actual), mismo patrón que
 // approval_dispatch.go y roles_dispatch.go: parámetro, no os.Getwd() adentro,
@@ -105,7 +105,11 @@ func parseReportsCaptureFlags(args []string) (reports.CaptureInput, bool, error)
 	turn := fs.String("turn", "", "turno dentro de la sesión, si está disponible")
 	sha := fs.String("sha", "", "commit revisado")
 	diff := fs.String("diff", "", "rango de diff revisado (opcional)")
-	contract := fs.String("contract", reports.ContractRawText, "contrato del Source; \"raw-text\" es el único que resuelve este núcleo")
+	sourceProvider := fs.String("source-provider", "", "adapter de eventos: claude, codex u opencode")
+	sourceVersion := fs.String("source-version", "", "versión exacta admitida")
+	sourceSession := fs.String("source-session", "", "sesión esperada del registro del despacho")
+	sourceAgent := fs.String("source-agent", "", "hija Claude esperada del registro del despacho")
+	contract := fs.String("contract", reports.ContractRawText, "contrato manual del Source")
 	provider := fs.String("provider", "", "proveedor del informe, SÓLO si consta en el origen (nunca inferido del texto)")
 	model := fs.String("model", "", "modelo exacto, SÓLO si consta en el origen")
 	reportPath := fs.String("report", "", "archivo con el texto íntegro del informe")
@@ -132,15 +136,40 @@ func parseReportsCaptureFlags(args []string) (reports.CaptureInput, bool, error)
 		return reports.CaptureInput{}, false, errors.New("--report y --report-text son mutuamente excluyentes")
 	}
 
+	if *sourceProvider != "" && (*reportPath == "" || *reportText != "" || *contract != reports.ContractRawText || *agent != "" || *session != "" || *turn != "" || *provider != "" || *model != "") {
+		return reports.CaptureInput{}, false, errors.New("adapter requiere --report y metadatos del origen sin overrides")
+	}
+	if *sourceProvider == "" && (*contract == reports.ContractCodexExec132 || *contract == reports.ContractClaude271) {
+		return reports.CaptureInput{}, false, errors.New("contrato manual desconocido; usar --source-provider para eventos")
+	}
 	text := *reportText
 	if *reportPath != "" {
-		b, err := os.ReadFile(*reportPath)
+		f, err := os.Open(*reportPath)
+		if err != nil {
+			return reports.CaptureInput{}, false, errors.New("no se pudo abrir --report")
+		}
+		b, err := io.ReadAll(io.LimitReader(f, reports.MaxContentBytes+1))
+		f.Close()
+		if len(b) > reports.MaxContentBytes {
+			return reports.CaptureInput{}, false, errors.New("--report supera MaxContentBytes")
+		}
 		if err != nil {
 			return reports.CaptureInput{}, false, fmt.Errorf("leer --report %s: %w", *reportPath, err)
 		}
 		text = string(b)
 	}
 
+	source := reports.Source{Contract: *contract, Text: text, Provider: *provider, Model: *model, Agent: *agent, Session: *session, Turn: *turn}
+	if *sourceProvider != "" {
+		if !strings.Contains("|claude|codex|opencode|", "|"+*sourceProvider+"|") {
+			return reports.CaptureInput{}, false, errors.New("proveedor desconocido")
+		}
+		if *sourceProvider == "claude" {
+			source = reports.ResolveProvider(*sourceProvider, *sourceVersion, *sourceSession, []byte(text), *sourceAgent)
+		} else {
+			source = reports.ResolveProvider(*sourceProvider, *sourceVersion, *sourceSession, []byte(text))
+		}
+	}
 	return reports.CaptureInput{
 		Change:     *change,
 		Phase:      *phase,
@@ -149,15 +178,7 @@ func parseReportsCaptureFlags(args []string) (reports.CaptureInput, bool, error)
 		DispatchID: *dispatchID,
 		SHA:        *sha,
 		DiffRef:    *diff,
-		Source: reports.Source{
-			Contract: *contract,
-			Text:     text,
-			Provider: *provider,
-			Model:    *model,
-			Agent:    *agent,
-			Session:  *session,
-			Turn:     *turn,
-		},
+		Source:     source,
 	}, *asJSON, nil
 }
 
@@ -170,8 +191,9 @@ Subcomandos:
 
 const reportsCaptureUsage = `Usage: active-stack reports capture --change <slug> --phase <fase> --round <n> --role <rol> [flags]
 
-Persiste (o rechaza) un informe. NO interpreta hooks ni APIs de proveedor:
-eso lo hacen los adapters 2b/2c/2d (Claude/Codex/OpenCode, sin implementar).
+Persiste texto manual o eventos de un único despacho.
+Claude 2.1.271 (Handback + SubagentStop); Codex exec 0.132.0 JSONL.
+OpenCode y otras versiones: UNSUPPORTED. No instala hooks ni invoca proveedores.
 
 Código de salida: 0 COMPLETE, 2 PENDING, 3 UNSUPPORTED, 4 RETAINED, 5 CONFLICT.
 1 es un error de infraestructura (flags inválidos, repo ausente, I/O).
@@ -189,4 +211,8 @@ Flags:
   --contract <id>       contrato del Source (default "raw-text")
   --report <ruta>       archivo con el informe íntegro
   --report-text <texto> informe íntegro inline, en vez de --report
+  --source-provider <p> claude | codex | opencode (--report contiene eventos)
+  --source-version <v> versión exacta del formato
+  --source-session <s> sesión esperada registrada antes del despacho
+  --source-agent <a>   hija esperada (Claude)
   --json                salida para consumir sin parsear texto`

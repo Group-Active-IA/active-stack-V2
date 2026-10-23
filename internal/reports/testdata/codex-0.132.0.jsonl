@@ -1,0 +1,4 @@
+{"type":"thread.started","thread_id":"session-fixture"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"Informe inventado: verificación terminada."}}
+{"type":"turn.completed","usage":{"input_tokens":3,"cached_input_tokens":0,"output_tokens":4,"reasoning_output_tokens":0}}

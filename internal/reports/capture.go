@@ -50,59 +50,74 @@ func capture(in CaptureInput) (CaptureResult, error) {
 	}
 
 	content := in.Source.Text
+	raw := in.Source.Raw
+	if raw == "" {
+		raw = content
+	}
+	if len(raw) > MaxContentBytes {
+		return CaptureResult{}, fmt.Errorf("reports.Capture: bruto excede MaxContentBytes")
+	}
 	if len(content) > MaxContentBytes {
 		return CaptureResult{}, fmt.Errorf("reports.Capture: el informe ocupa %d bytes, supera el límite de %d (MaxContentBytes, provisorio); se rechaza, nunca se trunca", len(content), MaxContentBytes)
 	}
 	hash := sha256hex(content)
 	blank := strings.TrimSpace(content) == ""
 
-	var secretKinds []string
-	if !blank {
-		secretKinds = scanSecrets(content)
+	metadata := strings.Join([]string{in.Source.Agent, in.Source.Session, in.Source.Turn, in.Source.Provider, in.Source.Model}, "\n")
+	secretKinds := scanSecrets(content + "\n" + raw + "\n" + metadata)
+	if len(scanSecrets(metadata)) > 0 {
+		// Nunca copiar metadatos sensibles al manifiesto público.
+		in.Source.Agent = ""
+		in.Source.Session = ""
+		in.Source.Turn = ""
+		in.Source.Provider = ""
+		in.Source.Model = ""
 	}
 	ambiguous := in.DispatchID == "" || in.SHA == "" || in.Round <= 0
 
 	var status Status
 	var cause string
 	switch {
-	case blank:
-		status = StatusPending
-		cause = "informe vacío o en blanco"
 	case len(secretKinds) > 0:
 		status = StatusRetained
 		cause = "escaneo de secretos detectó: " + strings.Join(secretKinds, ", ")
-	case ambiguous:
+	case blank:
 		status = StatusPending
-		cause = "identidad ambigua: falta dispatch id, sha o la vuelta no es positiva"
+		cause = "informe vacío o en blanco"
+	case ambiguous || in.Source.Incomplete:
+		status = StatusPending
+		cause = "evento incompleto o identidad ambigua: revisar cierre, sesión, dispatch id, sha y vuelta"
 	default:
 		status = StatusComplete
 	}
 
 	m := manifest{
-		Version:     manifestVersion,
-		Key:         key,
-		Change:      in.Change,
-		Phase:       in.Phase,
-		Round:       in.Round,
-		Role:        in.Role,
-		DispatchID:  in.DispatchID,
-		SHA:         in.SHA,
-		DiffRef:     in.DiffRef,
-		Contract:    in.Source.Contract,
-		Agent:       in.Source.Agent,
-		Session:     in.Source.Session,
-		Turn:        in.Source.Turn,
-		Provider:    in.Source.Provider,
-		Model:       in.Source.Model,
-		ContentHash: hash,
-		SizeBytes:   len(content),
-		Status:      status,
-		Cause:       cause,
-		SecretKinds: secretKinds,
-		CapturedAt:  time.Now().UTC(),
+		Version:      manifestVersion,
+		Key:          key,
+		Change:       in.Change,
+		Phase:        in.Phase,
+		Round:        in.Round,
+		Role:         in.Role,
+		DispatchID:   in.DispatchID,
+		SHA:          in.SHA,
+		DiffRef:      in.DiffRef,
+		Contract:     in.Source.Contract,
+		Agent:        in.Source.Agent,
+		Session:      in.Source.Session,
+		Turn:         in.Source.Turn,
+		Provider:     in.Source.Provider,
+		Model:        in.Source.Model,
+		ContentHash:  hash,
+		RawHash:      sha256hex(raw),
+		RawSizeBytes: len(raw),
+		SizeBytes:    len(content),
+		Status:       status,
+		Cause:        cause,
+		SecretKinds:  secretKinds,
+		CapturedAt:   time.Now().UTC(),
 	}
 
-	result, err := persistOrReuse(root, targetDir, m, content)
+	result, err := persistOrReuse(root, targetDir, m, raw, content)
 	if err != nil {
 		return CaptureResult{}, err
 	}
@@ -118,24 +133,26 @@ func capture(in CaptureInput) (CaptureResult, error) {
 // identidad, bytes distintos: el original existente se preserva sin pisar,
 // este intento queda en un subdirectorio de conflicto propio) o una
 // escritura nueva.
-func persistOrReuse(root, dir string, m manifest, rawContent string) (CaptureResult, error) {
+func persistOrReuse(root, dir string, m manifest, rawContent, text string) (CaptureResult, error) {
 	existing, ok, err := readManifest(dir)
 	if err != nil {
 		return CaptureResult{}, err
 	}
 	if ok {
-		if existing.ContentHash == m.ContentHash {
+		if existing.ContentHash == m.ContentHash && (existing.RawHash == m.RawHash || existing.RawHash == "" && m.RawHash == m.ContentHash) && existing.Status == m.Status {
 			return resultFromManifest(root, dir, existing), nil
 		}
-		conflictDir := filepath.Join(dir, "conflict-"+m.ContentHash[:12])
-		m.Status = StatusConflict
+		conflictDir := filepath.Join(dir, "conflict-"+sha256hex(m.RawHash + m.ContentHash + m.Status.String())[:12])
+		if m.Status != StatusRetained {
+			m.Status = StatusConflict
+		}
 		relDir, _ := filepath.Rel(root, dir)
-		m.Cause = fmt.Sprintf("misma identidad (%s), bytes distintos a lo ya persistido en %s; original preservado sin pisar", m.Key, relDir)
-		m.SecretKinds = nil
-		return persistOrReuse(root, conflictDir, m, rawContent)
+		m.Cause += "; " + fmt.Sprintf("misma identidad (%s), bytes distintos a lo ya persistido en %s; original preservado sin pisar", m.Key, relDir)
+		// Retención conserva causa y tipos, incluso ante colisión.
+		return persistOrReuse(root, conflictDir, m, rawContent, text)
 	}
 
-	written, err := writeFiles(root, dir, m, rawContent)
+	written, err := writeFiles(root, dir, m, rawContent, text)
 	if err != nil {
 		return CaptureResult{}, err
 	}

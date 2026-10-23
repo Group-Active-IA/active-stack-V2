@@ -8,9 +8,8 @@
 // el original. Este paquete persiste el original — crudo, texto derivado,
 // manifiesto e índice — y nunca lo sustituye por un resumen.
 //
-// Este paquete NO sabe nada de Claude, Codex ni OpenCode. Los adapters 2b/2c/
-// 2d (sin implementar todavía) resuelven SU hook o API propios y construyen
-// un Source; este núcleo sólo valida y persiste lo que el Source ya resolvió.
+// ResolveProvider resuelve contratos versionados de Claude y Codex; OpenCode
+// permanece UNSUPPORTED. El núcleo Capture valida y persiste el Source resuelto.
 // Identidad (agente/sesión/turno) nunca sale del TEXTO del informe: si el
 // adapter no la leyó del origen (hook, evento, respuesta de API), el campo
 // queda vacío y la asociación es ambigua (ver evaluateStatus).
@@ -99,7 +98,7 @@ func (s Status) ExitCode() int {
 }
 
 // Source es lo que un adapter de proveedor (2b Claude, 2c Codex, 2d OpenCode
-// — NINGUNO implementado en este paquete) resuelve antes de llamar a
+// — ver ResolveProvider) resuelve antes de llamar a
 // Capture. El núcleo no interpreta hooks ni respuestas de API: el adapter ya
 // hizo ese trabajo y entrega texto e identidad resueltos.
 //
@@ -108,6 +107,10 @@ func (s Status) ExitCode() int {
 // de que Capture lo acepte; un Contract no registrado siempre es
 // StatusUnsupported, nunca un intento de interpretarlo a medias.
 type Source struct {
+	// Raw conserva el evento original separado del texto derivado.
+	Raw string
+	// Incomplete impide certificar eventos parciales o asociaciones dudosas.
+	Incomplete bool
 	// Contract identifica la versión de hook/API que resolvió este Source.
 	// "" o no registrado => StatusUnsupported.
 	Contract string

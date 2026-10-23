@@ -165,3 +165,20 @@ func TestRunReportsCaptureDispatch_Help_ReturnsZero(t *testing.T) {
 		t.Fatalf("--help no mostró usage: %s", buf.String())
 	}
 }
+
+func TestReportsCodexProviderCLI(t *testing.T) {
+	repo := t.TempDir()
+	cmd := exec.Command("git", "init", "-q", repo)
+	if b, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("git init: %v %s", err, b)
+	}
+	path, err := filepath.Abs("../../internal/reports/testdata/codex-0.132.0.jsonl")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var buf bytes.Buffer
+	code := runReportsDispatch([]string{"capture", "--change", "fixture", "--phase", "verify", "--round", "1", "--role", "qa", "--dispatch-id", "dispatch-fixture", "--sha", "abc", "--source-provider", "codex", "--source-version", "0.132.0", "--source-session", "session-fixture", "--report", path}, repo, &buf)
+	if code != 0 || !strings.Contains(buf.String(), "COMPLETE") {
+		t.Fatalf("captura proveedor: code=%d %s", code, buf.String())
+	}
+}
