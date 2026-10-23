@@ -91,6 +91,7 @@ Los fragmentos están en inglés; acá va qué dirán, no el texto final.
 | `governance.md` | "explicit human approval", sin artefacto | Tabla `## Aprobación` en `proposal.md` (elección, persona, fecha, alcance), que ningún agente completa; una regla nueva después de la firma lleva fila propia (L-029). La verificación criptográfica queda para el paso 8. |
 | Base, tabla de modelos (8 variantes) | archive `haiku` | archive `sonnet`: reescribir la base con evidencia no es "file operations". Pregunta 5. |
 | `roles.md`, base Dispatch punto 2 | apply no convoca; lo independiente sale junto | **Sin cambio.** El rompedor vive en verify, que siempre lee un diff quieto; constructor → rompedor → auditor dependen uno del resultado del otro, así que la prueba de dependencia del punto 2 ya los manda en secuencia. |
+| `roles.md` (toggle `roles`), fila `propose` y sección nueva tras "The floor that is not delegated" | propose convoca siempre al arquitecto y al resto "según lo que el change nombra"; nada liga el nivel de governance con cuántos roles leen el plan | **Regla de Juani del 23/10: en ALTO o CRÍTICO el propose lo analizan varios roles antes de la firma.** Varios = al menos tres informes independientes (arquitecto, analista funcional y QA, más los de las capas que el plan nombra), convocados de a uno, sin ver los informes de los otros, y después el auditor sobre los cuatro. Los informes se guardan textuales en el change y la tabla `## Aprobación` no se completa hasta que existan; si falta uno, el orquestador dice cuál y por qué. Vive en `roles.md` y no en `governance.md` porque es una regla de a quién se convoca; nombra a governance en forma condicional ("where governance is active"), igual que hoy lo hace el piso. **No es una aprobación**: los revisores no reemplazan la firma humana, la preceden. |
 | `compose.go`, catálogo | 12 toggles | **Sin toggle nuevo.** Sí cambian las descripciones de `senior` y `review` en `harnesses.yaml`, `CLAUDE.md`/`AGENTS.md` §2, `ARCHITECTURE.md` §2.1 y `README.md`. |
 
 ---
@@ -105,6 +106,7 @@ Los fragmentos están en inglés; acá va qué dirán, no el texto final.
 | senior sólo verify | `senior_toggle_test.go`: `PreambleSaysItIsEveryPhase`, `AsksADifferentQuestionInEachPhase`, `RunsAtTheCloseOfEachPhase`, `IsNotAnEighthRole`, `DeclaresItsCost` se reescriben; `InVerifyItJudgesTheFindings` se mantiene. `docs_toggles_test.go` (descripciones en docs y catálogo). Goldens. |
 | archive con evidencia | `knowledge_base_toggle_test.go`: `TheDetectorIsTheRewriteList` (etiqueta SUSPICIOUS), `ArchivePromptCarriesTheReport` (el prompt pide lecciones, deuda y evidencia), nuevos para L-NNN y "base que el diff tocó". `verify_phase_test.go` si cambia la fila de archive. Goldens. |
 | governance | goldens; un test nuevo para la tabla `## Aprobación` y L-029. |
+| propose multi-rol (`roles.md`) | `roles_toggle_test.go` nuevo `TestCompose_RolesToggle_HighProposeIsReadBySeveralRolesBeforeSignature`: con `roles`+`governance`, la fila `propose` y la sección nombran HIGH/CRITICAL, "before" la aprobación, al menos tres roles y que no sustituye la firma humana; se ve fallar contra el `roles.md` actual (su fila `propose` sólo dice `architect`). Otro test fija que el texto sea condicional (`roles` sin `governance` no afirma que exista un nivel HIGH). `TestCompose_RolesToggle_MapsTheOPSXPhases` y `DoesNotConveneEverybodyEveryTime` no se tocan: la regla es por nivel, no "todos siempre". Goldens. |
 
 Regla para todos: **cada test nuevo se ve fallar antes** contra el fragmento viejo (el repo ya tropezó
 siete veces con asserts que pasaban sin probar nada, según `review_toggle_test.go:213-217`).
@@ -125,6 +127,7 @@ Cada paso es un change OPSX de ≤ 12 tareas, con su propia firma si es ALTO.
 | 5 | `senior-solo-en-verify` | `senior.md` + docs y catálogo. | BAJO | 4 (su lugar en la secuencia) |
 | 6 | `archive-base-completa` | `knowledge-base.md` (lecciones, deuda, evidencia, SUSPICIOUS); archive a `sonnet` si Juani dice que sí. | BAJO | 4 (LECCIONES y DEUDA salen del auditor) |
 | 7 | `governance-aprobacion` | Tabla `## Aprobación` + L-029 en `governance.md`. | BAJO | 4 |
+| 7b | `propose-multirol` | §3 fila `roles.md`: en ALTO/CRÍTICO, varios roles + auditor antes de la firma. | BAJO | 7 (la firma que precede es la tabla `## Aprobación`) |
 | 8 | `aprobacion-firmada` | Subcomando `active-stack approval --change` con `git verify-commit`. **Sólo si Juani configura firma** (pregunta 3). | ALTO | 7 |
 | 9 | `informes-por-hook` | Spike de `SubagentStop`; después hook + subcomando de respaldo que copia el último mensaje del sub-agente a `.git/informes-<change>/`. | MEDIO | 4 |
 | 10 | `opencode-permission-replace` | Reimplementar `ddeb94f`: `__replace__` sólo sobre `bash`. | ALTO | — |
