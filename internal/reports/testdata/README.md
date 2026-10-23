@@ -40,5 +40,6 @@ Límites y procedencia:
   antes de habilitar esa integración; el presente comando no escribe settings.
 - Límite de entrada CLI/bruto/texto: 8 MiB, rechazo visible sin truncar. No hay
   conexiones API ni espera de red; timeout/retención del núcleo siguen como deuda
-  heredada. RETAINED (RETENIDO) prevalece incluso sobre vacío o conflicto;
+  heredada. RETAINED (RETENIDO) prevalece incluso sobre vacío, evento parcial o conflicto;
+  el bruto de un evento parcial se conserva para escanearlo antes de persistirlo;
   patrones propios heredados no equivalen a un detector universal de secretos.

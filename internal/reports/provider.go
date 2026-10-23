@@ -24,7 +24,7 @@ func ResolveProvider(provider, version, expectedSession string, raw []byte, expe
 	if provider != "codex" || version != "0.132.0" {
 		return Source{}
 	}
-	s := Source{Contract: ContractCodexExec132, Agent: "codex", Incomplete: true}
+	s := Source{Contract: ContractCodexExec132, Agent: "codex", Raw: string(raw), Incomplete: true}
 	if len(raw) > MaxContentBytes {
 		return s
 	}

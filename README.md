@@ -37,6 +37,20 @@ Es una herramienta enfocada: **instalar y configurar el sustrato metodológico, 
 
 ---
 
+## Captura de informes por proveedor
+
+`active-stack reports capture` importa un archivo explícito por despacho mediante
+`--source-provider`, `--source-version`, `--source-session` y `--report`.
+Admite Codex exec 0.132.0 JSONL y Claude Code 2.1.271 (Handback seguido de
+SubagentStop; requiere además `--source-agent`). No descubre sesiones personales
+ni instala hooks. OpenCode y las versiones sin contrato confirmado devuelven
+UNSUPPORTED; eventos incompletos o informes vacíos quedan PENDING. Un secreto
+detectado, incluso en un evento parcial, queda RETAINED (RETENIDO), local e
+ignorado por Git. Contratos, fixtures y límites en
+[internal/reports/testdata/README.md](internal/reports/testdata/README.md).
+El ciclo automático de hooks de 2b permanece pendiente; importar eventos no
+acredita esa integración.
+
 ## El concepto: un harness de harnesses
 
 ```mermaid

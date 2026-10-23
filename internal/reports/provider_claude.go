@@ -9,7 +9,7 @@ import (
 // Sólo eventos explícitos de un despacho: nunca sigue transcript_path ni
 // agent_transcript_path y nunca lee el HOME del proveedor.
 func resolveClaude(session string, raw []byte, expectedAgent []string) Source {
-	s := Source{Contract: ContractClaude271, Incomplete: true}
+	s := Source{Contract: ContractClaude271, Raw: string(raw), Incomplete: true}
 	if len(raw) > MaxContentBytes || session == "" || len(expectedAgent) != 1 || expectedAgent[0] == "" {
 		return s
 	}

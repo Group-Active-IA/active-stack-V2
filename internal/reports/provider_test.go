@@ -210,3 +210,46 @@ func TestOpenCodeContractNotConfirmed(t *testing.T) {
 		t.Fatal("UNSUPPORTED escribió artefactos")
 	}
 }
+
+// La retención también cubre eventos parciales que el parser no puede resolver.
+func TestProviderPartialSecretRetained(t *testing.T) {
+	for _, provider := range []string{"claude", "codex"} {
+		t.Run(provider, func(t *testing.T) {
+			fake := "ghp_" + strings.Repeat("F", 30)
+			version := "0.132.0"
+			if provider == "claude" {
+				version = "2.1.271"
+			}
+			raw := []byte(`{"incomplete":"` + fake + `"}`)
+			in := baseInput(newRepo(t))
+			if err := os.Remove(in.RepoDir + "/.gitignore"); err != nil {
+				t.Fatal(err)
+			}
+			in.Source = ResolveProvider(provider, version, "session-fixture", raw, "child-fixture")
+			res, err := Capture(in)
+			if err != nil || res.Status != StatusRetained {
+				t.Fatalf("evento parcial sensible: status=%s err=%v", res.Status, err)
+			}
+			testGit(t, in.RepoDir, "add", "-A")
+			if strings.Contains(testGit(t, in.RepoDir, "diff", "--cached"), fake) {
+				t.Fatal("secreto en staging")
+			}
+		})
+	}
+}
+
+func TestProviderPartialWithoutSecretPending(t *testing.T) {
+	for _, p := range []struct{ name, version string }{{"claude", "2.1.271"}, {"codex", "0.132.0"}} {
+		in := baseInput(newRepo(t))
+		raw := []byte(`{"incomplete":"texto inventado"}`)
+		in.Source = ResolveProvider(p.name, p.version, "session-fixture", raw, "child-fixture")
+		res, err := Capture(in)
+		if err != nil || res.Status != StatusPending {
+			t.Fatalf("%s: %s %v", p.name, res.Status, err)
+		}
+		b, err := os.ReadFile(in.RepoDir + "/" + res.Dir + "/raw.txt")
+		if err != nil || string(b) != string(raw) {
+			t.Fatal("bruto parcial perdido")
+		}
+	}
+}
