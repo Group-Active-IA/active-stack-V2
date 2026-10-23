@@ -1,0 +1,9 @@
+No identifico BLOQUEANTES arquitectónicos en el propose bajo MODO RÁPIDO. Los gates previstos cubren los riesgos de pérdida de configuración; su cumplimiento queda pendiente de implementación.
+
+- **AR-1 · NOTA · JUICIO** · `docs/propuestas/2026-10-23-fase-2-pasos-1-4.md:29`: falta explicitar la dirección de dependencia entre `approval` y `reports`. “Contrato del paso 1 resuelto” y “approval recontrasta” admiten interpretaciones distintas. Deuda: fijar `approval → reports` o contratos neutrales, sin importación inversa. Arquitecto, contra criterio de fronteras y ausencia de ciclos; confianza media.
+- **AR-2 · NOTA · JUICIO** · `docs/propuestas/2026-10-23-fase-2-pasos-1-4.md:73`: el orden operativo del enlace posterior a Compose está definido, pero no su módulo propietario ni sus dependencias. Deuda: asignar propietario y declarar que config no depende de install/verify; registrar alternativa descartada y costo de reversión. Arquitecto, contra criterio de fronteras explícitas; confianza alta.
+- **AR-3 · NOTA · JUICIO** · `docs/propuestas/2026-10-23-fase-2-pasos-1-4.md:33`: se documentan alternativas rechazadas, pero falta el costo de revertir la persistencia y los adapters de captura. Deuda: precisar migración de manifiestos, compatibilidad de originales y retiro de integraciones. Arquitecto, contra criterio de reversibilidad; confianza alta.
+
+**EVIDENCIA · 2026-10-23:** `git branch --show-current` devolvió `feat/metodologia-fase-2`; `nl -ba docs/propuestas/2026-10-23-fase-2-pasos-1-4.md` mostró los contratos y gates citados.
+**EVIDENCIA · 2026-10-23:** `nl -ba internal/harness/config/install.go` mostró Compose e inyección dentro de config; `nl -ba internal/install/steps.go` mostró `install → config/backup/pipeline`, base del contraste de AR-2.
+**Límite:** revisión estática del diseño, sin tests ni build. Sólo lectura; no leí otros informes.
