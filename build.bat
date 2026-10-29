@@ -27,11 +27,10 @@ echo.
 echo Listo. Binarios en la raiz del repo:
 dir /b active-stack_*
 echo.
-echo Tip: para otras arquitecturas (ej. ARM), cambia GOARCH=arm64 o agrega una linea.
 echo.
-echo Siguiente paso: copia el binario a un directorio en tu PATH y ejecuta:
-echo   active-stack install
-echo Esto instala los harnesses Y registra el binario en tu PATH automaticamente.
+echo Siguiente paso: ejecuta el binario de tu plataforma, por ejemplo:
+echo   active-stack_windows_amd64.exe install
+echo Instala los harnesses y copia el binario a un directorio de tu PATH: no hace falta copiarlo a mano.
 endlocal
 goto :eof
 

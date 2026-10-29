@@ -1,7 +1,7 @@
-# AGENTS.md — Active Stack (instalador del harness metodológico)
+# AGENTS.md / CLAUDE.md — Active Stack (instalador del harness metodológico)
 
 > Constitución operativa del proyecto. Versión **model-agnostic**.
-> Espejo de `CLAUDE.md`: **si modificás uno, actualizás el otro.**
+> `AGENTS.md` y `CLAUDE.md` son idénticos byte a byte (un test lo verifica): **si modificás uno, copiá el otro.**
 > Todo agente lee este archivo antes de cualquier acción no trivial.
 
 ---
@@ -10,7 +10,7 @@
 
 - **Lenguaje**: Go 1.26.
 - **TUI**: Bubbletea + Lipgloss (sin el theme cosmético del repo viejo).
-- **Distribución**: binario único, cross-platform — Windows, macOS, Linux, WSL y Termux.
+- **Distribución**: binario único para Windows, Linux y WSL (amd64).
 - **Entrypoint**: `cmd/active-stack/`.
 - **Catálogo**: embebido en el binario vía `//go:embed` (`internal/catalog/harnesses.yaml`).
 
@@ -26,27 +26,32 @@ de marketing, framing "supercharge any agent" / relación con Gentleman.Dots.
 ### Estructura de paquetes (ARCHITECTURE.md §5)
 
 ```
-cmd/active-stack/            entrypoint CLI
+cmd/active-stack/            entrypoint CLI (install, uninstall, roles, reports, starter, version)
+  headless/              ejecución no interactiva de install/uninstall/starter
 internal/
   system/                detección OS/arch/WSL/Termux, deps, guards
   catalog/               parseo del harnesses.yaml embebido
   model/                 tipos de dominio (harness, agente, modo)
   planner/               grafo de dependencias, orden, review payload
-  agents/                adapters por agente (claude/opencode/...)
+  agents/                adapters por agente (claude/opencode/codex/...)
   harness/               install/inject por tipo de harness
-    skill/  config/  external/
+    skill/  config/  external/  command/  roledefs/
+  install/               plan de instalación, snapshot y self-install
+  uninstall/             desinstalación targeted y restore desde backup
   filemerge/             merge por markers (inyectar sin pisar)
   backup/                snapshot + restore de configs
   pipeline/              ejecución por etapas + rollback
   verify/                health checks post-install
+  reports/               captura de informes por proveedor
+  roles/  approval/      clasificador de roles legacy y tabla de aprobación
   tui/                   Bubbletea (sin theme cosmético del viejo)
-assets/                  catálogo + configs bundleadas (sdd-orchestrator, etc.)
+assets/                  slash-commands y skills embebidas (los fragmentos del
+                         orquestador viven en internal/harness/config/assets/)
 ```
 
 Procedencia histórica: port del repo anterior (`jr-stack`), limpiado de branding excluido.
-Los paquetes listados ya existen. Se descarta: `components/gga`, `components/theme`,
-`components/persona` (marketing). `components/permissions` **se mantiene** (la
-seguridad no es opcional).
+Los paquetes listados ya existen. Del repo viejo se descartó GGA, theme y persona
+(marketing); permissions **se mantiene** como harness `config` (la seguridad no es opcional).
 
 ---
 
@@ -75,22 +80,21 @@ orquestador que se inyecta en `CLAUDE.md`/`AGENTS.md` del proyecto destino.
 
 `lean-workflow` es la opción predeterminada: cinco roles secuenciales, contratos compactos, contexto acotado y TDD obligatorio para código. Los roles van dentro de las fases OPSX, la profundidad escala por nivel y cada proyecto declara quién ejecuta cada rol en `## Role executors`; este repositorio no integra proveedores. Los especialistas son opcionales y senior no agrega una etapa. Ver [flujo compacto de cinco roles](docs/lean-agent-workflow.md).
 
-Sin `lean-workflow` se conserva la composición legacy. La siguiente lista describe ese modo (la lista canónica es
-`config.KnownToggles()`; el detalle largo, `ARCHITECTURE.md` §2.1):
+Toggles del `sdd-orchestrator` (lista canónica: `config.KnownToggles()`; el orden no cambia el resultado). Con `lean-workflow` activo sólo `governance`, `evidence`, `knowledge-base`, `engram` y `ship` agregan su contrato compacto; los marcados **sólo legacy** se aceptan por compatibilidad pero no pueden apagar nada del flujo lean (TDD y auditor son siempre obligatorios). Se eligen con `active-stack install --toggles`:
 
-- `lean-workflow` — selector predeterminado; quitarlo activa la siguiente composición legacy.
-- `delegation` — qué se resuelve inline y qué se delega, para no inflar contexto.
-- `model-routing` — modelo por fase, con sustitución declarada si no hay acceso.
-- `governance` — autonomía según criticidad del dominio (CRITICAL → LOW).
-- `evidence` — reporte tipado: EVIDENCIA (comando, salida, hora), JUICIO, SUPOSICIÓN.
-- `auditor` — lee los reportes de los otros y marca lo que no se sostiene.
-- `roles` — convoca un rol con estándar fijo y "listo" observable.
-- `review`: un rompedor con tres lentes obligatorias y bucle de hasta tres vueltas; el auditor decide y el orquestador ejecuta.
-- `knowledge-base`: en archive reescribe la base que impacto y diff tocaron; agrega decisiones, lecciones L-NNN y deuda del auditor con evidencia por entrada. Sólo APPEND sin REWRITE se reporta SUSPICIOUS: append-only.
-- `senior`: sólo en verify, después del rompedor y antes del auditor; aporta contexto de decisiones fechadas, uno por vuelta y hasta tres por change.
-- `ship` — diagnostica la publicación y espera el CI completo del SHA pusheado; `main` pregunta, PR o directo se propone, nunca mergea.
-- `engram` — memoria persistente entre sesiones y compactaciones.
-- `tdd` — TDD estricto en apply: sin test que falle primero no hay código.
+- `lean-workflow` (selector) — selector predeterminado; quitarlo activa la composición legacy.
+- `delegation` (sólo legacy) — qué se resuelve inline y qué se delega, para no inflar contexto.
+- `model-routing` (sólo legacy) — modelo por fase, con sustitución declarada si no hay acceso.
+- `governance` (lean y legacy) — autonomía según criticidad del dominio (CRITICAL → LOW).
+- `evidence` (lean y legacy) — reporte tipado: EVIDENCIA (comando, salida, hora), JUICIO, SUPOSICIÓN.
+- `auditor` (sólo legacy) — lee los reportes de los otros y marca lo que no se sostiene.
+- `roles` (sólo legacy) — convoca un rol con estándar fijo y "listo" observable.
+- `review` (sólo legacy): un rompedor con tres lentes obligatorias y bucle de hasta tres vueltas; el auditor decide y el orquestador ejecuta.
+- `knowledge-base` (lean y legacy): en archive reescribe la base que impacto y diff tocaron; agrega decisiones, lecciones L-NNN y deuda del auditor con evidencia por entrada. Sólo APPEND sin REWRITE se reporta SUSPICIOUS: append-only.
+- `senior` (sólo legacy): sólo en verify, después del rompedor y antes del auditor; aporta contexto de decisiones fechadas, uno por vuelta y hasta tres por change.
+- `ship` (lean y legacy) — diagnostica la publicación y espera el CI completo del SHA pusheado; `main` pregunta, PR o directo se propone, nunca mergea.
+- `engram` (lean y legacy) — memoria persistente entre sesiones y compactaciones.
+- `tdd` (sólo legacy) — en lean TDD es siempre obligatorio y este toggle no cambia nada; en legacy: TDD estricto en apply: sin test que falle primero no hay código.
 
 ---
 
@@ -121,6 +125,8 @@ El nivel de autonomía es proporcional a la criticidad del paquete tocado.
 | **MEDIO** | `agents` (adapters por agente), `harness/*` (installers) | Implementa con checkpoints. |
 | **BAJO** | `catalog`, `model`, `tui` | Autonomía completa si los tests pasan. |
 
+> Esta tabla es el riesgo de los paquetes de este repo. Los changes usan la escala del
+> flujo (LOW/MEDIUM/HIGH/CRITICAL): ALTO equivale a HIGH, MEDIO a MEDIUM y BAJO a LOW.
 > No hay dominios CRÍTICO en este proyecto (no manejamos auth/billing/secrets de
 > producción). El máximo es ALTO porque destruir la config del usuario es el peor
 > daño posible del instalador.
@@ -161,7 +167,7 @@ El conocimiento se actualiza en el destino declarado por el proyecto (incluido o
 
 Al desactivar explícitamente lean-workflow se usan los fragmentos legacy y su procedimiento anterior. La guía [lean-agent-workflow](docs/lean-agent-workflow.md) define precedencia y límites; el historial metodológico sigue en [docs/metodologia-opsx.md](docs/metodologia-opsx.md).
 
-`active-stack version` informa versión y SHA disponibles. El chequeo instalado valida `cmd/active-stack`, `roles --help` y contenido contra `Compose`; no acredita reinstalación real. CONF-1 mantiene `instalacion-sana` abierto hasta §3.6 puntos 1–4 y OK escrito para reinstalar.
+`active-stack version` informa versión y SHA disponibles. El chequeo instalado valida `cmd/active-stack`, `roles --help` y contenido contra `Compose`; no acredita reinstalación real. La instalación real se hizo el 29/10/2026 con OK escrito del responsable, después de una prueba en HOME aislado (instalar, reinstalar, restaurar); falta el cierre formal de `instalacion-sana` contra la receta §3.6 (CONF-1).
 
 EVIDENCIA: `84fcf0e`, `c325955` y [base metodológica](docs/metodologia-opsx.md) (commits por fase, decisiones, lecciones y deuda; informe 22 autoriza sólo ocho archives).
 

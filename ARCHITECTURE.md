@@ -5,7 +5,7 @@
 > sustrato (harnesses), y un único orquestador de fundación deja el proyecto
 > listo para el ciclo OPSX (`explore → propose → apply → verify → archive`).
 
-Estado: núcleo implementado; fase 1 metodológica construida y archivada parcialmente. La entrega real de `instalacion-sana` continúa pendiente por CONF-1. EVIDENCIA: `84fcf0e`, informe 22 y [base metodológica](docs/metodologia-opsx.md).
+Estado: núcleo implementado; fase 1 metodológica construida y archivada parcialmente. La instalación real se hizo el 29/10/2026 con OK escrito del responsable, después de una prueba en HOME aislado (instalar, reinstalar, restaurar); falta el cierre formal de `instalacion-sana` contra la receta §3.6 (CONF-1). EVIDENCIA: `84fcf0e`, informe 22 y [base metodológica](docs/metodologia-opsx.md).
 
 ---
 
@@ -60,34 +60,34 @@ harness sabe cómo se materializa.
 
 ### 2.1 El harness `sdd-orchestrator` (clave)
 
-El modo predeterminado es `lean-workflow`: core compacto con contratos universales y cinco roles secuenciales. El rol específico se carga antes del encargo cuando hay recursos nativos. Los modelos/proveedores son configurables y los plugins de ejecución quedan fuera del instalador. Ver [flujo compacto de cinco roles](docs/lean-agent-workflow.md) para matriz de precedencia, TDD y estado durable.
+El modo predeterminado es `lean-workflow`: core compacto con contratos universales y cinco roles secuenciales. En Claude cada rol corre como subagente nativo `role-*`; para otros ejecutores el encargo lleva el contrato universal. Los modelos/proveedores son configurables y los plugins de ejecución quedan fuera del instalador. Ver [flujo compacto de cinco roles](docs/lean-agent-workflow.md) para matriz de precedencia, TDD y estado durable.
 
-`Compose` valida los toggles antes de seleccionar lean. Sin `lean-workflow` conserva la composición legacy: base + fragmentos en este orden:
+Toggles del `sdd-orchestrator` (lista canónica: `config.KnownToggles()`; el orden no cambia el resultado). Con `lean-workflow` activo sólo `governance`, `evidence`, `knowledge-base`, `engram` y `ship` agregan su contrato compacto; los marcados **sólo legacy** se aceptan por compatibilidad pero no pueden apagar nada del flujo lean (TDD y auditor son siempre obligatorios). Se eligen con `active-stack install --toggles`:
 
-- `lean-workflow` — selector predeterminado; quitarlo activa la siguiente composición legacy.
-- `delegation` — reglas de delegación: qué se resuelve inline y qué se manda a
+- `lean-workflow` (selector) — selector predeterminado; quitarlo activa la composición legacy.
+- `delegation` (sólo legacy) — reglas de delegación: qué se resuelve inline y qué se manda a
   un sub-agente, para no inflar el contexto.
-- `model-routing` — tabla de modelo por fase, con sustitución declarada cuando
+- `model-routing` (sólo legacy) — tabla de modelo por fase, con sustitución declarada cuando
   el modelo asignado no está disponible.
-- `governance` — niveles de autonomía por criticidad del dominio (CRITICAL,
+- `governance` (lean y legacy) — niveles de autonomía por criticidad del dominio (CRITICAL,
   HIGH, MEDIUM, LOW): a más crítico, menos se escribe sin aprobación humana.
-- `evidence` — reporte tipado: cada afirmación etiquetada EVIDENCIA, JUICIO o
+- `evidence` (lean y legacy) — reporte tipado: cada afirmación etiquetada EVIDENCIA, JUICIO o
   SUPOSICIÓN, y la evidencia exige comando, salida y hora.
-- `auditor` — alguien lee a los revisores: marca evidencia sin comando, salida
+- `auditor` (sólo legacy) — alguien lee a los revisores: marca evidencia sin comando, salida
   vieja y suposiciones ascendidas a evidencia.
-- `roles` — convoca un rol con estándar fijo y un "listo" observable, en vez de
+- `roles` (sólo legacy) — convoca un rol con estándar fijo y un "listo" observable, en vez de
   fabricar un sub-agente genérico distinto cada vez.
-- `review`: un rompedor con tres lentes obligatorias y bucle de hasta tres vueltas; el auditor decide y el orquestador ejecuta.
-- `knowledge-base`: en archive reescribe la base que impacto y diff tocaron; agrega decisiones, lecciones L-NNN y deuda del auditor con evidencia por entrada. Sólo APPEND sin REWRITE se reporta SUSPICIOUS: append-only.
-- `senior`: sólo en verify, después del rompedor y antes del auditor; aporta contexto de decisiones fechadas, uno por vuelta y hasta tres por change.
-- `ship` — publicar en GitHub el trabajo de un change cerrado. No es una
+- `review` (sólo legacy): un rompedor con tres lentes obligatorias y bucle de hasta tres vueltas; el auditor decide y el orquestador ejecuta.
+- `knowledge-base` (lean y legacy): en archive reescribe la base que impacto y diff tocaron; agrega decisiones, lecciones L-NNN y deuda del auditor con evidencia por entrada. Sólo APPEND sin REWRITE se reporta SUSPICIOUS: append-only.
+- `senior` (sólo legacy): sólo en verify, después del rompedor y antes del auditor; aporta contexto de decisiones fechadas, uno por vuelta y hasta tres por change.
+- `ship` (lean y legacy) — publicar en GitHub el trabajo de un change cerrado. No es una
   secuencia de pasos sino un diagnóstico: mira en qué estado está el
   repositorio (trunk, rama sin remoto, PR abierto, trunk que avanzó, cambios
   sin commitear, sin remoto) y decide. Push a `main` siempre pregunta, a una
   rama propia no; PR o directo se propone con fundamento; espera el CI completo sobre el SHA pusheado y nunca mergea.
-- `engram` — memoria persistente entre sesiones y compactaciones, cableada a
+- `engram` (lean y legacy) — memoria persistente entre sesiones y compactaciones, cableada a
   las fases OPSX.
-- `tdd` — TDD estricto en la fase apply: no hay código de producción sin un
+- `tdd` (sólo legacy) — en lean TDD es siempre obligatorio y este toggle no cambia nada; en legacy: TDD estricto en la fase apply: no hay código de producción sin un
   test que falle primero.
 
 El resultado es el bloque de instrucciones del orquestador que se inyecta en
@@ -111,7 +111,7 @@ que es la fuente de verdad de qué harnesses existen. Cada entrada declara:
   agents: [claude, opencode, ...]   # dónde aplica
 - id: sdd-orchestrator
   type: config
-  toggles: [lean-workflow, tdd, engram, model-routing, delegation, governance, evidence, auditor, roles, review, knowledge-base, senior, ship]
+  toggles: [lean-workflow, delegation, model-routing, governance, evidence, auditor, roles, review, knowledge-base, senior, ship, engram, tdd]
   install_modes: [lite, full]
   ...
 - id: engram
@@ -144,7 +144,10 @@ active-stack install  →  TUI (Bubbletea)
 ### 4.2 Fundación del proyecto (una vez por proyecto)
 
 Un **único comando** que orquesta la fase de fundación con lazy-loading de
-skills, en este orden (evolución de la skill `active-orchestrator`):
+skills, en este orden (la skill `active-orchestrator`, antes llamada `jr-orchestrator`).
+`discovery-research` corre antes de `kb-creator` si se elige investigar primero. `project-scaffold`
+no forma parte de este flujo: es un generador de documentación independiente; dentro de la
+fundación, el `AGENTS.md`/`CLAUDE.md` canónico lo genera `agent-instruction`:
 
 ```
 1. openspec init        (solo la carpeta openspec/)
@@ -177,32 +180,38 @@ EVIDENCIA: [contratos, decisiones y deuda de fase 1](docs/metodologia-opsx.md). 
 La infraestructura implementada se organiza así:
 
 ```
-cmd/active-stack/            entrypoint CLI
+cmd/active-stack/            entrypoint CLI (install, uninstall, roles, reports, starter, version)
+  headless/              ejecución no interactiva de install/uninstall/starter
 internal/
   system/                detección OS/arch/WSL/Termux, deps, guards
   catalog/               parseo del harnesses.yaml embebido
   model/                 tipos de dominio (harness, agente, modo)
   planner/               grafo de dependencias, orden, review payload
-  agents/                adapters por agente (claude/opencode/...)
+  agents/                adapters por agente (claude/opencode/codex/...)
   harness/               install/inject por tipo de harness
-    skill/  config/  external/
+    skill/  config/  external/  command/  roledefs/
+  install/               plan de instalación, snapshot y self-install
+  uninstall/             desinstalación targeted y restore desde backup
   filemerge/             merge por markers (inyectar sin pisar)
   backup/                snapshot + restore de configs
   pipeline/              ejecución por etapas + rollback
   verify/                health checks post-install
+  reports/               captura de informes por proveedor
+  roles/  approval/      clasificador de roles legacy y tabla de aprobación
   tui/                   Bubbletea (sin theme cosmético del viejo)
-assets/                  catálogo + configs bundleadas (sdd-orchestrator, etc.)
+assets/                  slash-commands y skills embebidas (los fragmentos del
+                         orquestador viven en internal/harness/config/assets/)
 ```
 
 Procedencia histórica: port del repo anterior. Los paquetes listados ya existen.
-Se descarta: `components/gga`, `components/theme`, `components/persona`
-(marketing), `components/permissions` se mantiene (seguridad no es opcional).
+Del repo viejo se descartó GGA, theme y persona (marketing); permissions se mantiene
+como harness `config` (la seguridad no es opcional).
 
 ---
 
 ## 6. Roadmap de construcción (incrementos)
 
-El núcleo y el roadmap C-01…C-25 están implementados (historial en `CHANGES.md`). La fase 1 integra constructor, verify, archive y ship en los toggles existentes. Ocho changes están archivados con autorización escrita; `instalacion-sana` conserva CONF-1. Fases siguientes, firmas criptográficas, hooks, roles y compactación: (TBD), sin aprobación implícita.
+El núcleo y el roadmap C-01…C-32 están implementados (historial en `CHANGES.md`). La fase 1 integra constructor, verify, archive y ship en los toggles existentes. Ocho changes están archivados con autorización escrita. La instalación real se hizo el 29/10/2026 con OK escrito del responsable, después de una prueba en HOME aislado (instalar, reinstalar, restaurar); falta el cierre formal de `instalacion-sana` contra la receta §3.6 (CONF-1). Fase 2 (propuesta `2026-10-23-fase-2-pasos-1-4.md`): el paso 2a, `active-stack reports capture`, está implementado; 2b (captura automática por hooks) sigue pendiente. Desde el 29/10 el perfil lean es el predeterminado y reemplazó al ciclo anterior con etapa de historiador. Firmas criptográficas y el resto de fase 2: (TBD), sin aprobación implícita.
 
 EVIDENCIA: propuesta firmada `4748680`, decisión `5ab0f4f`; estado detallado en `CHANGES.md`.
 
@@ -212,7 +221,7 @@ EVIDENCIA: propuesta firmada `4748680`, decisión `5ab0f4f`; estado detallado en
 
 ### Resueltas
 - **Fetch de skills (C-08) — mixto por tipo**: skills propias (active-orchestrator, etc.)
-  → `git clone` del repo; terceros (find-skill, skill-creator) → `npx skills add`;
+  → `git clone` del repo; terceros (find-skill, skill-creator) → también `git clone`, con `path` al subdirectorio;
   core openspec (atadas a la versión del orquestador) → embebidas. El modelo de
   skill necesita un campo de método de fetch (clone/npx/embed), análogo a
   `External.Method`.
@@ -220,8 +229,8 @@ EVIDENCIA: propuesta firmada `4748680`, decisión `5ab0f4f`; estado detallado en
   los módulos (kb-creator, roadmap-generator, etc.) según cuáles estén instalados/
   activos (lazy-loading, §4.2). No es una skill monolítica.
 - **Toggles del `sdd-orchestrator`**: `lean-workflow` selecciona los contratos compactos por defecto. Al desactivarlo, el texto legacy sale de los assets del stack viejo.
-  Base (siempre) + dos sustractivos que ya viven marcados en la base
-  (`delegation`, `model-routing`) + los aditivos, que se anexan en este orden:
+  Base (siempre, con `delegation` y `model-routing` como secciones marcadas que
+  se quitan si su toggle falta) + los fragmentos aditivos, que se anexan en este orden:
   `lean-workflow` (selector de modo), `delegation`, `model-routing`, `governance`, `evidence`, `auditor`, `roles`, `review`, `knowledge-base`,
   `senior`, `ship`, `engram` y `tdd`. El orden está argumentado en los
   comentarios de `internal/harness/config/compose.go`, y `config.KnownToggles()`
@@ -234,6 +243,5 @@ EVIDENCIA: propuesta firmada `4748680`, decisión `5ab0f4f`; estado detallado en
   `JuanCruzRobledo/jr-stack` (repo fuente original) queda **archivado como legacy**; este conserva `active-stack`.
 - ~~**Mapeo harness↔modo**~~ → **RESUELTO** (CHANGES.md C-20): Lite = sustrato,
   Full = sustrato + fundación guiada, Custom = todos. `active-orchestrator` movido a Full-only.
-- **Empaquetado de skills de terceros** → comando confirmado (`npx skills add <owner/repo> --skill <name>`);
-  falta corregir el installer (CHANGES.md **C-22**, 3 bugs en `npx.go`). Skill de Vercel = `find-skills` (plural).
+- **Empaquetado de skills de terceros** → se clonan como las propias, con `path` al subdirectorio del repo (ej. `find-skill` instala `vercel-labs/skills`, subdir `skills/find-skills`). No se usa `npx`.
 - **Custom + `permissions`** → decisión: NO desactivable (security-first); falta implementar (CHANGES.md **C-21**).

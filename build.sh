@@ -4,7 +4,7 @@
 #  Cross-compila binarios estaticos (CGO desactivado) a la raiz del repo.
 #  Uso:  ./build.sh        (chmod +x build.sh la primera vez)
 #  Requiere: Go 1.26+ en el PATH.
-#  Sirve en Linux, macOS, WSL y Termux.
+#  Corre en Linux y WSL. Plataformas soportadas: Windows, Linux y WSL (amd64).
 # ============================================================================
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -20,9 +20,7 @@ build() {
     go build -trimpath -o "${OUT}/active-stack_${goos}_${goarch}${ext}" ./cmd/active-stack
 }
 
-# Matriz de targets. Agrega lineas para mas plataformas, p.ej.:
-#   build darwin arm64    # macOS Apple Silicon
-#   build linux  arm64    # Raspberry / ARM
+# Matriz de targets: las plataformas soportadas. macOS y Termux no se publican.
 build windows amd64 .exe
 build linux   amd64
 
@@ -32,9 +30,7 @@ ls -lh active-stack_*
 
 # ----------------------------------------------------------------------------
 # Acceso directo en el escritorio (best-effort, idempotente).
-# Solo Linux por ahora: macOS no usa .desktop y la matriz no compila un binario
-# darwin nativo; Termux/WSL no tienen escritorio estandar. Falla blanda: nunca
-# rompe el build.
+# Solo Linux: WSL no tiene escritorio estandar. Falla blanda: nunca rompe el build.
 # ----------------------------------------------------------------------------
 desktop_shortcut() {
   local os; os="$(uname -s 2>/dev/null || echo unknown)"
@@ -67,6 +63,6 @@ echo "== Acceso directo en el escritorio =="
 desktop_shortcut || true
 
 echo
-echo "Siguiente paso: copia el binario compilado a un directorio en tu PATH y ejecuta:"
-echo "  active-stack install"
-echo "Esto instala los harnesses Y registra el binario en tu PATH automaticamente."
+echo "Siguiente paso: ejecuta el binario de tu plataforma, por ejemplo:"
+echo "  ./active-stack_linux_amd64 install"
+echo "Instala los harnesses y copia el binario a un directorio de tu PATH: no hace falta copiarlo a mano."

@@ -5,7 +5,7 @@
 > `docs/archive/CHANGES-2026-06-04-installer-y-starters.md` — leerlo para
 > historial de decisiones de C-01..C-32 y los changes descriptivos intermedios.
 >
-> Este documento cubre los 6 changes del nuevo epic. Convención de IDs: kebab
+> Este documento cubre los 7 changes del nuevo epic. Convención de IDs: kebab
 > descriptivo (sin `C-NN` estricto — convención establecida desde `harness-scope-model`).
 > Atomicidad: cada change implementable en una sesión, ≤ 12 tareas.
 > **Fuente de verdad del estado real: el `openspec` CLI** (`openspec list`,
@@ -166,7 +166,7 @@ Es la cadena más larga; el resto corre en paralelo o es independiente.
 
 ### `tui-menu-hub` — TUI con menú descriptivo multi-opción
 
-- **Estado**: PENDIENTE.
+- **Estado**: IMPLEMENTADO (pendiente de archive; el hub ya muestra sus opciones, ver `tui-update-stack` y `tui-configure-models`).
 - **Scope**:
   - Reestructurar `internal/tui/` para convertir `ScreenWelcome` en un menú hub:
     opciones Install / Starters / Manage backups / Uninstall / Update stack / Quit.
@@ -233,7 +233,7 @@ Es la cadena más larga; el resto corre en paralelo o es independiente.
   otro change del epic.
 - **Governance**: BAJO (research + config mínima para pruebas empíricas).
 - **Leer antes**:
-  - `assets/claude/sdd-orchestrator.md` — lo que hoy se inyecta como orquestador en Claude.
+  - `internal/harness/config/assets/claude/sdd-orchestrator.md` — lo que se inyectaba como orquestador en Claude (base legacy; desde el 29/10/2026 el predeterminado es `lean-workflow.md`).
   - `internal/agents/claude/adapter.go` — cómo el installer escribe en `settings.json` de Claude.
   - Documentación oficial de Claude Code (slash-commands, subagent definitions, settings.json schema).
   - `ARCHITECTURE.md` §2.1 — descripción del harness `sdd-orchestrator`.
@@ -245,7 +245,7 @@ Es la cadena más larga; el resto corre en paralelo o es independiente.
 - **Estado**: PENDIENTE.
 - **Scope**:
   - Portar `internal/update` + `internal/update/upgrade` del repo legacy
-    (`E:\ESCRITORIO\programar\2026\Framework\jr-stack-legacy`), **stripped** de
+    (repo legacy `jr-stack`), **stripped** de
     código `gga` y del theme cosmético del legacy.
   - Agregar la opción "Update stack" al menú hub (`tui-menu-hub`): al seleccionarla,
     la pantalla ScreenUpdate corre el flujo de actualización.
@@ -404,15 +404,18 @@ Es la cadena más larga; el resto corre en paralelo o es independiente.
 
 ## Tabla resumen
 
-| Change | Ola | Governance | Depende de | Habilita |
-|---|---|---|---|---|
-| `opencode-orchestrator-parity` | 0 (paralelo) | BAJO/MEDIO | — | — |
-| `openspec-init-cleanup` | 0 (paralelo) | BAJO | — | — | ✅ COMPLETADO |
-| `uninstall-subcommand` | 1 | **ALTO** | — | `tui-menu-hub` | ✅ IMPLEMENTADO |
-| `claude-agent-switch-research` | 1+ (libre) | BAJO | — | — |
-| `tui-menu-hub` | 2 | BAJO/MEDIO | `uninstall-subcommand` | `tui-update-stack`, `tui-configure-models` | ✅ IMPLEMENTADO (pend. archive) |
-| `tui-update-stack` | 3 | MEDIO | `tui-menu-hub` | — |
-| `tui-configure-models` | 3 | MEDIO | `tui-menu-hub` | — |
+| Change | Ola | Governance | Depende de | Habilita | Estado |
+|---|---|---|---|---|---|
+| `opencode-orchestrator-parity` | 0 (paralelo) | BAJO/MEDIO | — | — | COMPLETADO |
+| `openspec-init-cleanup` | 0 (paralelo) | BAJO | — | — | COMPLETADO |
+| `uninstall-subcommand` | 1 | **ALTO** | — | `tui-menu-hub` | IMPLEMENTADO (pend. archive) |
+| `claude-agent-switch-research` | 1+ (libre) | BAJO | — | — | PENDIENTE |
+| `tui-menu-hub` | 2 | BAJO/MEDIO | `uninstall-subcommand` | `tui-update-stack`, `tui-configure-models` | IMPLEMENTADO (pend. archive) |
+| `tui-update-stack` | 3 | MEDIO | `tui-menu-hub` | — | PENDIENTE |
+| `tui-configure-models` | 3 | MEDIO | `tui-menu-hub` | — | PENDIENTE |
+
+Nota: `jr-orchestrator`, que aparece en fichas de junio, es el nombre anterior de la skill
+`active-orchestrator` (repo `Group-Active-IA/active-orchestrator`), que es la que instala el catálogo.
 
 **Camino crítico**: `uninstall-subcommand → tui-menu-hub → {tui-update-stack ‖ tui-configure-models}` (3 changes; los dos últimos en paralelo).
 
@@ -423,7 +426,8 @@ en paralelo `tui-update-stack` y `tui-configure-models` (ambos cuelgan del hub).
 
 # Epic: metodología de PropTech dentro de OPSX (2026-10-23)
 
-> Estado: **FASE 1 construida, ocho changes archivados con OK escrito**; `instalacion-sana` abierto por CONF-1. Plan, riesgos, tests y tabla
+> Estado: **FASE 1 construida, ocho changes archivados con OK escrito**; `instalacion-sana` abierto por CONF-1 hasta su cierre formal (la instalación real con OK escrito y la prueba en HOME aislado se hicieron el 29/10/2026).
+> **Desde el 29/10/2026 el predeterminado es `lean-workflow`** (cinco roles; senior no es etapa). El ciclo con senior descrito abajo es el modo legacy. Fase 2 (`docs/propuestas/2026-10-23-fase-2-pasos-1-4.md`): paso 2a, `active-stack reports capture`, implementado; 2b, captura automática por hooks, pendiente. Plan, riesgos, tests y tabla
 > `## Aprobación`: `docs/propuestas/2026-10-23-metodologia-proptech-en-opsx.md`. Exploración:
 > `docs/exploraciones/2026-10-23-metodologia-proptech.md` (§8, decisiones de Juani).
 > Sin toggle nuevo: apply = constructor, verify = conformidad → rompedor → senior → auditor con tope

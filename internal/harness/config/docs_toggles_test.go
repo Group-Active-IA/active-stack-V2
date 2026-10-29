@@ -25,6 +25,7 @@ package config_test
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -293,6 +294,45 @@ func TestRootDocs_NoMachinePathsOrOutOfRepoLinks(t *testing.T) {
 		for _, bad := range []string{`E:\ESCRITORIO`, "MANUAL-METODOLOGICO"} {
 			if strings.Contains(string(raw), bad) {
 				t.Errorf("%s contains %q", name, bad)
+			}
+		}
+	}
+}
+
+// Review 2026-10-29 (#18): CLAUDE.md and AGENTS.md are the same document for
+// two agents; the "if you change one, change the other" rule lived only in
+// prose. Byte equality makes it a check.
+func TestRootDocs_ClaudeMirrorsAgents(t *testing.T) {
+	agents, err := os.ReadFile(filepath.Join("..", "..", "..", "AGENTS.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	claude, err := os.ReadFile(filepath.Join("..", "..", "..", "CLAUDE.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(agents) != string(claude) {
+		t.Fatal("CLAUDE.md and AGENTS.md diverged: copy one over the other")
+	}
+}
+
+// Review 2026-10-29 (#6): the same asset was cited under two paths and the
+// package tree listed directories that no longer existed. Every repository
+// path quoted in the governance docs must exist.
+func TestRootDocs_QuotedRepoPathsExist(t *testing.T) {
+	quoted := regexp.MustCompile("`((?:internal|cmd|assets|docs|\\.github)/[^`\\s]*)`")
+	for _, name := range docsThatEnumerateToggles {
+		raw, err := os.ReadFile(filepath.Join("..", "..", "..", name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, m := range quoted.FindAllStringSubmatch(string(raw), -1) {
+			path := strings.TrimRight(m[1], ".,:;)")
+			if strings.ContainsAny(path, "<>*{") {
+				continue // a pattern, not a concrete path
+			}
+			if _, err := os.Stat(filepath.Join("..", "..", "..", filepath.FromSlash(path))); err != nil {
+				t.Errorf("%s cites `%s`, which does not exist", name, path)
 			}
 		}
 	}
