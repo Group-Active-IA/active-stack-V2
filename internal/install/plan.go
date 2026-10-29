@@ -112,6 +112,7 @@ func BuildPlan(cat Catalog, intent Intent, opts Options) (Plan, error) {
 		if !ok {
 			return empty, fmt.Errorf("install: harness %q not found in catalog", id)
 		}
+		h = applyToggles(h, intent)
 		step, err := buildHarnessStep(h, adapters, opts, effectiveBase, tier)
 		if err != nil {
 			return empty, fmt.Errorf("install: build step for harness %q: %w", id, err)
@@ -238,13 +239,35 @@ func SelectHarnesses(cat Catalog, intent Intent) ([]model.Harness, error) {
 				out = append(out, perm)
 			}
 		}
-		return filterByAgents(out, intent.Agents), nil
+		return withToggles(filterByAgents(out, intent.Agents), intent), nil
 
 	default:
 		// Lite or Full: select by mode, then intersect with agents.
 		candidates := cat.ForMode(intent.Mode)
-		return filterByAgents(candidates, intent.Agents), nil
+		return withToggles(filterByAgents(candidates, intent.Agents), intent), nil
 	}
+}
+
+// withToggles applies --toggles to the sdd-orchestrator entry. It is the one
+// place the override lives: BuildPlan composes with it and the post-install
+// check compares against it, so both see the same list (a --toggles install
+// failed verification and rolled back while only BuildPlan applied it).
+func withToggles(harnesses []model.Harness, intent Intent) []model.Harness {
+	if intent.Toggles == nil {
+		return harnesses
+	}
+	out := make([]model.Harness, len(harnesses))
+	for i, h := range harnesses {
+		out[i] = applyToggles(h, intent)
+	}
+	return out
+}
+
+func applyToggles(h model.Harness, intent Intent) model.Harness {
+	if h.ID == "sdd-orchestrator" && intent.Toggles != nil {
+		h.Toggles = intent.Toggles
+	}
+	return h
 }
 
 // filterByAgents returns the subset of harnesses that support at least one of

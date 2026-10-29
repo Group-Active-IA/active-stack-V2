@@ -44,6 +44,9 @@ type Intent struct {
 	// Tier is the permission tier the user chose (estricto, balanceado, bypass).
 	// Zero-value normalizes defensively to TierBalanceado (never TierBypass).
 	Tier model.PermissionTier
+	// Toggles, when non-nil, replaces the catalog toggles of sdd-orchestrator
+	// (--toggles). Nil keeps the catalog default.
+	Toggles []string
 }
 
 // Catalog is the read interface consumed by BuildPlan. It is satisfied by

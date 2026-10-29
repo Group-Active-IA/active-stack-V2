@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	cfginstaller "github.com/Group-Active-IA/active-stack/internal/harness/config"
 	"github.com/Group-Active-IA/active-stack/internal/i18n"
 	"github.com/Group-Active-IA/active-stack/internal/install"
 	"github.com/Group-Active-IA/active-stack/internal/model"
@@ -120,6 +121,7 @@ func ParseInstallFlags(args []string) (ParsedFlags, error) {
 		agent             string
 		custom            string
 		tier              string
+		toggles           string
 		dryRun            bool
 		yes               bool
 		yShort            bool
@@ -134,6 +136,7 @@ func ParseInstallFlags(args []string) (ParsedFlags, error) {
 	fs.StringVar(&agent, "agent", "", "comma-separated list of agents (e.g. claude,opencode)")
 	fs.StringVar(&custom, "custom", "", "comma-separated harness IDs (only with --mode custom)")
 	fs.StringVar(&tier, "tier", "", "permission tier: estricto|balanceado|bypass")
+	fs.StringVar(&toggles, "toggles", "", "comma-separated sdd-orchestrator toggles; replaces the catalog list (omit lean-workflow for the legacy composition)")
 	fs.BoolVar(&dryRun, "dry-run", false, "print plan steps; do not execute")
 	fs.BoolVar(&yes, "yes", false, "confirm without prompt")
 	fs.BoolVar(&yShort, "y", false, "alias for --yes")
@@ -167,7 +170,7 @@ func ParseInstallFlags(args []string) (ParsedFlags, error) {
 	// --custom alone (without --mode) should also trigger headless so we can
 	// validate and reject it rather than silently falling back to TUI.
 	// --tier alone triggers headless the same way --custom does (D1, design.md).
-	isHeadless := headless || mode != "" || agent != "" || custom != "" || tier != ""
+	isHeadless := headless || mode != "" || agent != "" || custom != "" || tier != "" || toggles != ""
 
 	// No intent expressed → TUI.
 	if !isHeadless {
@@ -208,6 +211,28 @@ func ParseInstallFlags(args []string) (ParsedFlags, error) {
 			permTier = model.TierBypass
 		default:
 			return ParsedFlags{}, fmt.Errorf("invalid --tier %q: must be estricto, balanceado, or bypass", tier)
+		}
+	}
+
+	// ── Validate --toggles ──────────────────────────────────────────────────
+	// Review 2026-10-29 (7.1): toggles lived only in harnesses.yaml, so any
+	// other composition needed a rebuilt binary. Unknown names fail here,
+	// with the valid list, instead of halfway through the install.
+	var toggleList []string
+	if toggles != "" {
+		known := map[string]bool{}
+		for _, k := range cfginstaller.KnownToggles() {
+			known[k] = true
+		}
+		for _, raw := range strings.Split(toggles, ",") {
+			name := strings.TrimSpace(raw)
+			if name == "" {
+				continue
+			}
+			if !known[name] {
+				return ParsedFlags{}, fmt.Errorf("invalid --toggles entry %q: known toggles are %s", name, strings.Join(cfginstaller.KnownToggles(), ", "))
+			}
+			toggleList = append(toggleList, name)
 		}
 	}
 
@@ -253,10 +278,11 @@ func ParseInstallFlags(args []string) (ParsedFlags, error) {
 		WindowsEventsFile: windowsEventsFile,
 		Lang:              resolvedLang,
 		Intent: install.Intent{
-			Mode:   installMode,
-			Agents: agents,
-			Custom: customIDs,
-			Tier:   permTier,
+			Mode:    installMode,
+			Agents:  agents,
+			Custom:  customIDs,
+			Tier:    permTier,
+			Toggles: toggleList,
 		},
 	}, nil
 }

@@ -150,10 +150,11 @@ active-stack install                 # TUI interactiva (Bubbletea): elegís agen
 active-stack install --dry-run       # Muestra el plan de instalación, no ejecuta nada
 active-stack install --mode full     # Instalación headless (no interactiva)
 active-stack install --agent claude  # Apuntá a un agente concreto
+active-stack install --mode full --toggles lean-workflow,governance,evidence  # Elegí los toggles del orquestador
 active-stack install --help          # Todos los flags
 ```
 
-Pasar `--mode` o `--agent` activa el modo **headless** automáticamente (ideal para CI o scripts).
+Pasar `--mode`, `--agent` o `--toggles` activa el modo **headless** automáticamente (ideal para CI o scripts). `--toggles` reemplaza la lista del catálogo: sin `lean-workflow` instala la composición legacy, y un nombre desconocido falla antes de instalar mostrando los válidos.
 
 > 💡 **¿Usuario final en Windows?** Una vez que tengas el binario (`active-stack.exe`), hacé **doble-click** para arrancar la TUI: autodetecta tus agentes instalados y te guía paso a paso — sin escribir un solo flag ni abrir una terminal.
 
