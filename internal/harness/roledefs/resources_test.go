@@ -233,3 +233,27 @@ func TestSpecialistResources_OptionalNotMandatory(t *testing.T) {
 		t.Fatalf("saw %d specialists, want %d", seen, len(specialists))
 	}
 }
+
+// Review 2026-10-29 (7.13, "una regla, un dueño"): the typed report rules were
+// restated in the core and again in each of the five roles. The core owns them
+// (native subagents inherit it; other executors get it in the brief); roles
+// name the labels and point at it.
+func TestWorkflowResources_ReportFormatHasOneOwner(t *testing.T) {
+	res, err := DefaultResources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, r := range res {
+		if !strings.HasPrefix(r.Name, "role-planner") && !strings.HasPrefix(r.Name, "role-plan-reviewer") &&
+			!strings.HasPrefix(r.Name, "role-constructor") && !strings.HasPrefix(r.Name, "role-breaker") && !strings.HasPrefix(r.Name, "role-auditor") {
+			continue
+		}
+		content := string(r.Content)
+		if strings.Contains(content, "con comando, salida y hora; **JUICIO** con autor") {
+			t.Errorf("%s restates the report rules the core owns", r.Name)
+		}
+		if !strings.Contains(content, "formato tipado que define el bloque del orquestador") {
+			t.Errorf("%s does not point at the core's report format", r.Name)
+		}
+	}
+}

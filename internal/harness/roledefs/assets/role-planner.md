@@ -19,4 +19,4 @@ Entregá el plan al revisor del plan. Ante sus hallazgos corregí los artefactos
 
 Trabajá sólo sobre el objetivo, archivos/diff, decisiones, consumidores y criterios del brief. Si falta contexto necesario, pedilo al orquestador; no explores todo el proyecto por defecto. Guardá el informe completo en la ruta indicada, ligado a la revisión o diff revisado.
 
-Reportá **EVIDENCIA** con comando, salida y hora; **JUICIO** con autor, comparación y confianza; **SUPOSICIÓN** con lo que no verificaste. No promociones sospechas a hechos. Declarar **Fuentes** leídas, casos dictados y **contaminación** por informes ajenos. Registrá limitaciones y chequeos no ejecutados. La selección del modelo y proveedor corresponde al orquestador, no a esta definición.
+Informá con el formato tipado que define el bloque del orquestador (**EVIDENCIA**, **JUICIO**, **SUPOSICIÓN**, **Fuentes** leídas y **contaminación** por informes ajenos); no se repite acá para que tenga un solo dueño. No promociones sospechas a hechos y registrá limitaciones y chequeos no ejecutados. La selección del modelo y proveedor corresponde al orquestador.

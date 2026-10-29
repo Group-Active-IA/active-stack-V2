@@ -35,6 +35,7 @@ var shippedRoleHashes = map[string][]string{
 	},
 	"role-auditor.md": {
 		"3eabc55274cc43f53a0bd905f4adb2e6d055cd8b836040c28b550de34ceea1a4", // fab5966
+		"8bfe36adc519ef24b545553baeab9a4163fe119b99b4313166ae3175a7086958", // stack-actualizado: informe con un dueño
 	},
 	"role-backend.md": {
 		"80a7ad53cb727f68951735e4175179287d2f75ddd2c5b8e0c2f52da4eb28f9a1", // 2526eee
@@ -43,11 +44,13 @@ var shippedRoleHashes = map[string][]string{
 	},
 	"role-breaker.md": {
 		"081f137064b09c1c122d112d3aea7e0c9abeefa2caa05d6a786e39320686c2b9", // fab5966
-		"336ec5cba7898f2b388bfa8c1c8e5f00a4a2a1bb509d2943cb87f3512093e84c", // stack-actualizado: tests enfocados
+		"336ec5cba7898f2b388bfa8c1c8e5f00a4a2a1bb509d2943cb87f3512093e84c", // 89add58
+		"9c5beb93689e6b4ed8ebd4d6e2463a2f2d31c9948029c4f0573484edf2825d48", // stack-actualizado: informe con un dueño
 	},
 	"role-constructor.md": {
 		"ff1026a02c5badc0a0a63630dbc1fcedf466f8dd196fe2348cd582250c08a368", // fab5966
-		"fee534fe45ceb91075a363ee85b4b60a6eef980ea6368e263659a5516ad3bd20", // stack-actualizado: tests enfocados
+		"fee534fe45ceb91075a363ee85b4b60a6eef980ea6368e263659a5516ad3bd20", // 89add58
+		"d83a0b9bf970534eca50dd315ba964cda9d8779bd8f1322263de9ae45b8a5693", // stack-actualizado: informe con un dueño
 	},
 	"role-dba.md": {
 		"9cadb7eb8fc1eed1dce6c8a04543978959a53589ba328be130663c3bac0b0f21", // 2526eee
@@ -66,9 +69,11 @@ var shippedRoleHashes = map[string][]string{
 	},
 	"role-plan-reviewer.md": {
 		"5eb5b230a9efb446192e99c9520b890e993f96936578ee47a746e3fcdaf8f544", // fab5966
+		"bc58b8ab9438c5b085e704c8b2f775532c17057d1cb8fe2d39f0b2cbcda08260", // stack-actualizado: informe con un dueño
 	},
 	"role-planner.md": {
 		"b16a407f130e8cebaaf872097e9137d4cc6a50752ce23fb8c659ee341695695d", // fab5966
+		"4856188c495fa6a0bd1618616e35f65b5699435d9e1e3df723e2f34219b46338", // stack-actualizado: informe con un dueño
 	},
 	"role-qa.md": {
 		"a8d339300028d8633a0b201f2f8507e085b94054571382a2e7d57cec53c4ec0a", // 2526eee

@@ -90,6 +90,7 @@ type Model struct {
 	// Review state.
 	ResolvedIDs []string // step IDs from BuildPlan, in topological order
 	ReviewErr   error    // non-nil if BuildPlan failed
+	ReviewInfo  []string // flow, toggles, minimum versions and backup location (review 8.3)
 
 	// Progress state (ScreenInstalling).
 	bridge   *progressBridge
@@ -398,6 +399,7 @@ func (m Model) enterReview() (tea.Model, tea.Cmd) {
 			for _, s := range plan.Apply {
 				m.ResolvedIDs = append(m.ResolvedIDs, s.ID())
 			}
+			m.ReviewInfo = reviewInfo(m.deps.Catalog, intent)
 		}
 	}
 
@@ -659,8 +661,42 @@ func (m Model) viewReview() string {
 	if len(m.ResolvedIDs) == 0 {
 		sb.WriteString(dimStyle.Render("  (nothing to install)\n"))
 	}
+	if len(m.ReviewInfo) > 0 {
+		sb.WriteString("\n")
+		for _, line := range m.ReviewInfo {
+			sb.WriteString("  " + line + "\n")
+		}
+	}
 	sb.WriteString("\nEnter = install  Esc = back\n")
 	return sb.String()
+}
+
+// reviewInfo describes what the step list does not show (review 2026-10-29,
+// 8.3): the orchestrator flow and toggles, the minimum version of each
+// external that declares one, and where this install's backup will land.
+func reviewInfo(cat install.Catalog, intent install.Intent) []string {
+	selected, err := install.SelectHarnesses(cat, intent)
+	if err != nil {
+		return nil
+	}
+	var info []string
+	for _, h := range selected {
+		if h.ID == "sdd-orchestrator" {
+			flow := "legacy"
+			for _, t := range h.Toggles {
+				if t == "lean-workflow" {
+					flow = "lean (cinco roles)"
+				}
+			}
+			info = append(info, "Orquestador: "+flow+"; toggles: "+strings.Join(h.Toggles, ", "))
+		}
+	}
+	for _, h := range selected {
+		if h.External != nil && h.External.MinVersion != "" {
+			info = append(info, "Versión mínima: "+h.ID+" >= "+h.External.MinVersion)
+		}
+	}
+	return append(info, "Backup: ~/.active-stack/backups/install-<fecha>/ (restore con active-stack uninstall --strategy restore)")
 }
 
 func (m Model) viewInstalling() string {

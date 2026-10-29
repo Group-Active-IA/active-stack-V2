@@ -265,3 +265,26 @@ func contains(s, sub string) bool {
 			return false
 		}())
 }
+
+// Review 2026-10-29 (8.3): the review screen listed step IDs only. Before
+// confirming, the user sees which flow the orchestrator composes, its
+// toggles, the minimum external versions and where the backup lands.
+func TestReviewViewShowsFlowTogglesVersionsAndBackup(t *testing.T) {
+	cat := &fakeCatalog{harnesses: []model.Harness{
+		{ID: "sdd-orchestrator", Type: model.HarnessConfig, Toggles: []string{"lean-workflow", "governance"},
+			InstallModes: []model.InstallMode{model.ModeLite}, Agents: []model.Agent{model.AgentGemini}},
+		{ID: "openspec", Type: model.HarnessExternal, External: &model.External{Method: "npm", Pkg: "@fission-ai/openspec", MinVersion: "1.14.3"},
+			InstallModes: []model.InstallMode{model.ModeLite}},
+	}}
+	m := newModel(ModelDeps{Catalog: cat, Registry: &fakeRegistry{}, BuildPlanFn: fakeBuildPlanWith([]string{"snapshot"})})
+	m.Screen = ScreenMode
+	m.Selection.Mode = model.ModeLite
+	m.Selection.Agents = []model.Agent{model.AgentGemini}
+	updated, _ := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	view := updated.(Model).View()
+	for _, want := range []string{"lean (cinco roles)", "lean-workflow, governance", "openspec >= 1.14.3", ".active-stack/backups/install-"} {
+		if !contains(view, want) {
+			t.Errorf("review view lacks %q:\n%s", want, view)
+		}
+	}
+}
