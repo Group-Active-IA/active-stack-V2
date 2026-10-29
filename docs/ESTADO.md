@@ -15,8 +15,8 @@ roadmap interno C-01…C-32 está cerrado; el historial está en [CHANGES.md](..
 | Perfil predeterminado | `lean-workflow`: cinco roles dentro de las fases OPSX, bloque de ~17 KB contra ~115 KB del legacy. Ahorro de tokens real todavía sin medir en un piloto |
 | Rama de trabajo | `stack-actualizado`, sin merge a `main` ni release publicado |
 | Plataformas | Windows, Linux y WSL (amd64) |
-| Fase 1 metodológica | Ocho changes archivados con OK escrito (informe 22) |
-| `instalacion-sana` | Abierto por CONF-1 hasta su cierre formal contra la receta §3.6. La instalación real se hizo el 29/10/2026 con OK escrito, después de una prueba en HOME aislado (instalar, reinstalar, restaurar) |
+| Fase 1 metodológica | Completa: nueve changes archivados con OK escrito (informe 22 y cierre del 29/10) |
+| `instalacion-sana` | **Archivado el 29/10/2026**: CONF-1 pagado contra la receta §3.6 (instalación real, ensayo aislado en Claude y OpenCode, restore idéntico en contenido y permisos). Evidencia y desvíos en `openspec/changes/archive/2026-10-29-instalacion-sana/informes/cierre-receta-3.6.md` |
 | Fase 2 | Paso 2a (`active-stack reports capture`) implementado; 2b (captura por hooks) pendiente. Firmas y el resto: (TBD), sin aprobación implícita |
 | Epic post-starters | `uninstall-subcommand` y `tui-menu-hub` archivados; `tui-update-stack`, `tui-configure-models` y `claude-agent-switch-research` pendientes |
 

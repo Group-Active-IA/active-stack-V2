@@ -3,3 +3,4 @@
 - apply-entrega-1-constructor.md: autor Codex, proveedor OpenAI declarado, modelo exacto SUPUESTO, SHA 84fcf0ebc0a6f647c04b5b0eb4dfbbc9939c866d; informe y comandos copiados textualmente por el constructor de esta sesión.
 - tasks.md conserva rojo y verde bajo cada tarea y suite posterior al commit con hora y SHA.
 - Faltan conformidad, rompedor, senior y auditor: no se convocaron en esta tanda de construcción. No hay veredicto de verify ni habilitación de archive.
+- cierre-receta-3.6.md: autor orquestador (sesión principal Claude), 2026-10-29; cierre de CONF-1 contra §3.6 con evidencia por punto y desvíos declarados (sin rompedor ni auditor por decisión de Juani).

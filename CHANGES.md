@@ -426,7 +426,7 @@ Nota: `jr-orchestrator`, que aparece en fichas de junio, es el nombre anterior d
 
 # Epic: metodología de PropTech dentro de OPSX (2026-10-23)
 
-> Estado: **FASE 1 construida, ocho changes archivados con OK escrito**; `instalacion-sana` abierto por CONF-1 hasta su cierre formal (la instalación real con OK escrito y la prueba en HOME aislado se hicieron el 29/10/2026).
+> Estado: **FASE 1 construida, ocho changes archivados con OK escrito**; `instalacion-sana` **archivado el 29/10/2026** (CONF-1 pagado contra §3.6; ver `openspec/changes/archive/2026-10-29-instalacion-sana/informes/cierre-receta-3.6.md`).
 > **Desde el 29/10/2026 el predeterminado es `lean-workflow`** (cinco roles; senior no es etapa). El ciclo con senior descrito abajo es el modo legacy. Fase 2 (`docs/propuestas/2026-10-23-fase-2-pasos-1-4.md`): paso 2a, `active-stack reports capture`, implementado; 2b, captura automática por hooks, pendiente. Plan, riesgos, tests y tabla
 > `## Aprobación`: `docs/propuestas/2026-10-23-metodologia-proptech-en-opsx.md`. Exploración:
 > `docs/exploraciones/2026-10-23-metodologia-proptech.md` (§8, decisiones de Juani).
