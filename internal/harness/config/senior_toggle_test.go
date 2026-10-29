@@ -163,7 +163,7 @@ func TestCompose_SeniorToggle_Subtractive(t *testing.T) {
 // way to see what it adds — and before engram, whose protocol it cites for the
 // half of its memory that is not on disk.
 func TestCompose_SeniorToggle_ComposesAfterTheReviewFamily(t *testing.T) {
-	all, err := config.Compose(config.KnownToggles(), "claude")
+	all, err := config.Compose(legacyToggles(), "claude")
 	if err != nil {
 		t.Fatalf("Compose(all): %v", err)
 	}

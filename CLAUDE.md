@@ -1,14 +1,8 @@
-# CLAUDE.md — Active Stack (instalador del harness metodológico)
+# AGENTS.md — Active Stack (instalador del harness metodológico)
 
-> Constitución operativa del proyecto. Versión canónica (Claude).
-> Espejo de `AGENTS.md`: **si modificás uno, actualizás el otro.**
-> Leé este archivo antes de cualquier acción no trivial.
-
-> **Nota sobre el orquestador SDD.** El orquestador SDD global (coordinación,
-> delegación, ruteo de modelos, memoria y el resto de los toggles del
-> `sdd-orchestrator`) ya vive en tu `~/.claude/CLAUDE.md`. **Este archivo NO lo duplica.** Si necesitás
-> el detalle del orquestador, referenciá ese archivo global. Acá viven solo las
-> reglas **específicas de este proyecto**.
+> Constitución operativa del proyecto. Versión **model-agnostic**.
+> Espejo de `CLAUDE.md`: **si modificás uno, actualizás el otro.**
+> Todo agente lee este archivo antes de cualquier acción no trivial.
 
 ---
 
@@ -78,9 +72,12 @@ Detalle real en `internal/model/harness.go`. Tipos clave:
 partir de **toggles modulares**. El resultado es el bloque de instrucciones del
 orquestador que se inyecta en `CLAUDE.md`/`AGENTS.md` del proyecto destino.
 
-Los toggles, en orden de composición, y qué agrega cada uno (la lista canónica es
+`lean-workflow` es la opción predeterminada: cinco roles secuenciales, contratos compactos, contexto acotado y TDD obligatorio para código. Los roles van dentro de las fases OPSX, la profundidad escala por nivel y cada proyecto declara quién ejecuta cada rol en `## Role executors`; este repositorio no integra proveedores. Los especialistas son opcionales y senior no agrega una etapa. Ver [flujo compacto de cinco roles](docs/lean-agent-workflow.md).
+
+Sin `lean-workflow` se conserva la composición legacy. La siguiente lista describe ese modo (la lista canónica es
 `config.KnownToggles()`; el detalle largo, `ARCHITECTURE.md` §2.1):
 
+- `lean-workflow` — selector predeterminado; quitarlo activa la siguiente composición legacy.
 - `delegation` — qué se resuelve inline y qué se delega, para no inflar contexto.
 - `model-routing` — modelo por fase, con sustitución declarada si no hay acceso.
 - `governance` — autonomía según criticidad del dominio (CRITICAL → LOW).
@@ -142,21 +139,26 @@ El nivel de autonomía es proporcional a la criticidad del paquete tocado.
 | Infra implementada (backup, filemerge, planner, agents, pipeline, verify, tui) | `internal/`; procedencia histórica: repo viejo `jr-stack/internal/` |
 | Configs bundleadas (sdd-orchestrator por agente) | `internal/harness/config/assets/` |
 | Estado real de los changes | `openspec` CLI (`openspec list`, `openspec status`) — fuente de verdad |
-| El orquestador SDD global | `~/.claude/CLAUDE.md` (NO duplicar acá) |
 
 ---
 
 ## 6. Ciclo vigente y evidencia
 
-El ciclo vigente es `explore → propose → apply → verify → archive`, seguido de `ship` cuando se publica:
+El ciclo OpenSpec conserva `explore → propose → apply → verify → archive` y publicación separada. En el modo predeterminado lean, el agente principal coordina:
 
-- **Propose:** con governance activo, ALTO o CRÍTICO requiere informes de arquitecto, analista funcional y QA, más especialistas por capa, convocados de a uno sin leer los otros informes; el auditor lee los N originales antes de la aprobación humana escrita. La tabla `## Aprobación` registra elección, persona, fecha y alcance; ningún agente la completa. Una regla nueva necesita aprobación propia.
-- **Apply constructor:** rojo y verde por tarea en `tasks.md`, con comando, salida, hora y SHA; si el test nació verde, mutante que falle en su aserción y se revierta. Declara consumidores, conflictos y familia del modelo. En vueltas 2 y 3 corrige sólo la lista del auditor.
-- **Verify:** conformidad → rompedor con tres lentes (correctitud, cableado, documentación) → senior si está activo → auditor. La conformidad sola no habilita archive. El auditor decide y el orquestador ejecuta; sólo APROBADO con informes completos y conformidad satisfecha habilita el cierre ordinario. El contador y los informes viven en el change: máximo tres vueltas, sin cuarta automática. En la tercera con bloqueantes se exige decisión humana escrita sobre alcance nuevo, deuda justificada o freno; no se fabrica APROBADO.
-- **Archive:** lee la unión del impacto declarado y el diff; reescribe las descripciones actuales y agrega decisiones, lecciones numeradas y deuda del auditor con fecha, costo y evidencia tipada. Deja `knowledge-base-report.md` por change con REWRITTEN, APPENDED y PENDING por documento; sólo APPEND se justifica y se señala como `SUSPICIOUS: append-only` cuando correspondía reescribir.
-- **Ship:** espera todo el CI requerido sobre el SHA pusheado, inspeccionando workflows, eventos y jobs. En active-stack exige `ci.yml` en push con tests Ubuntu y Windows; en otros repos deriva su conjunto. Cero runs, consulta fallida, SHA ajeno o estados incompletos no confirman entrega. `main` exige permiso y nunca se mergea el PR automáticamente.
+1. Planificador: propuesta, diseño, tareas y escenarios.
+2. Revisor del plan: inconsistencias y viabilidad; devuelve correcciones al planificador.
+3. Constructor: implementación con baseline, RED de aserción observado, GREEN y comprobaciones de regresión/refactor.
+4. Rompedor: casos adversos de lógica, consumidores y documentación; defectos reproducidos vuelven al constructor.
+5. Auditor: originales completos, conformidad, evidencia y cobertura; deriva defectos y exige repetir verificaciones afectadas.
 
-Si falta un toggle se declara la degradación; sin review no hay rompedor ni bucle. Sin auditor se necesita decisión escrita de Juani para cerrar con alcance degradado. Un informe obligatorio faltante detiene el cierre.
+Cada change registra LOW/MEDIUM/HIGH/CRITICAL por riesgo y alcance; en LOW el orquestador puede fusionar plan y revisión, y desde MEDIUM trabajan cinco agentes separados. Con governance activo, HIGH/CRITICAL requieren aprobación humana explícita antes de construcción. TDD de código no depende del toggle histórico `tdd`; documentación sin comportamiento ejecutable declara validación apropiada. Nunca se fabrica RED, informe o aprobación.
+
+El orquestador prepara encargos con objetivo, archivos/diff, decisiones, consumidores, límites, criterios de salida y ruta de informe. Persiste rol, revisión, intento, informes, bloqueantes y próximo paso; OpenSpec es fuente de estado de artefactos. Informes faltantes, evidencia desactualizada o bloqueantes impiden cierre. Tres intentos fallidos requieren dirección humana. No se agrega senior ni fan-out obligatorio de especialistas.
+
+El conocimiento se actualiza en el destino declarado por el proyecto (incluido obsidian.md), sin duplicar notas ni copiar toda la memoria a cada encargo. La publicación conserva sus permisos y CI sobre el SHA entregado; nunca merge automático. No reinstalar dotfiles ni ejecutar build por este trabajo.
+
+Al desactivar explícitamente lean-workflow se usan los fragmentos legacy y su procedimiento anterior. La guía [lean-agent-workflow](docs/lean-agent-workflow.md) define precedencia y límites; el historial metodológico sigue en [docs/metodologia-opsx.md](docs/metodologia-opsx.md).
 
 `active-stack version` informa versión y SHA disponibles. El chequeo instalado valida `cmd/active-stack`, `roles --help` y contenido contra `Compose`; no acredita reinstalación real. CONF-1 mantiene `instalacion-sana` abierto hasta §3.6 puntos 1–4 y OK escrito para reinstalar.
 
@@ -164,6 +166,6 @@ EVIDENCIA: `84fcf0e`, `c325955` y [base metodológica](docs/metodologia-opsx.md)
 
 ## 7. Notas
 
+- Este archivo gobierna el desarrollo del instalador. Los contratos que instala se generan desde los assets versionados; no se presupone un orquestador global ya instalado ni se reinstala al modificar este repositorio.
 - `openspec/` está versionado-ignorado por git (dogfooding interno).
 - Cada incremento del roadmap es un change OPSX (ver `CHANGES.md`).
-- Skills de dominio relevantes para este repo: `go-testing` (tests Go + Bubbletea TUI).

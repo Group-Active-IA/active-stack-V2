@@ -8,7 +8,7 @@ import (
 )
 
 func TestShipEsperaCICompleto(t *testing.T) {
-	body, err := config.Compose(config.KnownToggles(), "claude")
+	body, err := config.Compose(legacyToggles(), "claude")
 	if err != nil {
 		t.Fatal(err)
 	}

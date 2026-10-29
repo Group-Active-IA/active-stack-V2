@@ -513,3 +513,47 @@ func TestInstaller_Walk_NestedAssets_MultiLevel(t *testing.T) {
 		}
 	}
 }
+
+// Two command files overwritten in the same second must both stay recoverable.
+// The snapshot directory used to be named by second only, so the second
+// overwrite replaced the first file's backup (found in an isolated-home install:
+// ship.md lost its backup while verify.md kept it).
+func TestInstaller_Backup_EveryOverwrittenFileInSameSecond(t *testing.T) {
+	commandsDir := t.TempDir()
+	backupDir := t.TempDir()
+	fsys := fstest.MapFS{
+		"commands/claude/opsx/ship.md":   {Data: []byte("new ship")},
+		"commands/claude/opsx/verify.md": {Data: []byte("new verify")},
+	}
+	for _, name := range []string{"ship.md", "verify.md"} {
+		dest := filepath.Join(commandsDir, "opsx", name)
+		if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(dest, []byte("old "+name), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	adapter := fakeAdapter{agent: model.AgentClaude, commandsDir: commandsDir, variantKey: "claude"}
+	if _, err := command.NewInstaller(fsys).Install([]command.AgentAdapter{adapter}, "", backupDir); err != nil {
+		t.Fatal(err)
+	}
+	backedUp := map[string]bool{}
+	_ = filepath.WalkDir(backupDir, func(p string, d os.DirEntry, err error) error {
+		if err != nil || d.IsDir() || d.Name() != "manifest.json" {
+			return nil
+		}
+		raw, _ := os.ReadFile(p)
+		for _, name := range []string{"ship.md", "verify.md"} {
+			if strings.Contains(string(raw), filepath.Join("opsx", name)) {
+				backedUp[name] = true
+			}
+		}
+		return nil
+	})
+	for _, name := range []string{"ship.md", "verify.md"} {
+		if !backedUp[name] {
+			t.Errorf("overwritten %s has no surviving backup", name)
+		}
+	}
+}

@@ -1,9 +1,7 @@
 ---
 name: role-analyst
 description: >
-  Especialista de analista funcional del ciclo OPSX. Revisa contra un criterio fijo, no
-  contra su gusto. Convocalo en explore y propose para convertir un pedido en requisitos verificables, y en archive para comprobar que lo construido es lo que se pidió. No revisa código.
-model: opus
+  Opcional. Criterio de analista funcional: el orquestador lo consulta en propose para convertir un pedido en requisitos verificables, o en archive para comprobar que se construyó lo pedido. No revisa código. No es una etapa del flujo de cinco roles: sus criterios complementan el encargo de un rol.
 tools: Read, Grep, Glob
 ---
 

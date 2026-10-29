@@ -508,11 +508,19 @@ func (a roleDefinitionsVerifyAdapter) AgentsDir(string) string { return a.dir }
 
 // checkRoleDefinitions is the "role-definitions" health check the propose
 // asks for ("Health check reconstruye Compose+enlace y compara referencias y
-// recursos"): it re-derives the seven canonical role resources and confirms
-// each is present and non-empty under the adapter's AgentsDir. An adapter
+// recursos"): it re-derives the canonical role resources and confirms each
+// is present and non-empty under the adapter's AgentsDir. An adapter
 // whose capability is unsupported (AgentsDir == "", e.g. Codex/OpenCode
 // today — J3/J4, TBD) produces no check at all rather than a failing one:
 // "not applicable" and "broken" are different claims.
+//
+// Two checks, not one (lean-agent-workflow 5.1): missing/empty is a hard
+// failure, but a workflow role whose content is not the stack's ("foreign")
+// is a separate Soft check. That file is personal content the installer
+// preserved ON PURPOSE, with the stack's version written next to it; failing
+// the post-install hook over it would roll back the entire install —
+// including that side file — over a decision only the user can make. The
+// warning still says, in words, that it blocks the lean flow.
 func checkRoleDefinitions(h model.Harness, adapter Adapter, homeDir string) []Check {
 	rd, ok := adapter.(interface{ AgentsDir(string) string })
 	if !ok {
@@ -525,27 +533,54 @@ func checkRoleDefinitions(h model.Harness, adapter Adapter, homeDir string) []Ch
 	agentID := string(adapter.Agent())
 	wrapped := roleDefinitionsVerifyAdapter{agent: adapter.Agent(), dir: dir}
 
+	health := func(keep func(roledefsinstaller.HealthIssue) bool) ([]string, error) {
+		res, err := roledefsinstaller.DefaultResources()
+		if err != nil {
+			return nil, fmt.Errorf("roledefs: load canonical resources: %w", err)
+		}
+		issues, err := roledefsinstaller.Health([]roledefsinstaller.AgentAdapter{wrapped}, homeDir, res)
+		if err != nil {
+			return nil, fmt.Errorf("roledefs: health check: %w", err)
+		}
+		var msgs []string
+		for _, iss := range issues {
+			if keep(iss) {
+				msgs = append(msgs, fmt.Sprintf("%s (%s)", iss.Resource, iss.Problem))
+			}
+		}
+		return msgs, nil
+	}
+
 	return []Check{
 		{
 			ID:          fmt.Sprintf("role-definitions:%s:%s", h.ID, agentID),
-			Description: fmt.Sprintf("the seven canonical role-*.md are present and non-empty for %s", agentID),
+			Description: fmt.Sprintf("the canonical role-*.md are present and non-empty for %s", agentID),
 			Run: func(_ context.Context) error {
-				res, err := roledefsinstaller.DefaultResources()
+				msgs, err := health(func(iss roledefsinstaller.HealthIssue) bool { return iss.Problem != "foreign" })
 				if err != nil {
-					return fmt.Errorf("roledefs: load canonical resources: %w", err)
+					return err
 				}
-				issues, err := roledefsinstaller.Health([]roledefsinstaller.AgentAdapter{wrapped}, homeDir, res)
-				if err != nil {
-					return fmt.Errorf("roledefs: health check: %w", err)
-				}
-				if len(issues) == 0 {
+				if len(msgs) == 0 {
 					return nil
 				}
-				msgs := make([]string, 0, len(issues))
-				for _, iss := range issues {
-					msgs = append(msgs, fmt.Sprintf("%s (%s)", iss.Resource, iss.Problem))
-				}
 				return fmt.Errorf("role definitions unhealthy in %q: %s", dir, strings.Join(msgs, ", "))
+			},
+		},
+		{
+			ID:          fmt.Sprintf("role-definitions:workflow-content:%s:%s", h.ID, agentID),
+			Description: fmt.Sprintf("the five workflow role-*.md carry the stack's content for %s", agentID),
+			Soft:        true,
+			Run: func(_ context.Context) error {
+				msgs, err := health(func(iss roledefsinstaller.HealthIssue) bool { return iss.Problem == "foreign" })
+				if err != nil {
+					return err
+				}
+				if len(msgs) == 0 {
+					return nil
+				}
+				return fmt.Errorf("BLOQUEANTE del flujo lean: rol(es) de flujo con contenido que no es del stack en %q: %s — "+
+					"la versión del stack está en <archivo>.active-stack.md; decidir a mano cuál queda",
+					dir, strings.Join(msgs, ", "))
 			},
 		},
 	}

@@ -121,6 +121,9 @@ type stepRow struct {
 	stepID string
 	status pipeline.StepStatus
 	err    error
+	// notes are informational messages a step reported while succeeding
+	// (StepStatusSkipped events with a message, lean-agent-workflow 5.3).
+	notes []string
 }
 
 // modeOrder is the single source of truth for the order in which install modes
@@ -460,6 +463,18 @@ func (m Model) startInstall() (tea.Model, tea.Cmd) {
 func (m *Model) applyProgressEvent(ev pipeline.ProgressEvent) {
 	for i := range m.stepRows {
 		if m.stepRows[i].stepID == ev.StepID {
+			// An informational note does not change the step's status: keep
+			// it for the completion screen and wait for the real outcome.
+			if ev.Status == pipeline.StepStatusSkipped && ev.Err != nil {
+				m.stepRows[i].notes = append(m.stepRows[i].notes, ev.Err.Error())
+				return
+			}
+			// A step that warned on the degraded channel and then returned nil
+			// gets a Succeeded event right after; keeping that one would erase
+			// the warning from the completion screen (lean-agent-workflow 5.1).
+			if m.stepRows[i].status == pipeline.StepStatusDegraded && ev.Status == pipeline.StepStatusSucceeded {
+				return
+			}
 			m.stepRows[i].status = ev.Status
 			m.stepRows[i].err = ev.Err
 			return
@@ -703,6 +718,15 @@ func (m Model) viewComplete() string {
 				sb.WriteString(fmt.Sprintf("  %s %s%s\n", dimStyle.Render("⚠"), row.stepID, reason))
 			}
 			sb.WriteString("\n")
+		}
+		var notes []string
+		for _, row := range m.stepRows {
+			for _, n := range row.notes {
+				notes = append(notes, fmt.Sprintf("  ↷ %s: %s", row.stepID, n))
+			}
+		}
+		if len(notes) > 0 {
+			sb.WriteString(dimStyle.Render("Notes:") + "\n" + strings.Join(notes, "\n") + "\n\n")
 		}
 	}
 	sb.WriteString("Press q to quit.\n")

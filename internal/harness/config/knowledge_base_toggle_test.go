@@ -167,7 +167,7 @@ func TestCompose_KnowledgeBaseToggle_Subtractive(t *testing.T) {
 // too, but a golden fails on any asset edit and says only "the bytes differ":
 // this one says which neighbour moved.
 func TestCompose_KnowledgeBaseToggle_ComposesInsideTheReviewFamily(t *testing.T) {
-	all, err := config.Compose(config.KnownToggles(), "claude")
+	all, err := config.Compose(legacyToggles(), "claude")
 	if err != nil {
 		t.Fatalf("Compose(all): %v", err)
 	}
@@ -544,7 +544,7 @@ func TestCompose_KnowledgeBaseToggle_BorrowsTheArchivingAssumptionInsteadOfRepea
 	// El puntero tiene que apuntar a algo. Con `review` activo, la declaración en
 	// extenso está; si review.md la pierde, acá queda un puntero a nada, que es
 	// peor que haberla repetido.
-	all, err := config.Compose(config.KnownToggles(), "claude")
+	all, err := config.Compose(legacyToggles(), "claude")
 	if err != nil {
 		t.Fatalf("Compose(all): %v", err)
 	}

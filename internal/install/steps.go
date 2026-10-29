@@ -6,6 +6,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/Group-Active-IA/active-stack/internal/backup"
 	cmdinstaller "github.com/Group-Active-IA/active-stack/internal/harness/command"
@@ -68,6 +69,10 @@ type externalStep struct {
 	profile    system.PlatformProfile
 	manifest   *backup.Manifest
 	onDownload DownloadEventFunc
+	// onProgress receives the installer's Notes (e.g. "MCP engram not
+	// registered: plugin engram@engram provides it", lean-agent-workflow 5.3)
+	// as StepStatusSkipped events. nil falls back to stderr.
+	onProgress pipeline.ProgressFunc
 
 	// result is what the installer reported, captured by Run so Rollback knows
 	// what this run actually created. It used to be discarded
@@ -100,6 +105,18 @@ func (s *externalStep) Run() error {
 	}
 	s.result = res
 	s.ran = true
+	for _, note := range res.Notes {
+		if s.onProgress != nil {
+			s.onProgress(pipeline.ProgressEvent{
+				StepID: s.ID(),
+				Stage:  pipeline.StageApply,
+				Status: pipeline.StepStatusSkipped,
+				Err:    fmt.Errorf("%s", note),
+			})
+		} else {
+			fmt.Fprintln(os.Stderr, "[INFO]", note)
+		}
+	}
 	return nil
 }
 
@@ -325,14 +342,82 @@ type roleDefinitionsStep struct {
 	homeDir   string
 	backupDir string
 	manifest  *backup.Manifest
+	// onProgress is the same channel skillStep uses for best-effort warnings
+	// (C-32): conflicts are surfaced as a StepStatusDegraded event. nil falls
+	// back to stderr, also like skillStep.
+	onProgress pipeline.ProgressFunc
 }
 
 func (s *roleDefinitionsStep) ID() string                     { return "role-definitions:" + s.h.ID }
 func (s *roleDefinitionsStep) setManifest(m *backup.Manifest) { s.manifest = m }
 
+// Run installs the role definitions and, since lean-agent-workflow 5.1, no
+// longer discards the Result: every conflict (personal file preserved, the
+// stack's version written to <file>.active-stack.md) is reported.
+//
+// A conflict is NOT an install error, by design: returning one here would
+// make the pipeline roll back every other harness — and this step's own side
+// files, which are exactly what the user needs to resolve it — over a file
+// the installer preserved on purpose. Instead it is a degraded outcome on the
+// existing warning channel, which headless prints inline AND repeats in its
+// end-of-run summary, and the TUI lists on the completion screen. A conflict
+// on one of the five workflow roles is labelled BLOQUEANTE: the lean flow
+// would convene a sub-agent with someone else's contract.
 func (s *roleDefinitionsStep) Run() error {
-	_, err := roleDefinitionsInstallFn(s.adapters, s.homeDir, s.backupDir)
-	return err
+	res, err := roleDefinitionsInstallFn(s.adapters, s.homeDir, s.backupDir)
+	if err != nil {
+		return err
+	}
+	if msg := roleConflictReport(res.Conflicts()); msg != "" {
+		warning := fmt.Errorf("%s", msg)
+		if s.onProgress != nil {
+			s.onProgress(pipeline.ProgressEvent{
+				StepID: s.ID(),
+				Stage:  pipeline.StageApply,
+				Status: pipeline.StepStatusDegraded,
+				Err:    warning,
+			})
+		} else {
+			fmt.Fprintln(os.Stderr, "[WARN]", msg)
+		}
+	}
+	return nil
+}
+
+// BlockingMarker labels a degraded outcome that stops the lean workflow (a
+// workflow role whose installed file is not the stack's). Callers detect it
+// with IsBlocking instead of matching free text of their own.
+const BlockingMarker = "BLOQUEANTE del flujo lean"
+
+// IsBlocking reports whether a degraded outcome carries BlockingMarker.
+func IsBlocking(err error) bool {
+	return err != nil && strings.Contains(err.Error(), BlockingMarker)
+}
+
+// roleConflictReport renders conflicts as one line each, workflow roles
+// first and marked BLOQUEANTE. Empty when there are none.
+func roleConflictReport(conflicts []roledefsinstaller.ResourceResult) string {
+	if len(conflicts) == 0 {
+		return ""
+	}
+	var blocking, other []string
+	for _, c := range conflicts {
+		if roledefsinstaller.IsWorkflowRole(c.Resource) {
+			blocking = append(blocking, fmt.Sprintf(
+				"  "+BlockingMarker+": %s [%s] es personal o fue editado y quedó intacto en %s; "+
+					"la versión del stack quedó en %s. El flujo no puede convocar este rol hasta que decidas a mano cuál queda.",
+				c.Resource, c.Agent, c.Path, c.ConflictPath))
+			continue
+		}
+		other = append(other, fmt.Sprintf(
+			"  conflicto (especialista, no bloquea): %s [%s] quedó intacto en %s; la versión del stack quedó en %s.",
+			c.Resource, c.Agent, c.Path, c.ConflictPath))
+	}
+	head := fmt.Sprintf("role-definitions: %d archivo(s) preexistente(s) no se pisaron", len(conflicts))
+	if len(blocking) > 0 {
+		head += fmt.Sprintf("; %d BLOQUEA(N) el flujo lean", len(blocking))
+	}
+	return head + ":\n" + strings.Join(append(blocking, other...), "\n")
 }
 
 func (s *roleDefinitionsStep) Rollback() error {

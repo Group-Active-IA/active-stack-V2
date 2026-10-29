@@ -87,3 +87,50 @@ func TestViewComplete_CleanRun_NoDegradedSection(t *testing.T) {
 		t.Errorf("viewComplete for a clean run must NOT show 'degraded'; got:\n%s", view)
 	}
 }
+
+// TestApplyProgressEvent_SucceededDoesNotEraseDegraded (lean-agent-workflow
+// 5.1): un paso que avisa por el canal degraded y después devuelve nil
+// recibe del runner un evento Succeeded inmediatamente después. Si ese
+// evento pisa la fila, la pantalla final dice "All steps succeeded." y el
+// aviso — p. ej. un conflicto BLOQUEANTE en role-auditor.md — desaparece.
+func TestApplyProgressEvent_SucceededDoesNotEraseDegraded(t *testing.T) {
+	m := newModel(ModelDeps{})
+	m.stepRows = []stepRow{{stepID: "role-definitions:role-definitions", status: pipeline.StepStatusRunning}}
+
+	warning := fmt.Errorf("BLOQUEANTE del flujo lean: role-auditor.md")
+	m.applyProgressEvent(pipeline.ProgressEvent{StepID: "role-definitions:role-definitions", Status: pipeline.StepStatusDegraded, Err: warning})
+	m.applyProgressEvent(pipeline.ProgressEvent{StepID: "role-definitions:role-definitions", Status: pipeline.StepStatusSucceeded})
+
+	row := m.stepRows[0]
+	if row.status != pipeline.StepStatusDegraded || row.err == nil || !strings.Contains(row.err.Error(), "BLOQUEANTE") {
+		t.Fatalf("row after degraded+succeeded = %+v, want degraded with the warning kept", row)
+	}
+
+	m.Screen = ScreenComplete
+	m.ExecutionResult = pipeline.ExecutionResult{}
+	view := m.viewComplete()
+	if !strings.Contains(view, "BLOQUEANTE") || strings.Contains(view, "All steps succeeded.") {
+		t.Fatalf("completion screen hides the warning:\n%s", view)
+	}
+}
+
+// TestApplyProgressEvent_SkippedNoteIsKeptAndShown (lean-agent-workflow 5.3):
+// un aviso informativo (evento skipped con mensaje, p. ej. "MCP engram no
+// registrado: el plugin engram@engram lo provee") no cambia el estado del
+// paso — sigue siendo éxito — pero aparece en la pantalla final.
+func TestApplyProgressEvent_SkippedNoteIsKeptAndShown(t *testing.T) {
+	m := newModel(ModelDeps{})
+	m.stepRows = []stepRow{{stepID: "external:engram", status: pipeline.StepStatusRunning}}
+	m.applyProgressEvent(pipeline.ProgressEvent{StepID: "external:engram", Status: pipeline.StepStatusSkipped, Err: fmt.Errorf("plugin engram@engram lo provee")})
+	m.applyProgressEvent(pipeline.ProgressEvent{StepID: "external:engram", Status: pipeline.StepStatusSucceeded})
+
+	if m.stepRows[0].status != pipeline.StepStatusSucceeded {
+		t.Fatalf("a note must not change the step status, got %q", m.stepRows[0].status)
+	}
+	m.Screen = ScreenComplete
+	m.ExecutionResult = pipeline.ExecutionResult{}
+	view := m.viewComplete()
+	if !strings.Contains(view, "engram@engram") || !strings.Contains(view, "All steps succeeded.") {
+		t.Fatalf("completion screen must keep success and show the note:\n%s", view)
+	}
+}

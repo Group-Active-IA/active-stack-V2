@@ -1,23 +1,28 @@
 package roledefs
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/Group-Active-IA/active-stack/internal/roles"
 )
 
-// TestDefaultResources_HasExactlySevenCanonicalRoles is RED first: antes de
-// escribir ValidateResources, DefaultResources() todavía no existe.
-func TestDefaultResources_HasExactlySevenCanonicalRoles(t *testing.T) {
+// Default resources preserve specialists and add the five workflow roles.
+func TestDefaultResources_HasExactlyTwelveCanonicalRoles(t *testing.T) {
 	res, err := DefaultResources()
 	if err != nil {
 		t.Fatalf("DefaultResources: %v", err)
 	}
-	if len(res) != 7 {
-		t.Fatalf("got %d resources, want 7: %+v", len(res), res)
+	if len(res) != 12 {
+		t.Fatalf("got %d resources, want 12", len(res))
 	}
 
 	want := map[string]bool{
+		"role-planner.md":          true,
+		"role-plan-reviewer.md":    true,
+		"role-constructor.md":      true,
+		"role-breaker.md":          true,
+		"role-auditor.md":          true,
 		roles.RoleDBA + ".md":      true,
 		roles.RoleBackend + ".md":  true,
 		roles.RoleFrontend + ".md": true,
@@ -40,16 +45,13 @@ func TestDefaultResources_HasExactlySevenCanonicalRoles(t *testing.T) {
 	}
 	for name := range got {
 		if !want[name] {
-			t.Errorf("unexpected resource %q bundled (not one of the seven canonical roles)", name)
+			t.Errorf("unexpected resource %q bundled (not one of the twelve canonical roles)", name)
 		}
 	}
 }
 
-// TestValidateResources_RejectsSeniorAndAuditor triangula el gate "no importar
-// archivos personales ni sumar senior/auditor por accidente": un conjunto de
-// recursos que SÍ trae role-senior.md tiene que rechazarse, aunque también
-// traiga los siete canónicos.
-func TestValidateResources_RejectsSeniorAndAuditor(t *testing.T) {
+// Senior remains outside the installed workflow; duplicate auditor is invalid.
+func TestValidateResources_RejectsSeniorAndDuplicateAuditor(t *testing.T) {
 	base, err := DefaultResources()
 	if err != nil {
 		t.Fatalf("DefaultResources: %v", err)
@@ -67,7 +69,7 @@ func TestValidateResources_RejectsSeniorAndAuditor(t *testing.T) {
 		Content: []byte("intruso"),
 	})
 	if err := ValidateResources(withAuditor); err == nil {
-		t.Fatal("ValidateResources aceptó un set que incluye role-auditor.md, y no debería")
+		t.Fatal("ValidateResources aceptó un set que duplica role-auditor.md, y no debería")
 	}
 }
 
@@ -80,7 +82,7 @@ func TestValidateResources_RejectsMissingRole(t *testing.T) {
 	}
 	incomplete := base[:len(base)-1]
 	if err := ValidateResources(incomplete); err == nil {
-		t.Fatal("ValidateResources aceptó un set con sólo 6 roles, y no debería")
+		t.Fatal("ValidateResources aceptó un set con un rol faltante, y no debería")
 	}
 }
 
@@ -99,7 +101,7 @@ func TestValidateResources_RejectsEmptyContent(t *testing.T) {
 }
 
 // TestDefaultResources_PassesValidation confirma que el set real embebido
-// pasa su propio gate — si algún día se agrega un octavo archivo a assets/
+// pasa su propio gate — si algún día se agrega un archivo inesperado a assets/
 // sin querer, esto rompe antes que cualquier instalación real.
 func TestDefaultResources_PassesValidation(t *testing.T) {
 	res, err := DefaultResources()
@@ -108,5 +110,126 @@ func TestDefaultResources_PassesValidation(t *testing.T) {
 	}
 	if err := ValidateResources(res); err != nil {
 		t.Fatalf("el set embebido real no pasa su propio gate: %v", err)
+	}
+}
+
+func TestDefaultResources_NoFixedModel(t *testing.T) {
+	res, err := DefaultResources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, r := range res {
+		for _, line := range strings.Split(string(r.Content), "\n") {
+			if strings.HasPrefix(strings.TrimSpace(line), "model:") {
+				t.Errorf("%s fixes model instead of caller selection", r.Name)
+			}
+		}
+	}
+}
+
+func TestWorkflowResources_Contracts(t *testing.T) {
+	res, err := DefaultResources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	contracts := map[string][]string{
+		"role-planner.md":       {"proposal.md", "design.md", "tasks.md", "LOW", "CRITICAL"},
+		"role-plan-reviewer.md": {"escenarios", "viabilidad", "código inexistente", "No editás"},
+		"role-constructor.md":   {"TDD", "RED", "GREEN", "antes", "No hay código"},
+		"role-breaker.md":       {"Correctitud", "Cableado", "Documentación", "reproduc", "No editás"},
+		"role-auditor.md":       {"APROBADO", "BLOQUEANTES", "código", "pruebas", "informes", "No editás", "Reproducí", "Ejecutá comprobaciones"},
+	}
+	found := map[string]bool{}
+	for _, r := range res {
+		expected, ok := contracts[r.Name]
+		if !ok {
+			continue
+		}
+		found[r.Name] = true
+		for _, text := range expected {
+			if !strings.Contains(string(r.Content), text) {
+				t.Errorf("%s missing contract %q", r.Name, text)
+			}
+		}
+		for _, text := range []string{"EVIDENCIA", "JUICIO", "SUPOSICIÓN", "Fuentes", "contaminación"} {
+			if !strings.Contains(string(r.Content), text) {
+				t.Errorf("%s missing reporting contract %q", r.Name, text)
+			}
+		}
+	}
+	for name := range contracts {
+		if !found[name] {
+			t.Errorf("missing workflow role %s", name)
+		}
+	}
+}
+
+// roleDescription returns the frontmatter description: Claude picks subagents
+// by it, so it carries the routing contract.
+func roleDescription(content string) string {
+	start := strings.Index(content, "description:")
+	end := strings.Index(content, "\ntools:")
+	if start < 0 || end < start {
+		return ""
+	}
+	return content[start:end]
+}
+
+func TestWorkflowResources_CurrentLeanContracts(t *testing.T) {
+	res, err := DefaultResources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	contracts := map[string][]string{
+		"role-planner.md":       {"En LOW el orquestador puede"},
+		"role-plan-reviewer.md": {"En LOW el orquestador puede"},
+		"role-constructor.md":   {"lecciones numeradas (L-NNN)", "sólo la lista del auditor", "agrupadas por archivo"},
+		"role-breaker.md":       {"lecciones numeradas (L-NNN)", "En LOW, una sola ronda"},
+		"role-auditor.md":       {"lecciones numeradas (L-NNN)", "openspec/changes/archive/", "Engram", "qué fuentes usaste", "reescribe algo que ya existe", "recorrido real"},
+	}
+	phases := map[string]string{
+		"role-planner.md": "propose", "role-plan-reviewer.md": "propose",
+		"role-constructor.md": "apply", "role-breaker.md": "verify", "role-auditor.md": "verify",
+	}
+	for _, r := range res {
+		content := string(r.Content)
+		for _, text := range contracts[r.Name] {
+			if !strings.Contains(content, text) {
+				t.Errorf("%s missing lean contract %q", r.Name, text)
+			}
+		}
+		if phase, ok := phases[r.Name]; ok && !strings.Contains(roleDescription(content), phase) {
+			t.Errorf("%s description does not name its phase %q", r.Name, phase)
+		}
+	}
+}
+
+func TestSpecialistResources_OptionalNotMandatory(t *testing.T) {
+	res, err := DefaultResources()
+	if err != nil {
+		t.Fatal(err)
+	}
+	specialists := map[string]bool{
+		"role-analyst.md": true, "role-architect.md": true, "role-backend.md": true, "role-dba.md": true,
+		"role-devops.md": true, "role-frontend.md": true, "role-qa.md": true,
+	}
+	seen := 0
+	for _, r := range res {
+		if !specialists[r.Name] {
+			continue
+		}
+		seen++
+		desc := roleDescription(string(r.Content))
+		if !strings.Contains(desc, "Opcional") {
+			t.Errorf("%s description does not say it is optional", r.Name)
+		}
+		for _, mandatory := range []string{"siempre", "Obligatorio", "obligatorio", "sin excepción"} {
+			if strings.Contains(desc, mandatory) {
+				t.Errorf("%s description still forces attendance: %q", r.Name, mandatory)
+			}
+		}
+	}
+	if seen != len(specialists) {
+		t.Fatalf("saw %d specialists, want %d", seen, len(specialists))
 	}
 }

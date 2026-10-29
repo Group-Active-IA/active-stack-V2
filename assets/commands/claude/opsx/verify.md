@@ -9,6 +9,21 @@ Verify that an implementation matches the change artifacts (specs, tasks, design
 
 **Input**: Optionally specify a change name after `/opsx:verify` (e.g., `/opsx:verify add-auth`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
+## Lean workflow
+
+First read the installed orchestrator instructions to determine whether `lean-workflow` is active. Do not infer the mode from available files alone. If active, use the compact contract and the steps below; **Do not continue into the legacy steps**.
+
+1. Resolve the change using `openspec list --json`, `openspec status --change "<name>" --json`, and `openspec instructions apply --change "<name>" --json`. Recover its recorded revision, attempt, reports, blockers and next action. Ask only if the change is ambiguous.
+2. On a quiet diff, check completeness, correctness and coherence against proposal, design, tasks and scenarios. Preserve conformity evidence in the change; this does not approve closure.
+3. Read the change level and the project's Role executors table: the breaker and auditor run on the declared executor, or as native `role-*` subagents when no row exists. Apply the depth table: LOW runs one breaker round unless a failure is reproduced; MEDIUM and above repeat rounds until clean, within three attempts. Dispatch `role-breaker` with the named diff, affected consumers, constraints and existing evidence. Load its native role resource when available, otherwise use the universal contract. It tests correctness boundaries, wiring and documentation truth, reproduces findings, records commands/output/time and distinguishes suspicions from demonstrated failures. Reproduced code defects return to constructor through executed RED then GREEN; repeat invalidated checks and review on the corrected revision.
+4. After breaker returns, dispatch `role-auditor` with all original required reports and the resulting revision. It checks conformity, test counts, evidence, assumptions, coverage and unresolved findings. No automatic senior stage or specialist fan-out is added. Audit findings route to planner or constructor according to ownership; rerun the affected downstream verification.
+5. Persist full reports and state before transitions: originals at `openspec/changes/<change>/informes/verify-<attempt>-breaker.md` and `verify-<attempt>-auditor.md`, indexed in `LEEME.md` with executor/provider and revision. Missing execution capability, missing/stale required reports or open blockers stop closure; never fabricate approval. Require human direction after three unsuccessful attempts. HIGH/CRITICAL construction retains explicit human approval. TDD is mandatory for every code change even if the historical `tdd` toggle is absent; documentation-only validation must not claim code RED/GREEN. An absent `senior`, `review` or `auditor` legacy toggle cannot weaken the lean role sequence.
+6. Report evidence and limitations. Only an auditor verdict with complete current evidence enables closure; update the project-declared KB/`obsidian.md` destination without creating duplicate notes. Do not install configuration, commit, push or archive merely because conformity passed.
+
+## Legacy workflow
+
+Run the following steps only when `lean-workflow` is explicitly disabled. They preserve the earlier toggle-driven procedure and its degradation rules.
+
 **Steps**
 
 1. **If no change name provided, prompt for selection**

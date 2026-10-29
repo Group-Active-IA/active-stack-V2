@@ -41,7 +41,7 @@ type undoAction struct {
 	backupManifest *backup.Manifest // set only for "update"
 }
 
-// Install materializes resources (the seven canonical role-*.md files, in
+// Install materializes resources (the twelve canonical role-*.md files, in
 // production always DefaultResources()) into each adapter's AgentsDir,
 // following the lifecycle the propose requires: absent creates, identical is
 // a no-op, ours-and-intact updates with a backup, and anything personal,
@@ -147,6 +147,11 @@ func installOneResource(agent model.Agent, dir, destPath string, res Resource, m
 	recorded, known := m.Resources[res.Name]
 	currentHash := sha256Hex(existing)
 	if known && recorded == currentHash {
+		return installOwnIntactUpdate(base, destPath, existing, res, backupDir)
+	}
+	// 5.2: byte-identical to a version this stack already published (hash
+	// embedded in the binary, see shipped.go) is ours too, manifest or not.
+	if isShippedVersion(res.Name, currentHash) {
 		return installOwnIntactUpdate(base, destPath, existing, res, backupDir)
 	}
 

@@ -198,7 +198,7 @@ func TestCompose_ShipToggle_Subtractive(t *testing.T) {
 // the borrowed rule before the original meets it without its argument. And
 // before engram, which is a separate toggle nothing here may assume is on.
 func TestCompose_ShipToggle_ComposesLastOfTheAdditiveFamily(t *testing.T) {
-	all, err := config.Compose(config.KnownToggles(), "claude")
+	all, err := config.Compose(legacyToggles(), "claude")
 	if err != nil {
 		t.Fatalf("Compose(all): %v", err)
 	}

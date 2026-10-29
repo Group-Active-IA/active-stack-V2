@@ -5,11 +5,11 @@ import (
 	"testing"
 )
 
-// sinToggle returns KnownToggles() minus one, so a test can compose the block
+// sinToggle returns legacyToggles() minus one, so a test can compose the block
 // with a specific fragment switched off.
 func sinToggle(excluido string) []string {
 	var out []string
-	for _, t := range KnownToggles() {
+	for _, t := range legacyToggles() {
 		if t != excluido {
 			out = append(out, t)
 		}
@@ -42,7 +42,7 @@ func TestReglaDelSilencioLlegaSiempre(t *testing.T) {
 	}
 
 	combos := map[string][]string{
-		"todos los toggles": KnownToggles(),
+		"todos los toggles": legacyToggles(),
 		"ningun toggle":     {},
 		"sin delegation":    sinToggle("delegation"),
 		"sin roles":         sinToggle("roles"),

@@ -59,10 +59,11 @@ harness sabe cómo se materializa.
 
 ### 2.1 El harness `sdd-orchestrator` (clave)
 
-Es un harness de **configuración** que arma el orquestador SDD con piezas
-**toggleables modularmente**. El usuario elige qué toggles activar, y cada uno
-agrega una pieza al bloque (en orden de composición):
+El modo predeterminado es `lean-workflow`: core compacto con contratos universales y cinco roles secuenciales. El rol específico se carga antes del encargo cuando hay recursos nativos. Los modelos/proveedores son configurables y los plugins de ejecución quedan fuera del instalador. Ver [flujo compacto de cinco roles](docs/lean-agent-workflow.md) para matriz de precedencia, TDD y estado durable.
 
+`Compose` valida los toggles antes de seleccionar lean. Sin `lean-workflow` conserva la composición legacy: base + fragmentos en este orden:
+
+- `lean-workflow` — selector predeterminado; quitarlo activa la siguiente composición legacy.
 - `delegation` — reglas de delegación: qué se resuelve inline y qué se manda a
   un sub-agente, para no inflar el contexto.
 - `model-routing` — tabla de modelo por fase, con sustitución declarada cuando
@@ -109,7 +110,7 @@ que es la fuente de verdad de qué harnesses existen. Cada entrada declara:
   agents: [claude, opencode, ...]   # dónde aplica
 - id: sdd-orchestrator
   type: config
-  toggles: [tdd, engram, model-routing, delegation, governance, evidence, auditor, roles, review, knowledge-base, senior, ship]
+  toggles: [lean-workflow, tdd, engram, model-routing, delegation, governance, evidence, auditor, roles, review, knowledge-base, senior, ship]
   install_modes: [lite, full]
   ...
 - id: engram
@@ -154,7 +155,9 @@ skills, en este orden (evolución de la skill `active-orchestrator`):
 
 ### 4.3 Ciclo iterativo (por change)
 
-El ciclo vigente es `explore → propose → apply → verify → archive`, seguido de `ship` cuando se publica:
+Con lean activo, el ciclo OpenSpec conserva sus artefactos y el agente principal coordina planificador → revisor del plan → constructor → rompedor → auditor. Los cambios se clasifican por riesgo y alcance; el constructor aplica TDD para código siempre. Los informes originales y el estado durable permiten retomar y repetir verificaciones afectadas. Se conserva la fundación KB/roadmap y la memoria del proyecto. Ver [flujo compacto de cinco roles](docs/lean-agent-workflow.md).
+
+La siguiente descripción corresponde **solo al modo legacy**, sin `lean-workflow`, y se conserva por compatibilidad:
 
 - **Propose:** con governance activo, ALTO o CRÍTICO requiere informes de arquitecto, analista funcional y QA, más especialistas por capa, convocados de a uno sin leer los otros informes; el auditor lee los N originales antes de la aprobación humana escrita. La tabla `## Aprobación` registra elección, persona, fecha y alcance; ningún agente la completa. Una regla nueva necesita aprobación propia.
 - **Apply constructor:** rojo y verde por tarea en `tasks.md`, con comando, salida, hora y SHA; si el test nació verde, mutante que falle en su aserción y se revierta. Declara consumidores, conflictos y familia del modelo. En vueltas 2 y 3 corrige sólo la lista del auditor.
@@ -215,10 +218,10 @@ EVIDENCIA: propuesta firmada `4748680`, decisión `5ab0f4f`; estado detallado en
 - **active-orchestrator — activador modular**: orquesta la fase de fundación y activa/llama
   los módulos (kb-creator, roadmap-generator, etc.) según cuáles estén instalados/
   activos (lazy-loading, §4.2). No es una skill monolítica.
-- **Toggles del `sdd-orchestrator`**: el texto sale de los assets del stack viejo.
+- **Toggles del `sdd-orchestrator`**: `lean-workflow` selecciona los contratos compactos por defecto. Al desactivarlo, el texto legacy sale de los assets del stack viejo.
   Base (siempre) + dos sustractivos que ya viven marcados en la base
   (`delegation`, `model-routing`) + los aditivos, que se anexan en este orden:
-  `governance`, `evidence`, `auditor`, `roles`, `review`, `knowledge-base`,
+  `lean-workflow` (selector de modo), `delegation`, `model-routing`, `governance`, `evidence`, `auditor`, `roles`, `review`, `knowledge-base`,
   `senior`, `ship`, `engram` y `tdd`. El orden está argumentado en los
   comentarios de `internal/harness/config/compose.go`, y `config.KnownToggles()`
   es la lista canónica.

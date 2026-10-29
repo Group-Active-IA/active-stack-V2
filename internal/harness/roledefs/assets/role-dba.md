@@ -1,9 +1,7 @@
 ---
 name: role-dba
 description: >
-  Especialista de DBA del ciclo OPSX. Revisa contra un criterio fijo, no
-  contra su gusto. Convocalo cuando el cambio agrega o modifica migraciones, esquema o consultas. Obligatorio si datos de usuario llegan a reposar en algún lado, sin importar cómo se vea el diff.
-model: opus
+  Opcional. Criterio de DBA: el orquestador lo consulta cuando el cambio toca migraciones, esquema, consultas o datos de usuario que quedan guardados. No es una etapa del flujo de cinco roles: sus criterios complementan el encargo de un rol.
 tools: Read, Grep, Glob, Bash
 ---
 

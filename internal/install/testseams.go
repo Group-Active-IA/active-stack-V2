@@ -8,6 +8,7 @@ import (
 	cfginstaller "github.com/Group-Active-IA/active-stack/internal/harness/config"
 	perminstaller "github.com/Group-Active-IA/active-stack/internal/harness/config/permissions"
 	extinstaller "github.com/Group-Active-IA/active-stack/internal/harness/external"
+	roledefsinstaller "github.com/Group-Active-IA/active-stack/internal/harness/roledefs"
 	skillinstaller "github.com/Group-Active-IA/active-stack/internal/harness/skill"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/system"
@@ -195,4 +196,12 @@ func SetSnapshotHomeDirFn(fn func() (string, error)) (restore func()) {
 	old := snapshotHomeDirFn
 	snapshotHomeDirFn = fn
 	return func() { snapshotHomeDirFn = old }
+}
+
+// SetRoleDefinitionsInstallFn replaces roleDefinitionsInstallFn so tests can
+// simulate role conflicts (e.g. a personal role-auditor.md) without disk state.
+func SetRoleDefinitionsInstallFn(fn func(adapters []AgentAdapter, homeDir, backupDir string) (roledefsinstaller.Result, error)) (restore func()) {
+	old := roleDefinitionsInstallFn
+	roleDefinitionsInstallFn = fn
+	return func() { roleDefinitionsInstallFn = old }
 }

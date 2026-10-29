@@ -40,7 +40,7 @@ import (
 // turned delegation off on purpose.
 func combosDeCosto() map[string][]string {
 	return map[string][]string{
-		"todos los toggles": KnownToggles(),
+		"todos los toggles": legacyToggles(),
 		"ningun toggle":     {},
 		"sin delegation":    sinToggle("delegation"),
 		"sin roles":         sinToggle("roles"),
@@ -171,7 +171,7 @@ func TestNingunaReglaNuevaRecortaAlAuditorNiLasLentes(t *testing.T) {
 
 	for _, variante := range variantes {
 		t.Run(variante, func(t *testing.T) {
-			bloque, err := Compose(KnownToggles(), variante)
+			bloque, err := Compose(legacyToggles(), variante)
 			if err != nil {
 				t.Fatalf("Compose(%q) error = %v", variante, err)
 			}

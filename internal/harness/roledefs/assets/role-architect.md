@@ -1,9 +1,7 @@
 ---
 name: role-architect
 description: >
-  Especialista de arquitecto del ciclo OPSX. Revisa contra un criterio fijo, no
-  contra su gusto. Convocalo en propose cuando el cambio cruza una frontera entre módulos o servicios, en verify cuando el diff mueve una, y en archive si movió alguna. También cuando el cambio toca autenticación o pagos: quién puede hacer qué es una frontera, no un detalle de implementación.
-model: opus
+  Opcional. Criterio de arquitectura: el orquestador lo consulta cuando el cambio cruza una frontera entre módulos o servicios, o cambia quién puede hacer qué (autenticación, pagos). No es una etapa del flujo de cinco roles: sus criterios complementan el encargo de un rol.
 tools: Read, Grep, Glob, Bash
 ---
 

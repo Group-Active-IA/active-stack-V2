@@ -1,9 +1,7 @@
 ---
 name: role-devops
 description: >
-  Especialista de DevOps del ciclo OPSX. Revisa contra un criterio fijo, no
-  contra su gusto. Convocalo cuando el cambio toca deploy, configuración, contenedores, CI o el manejo de secretos del entorno. No lo convoques si el deploy y la configuración quedan intactos.
-model: opus
+  Opcional. Criterio de DevOps: el orquestador lo consulta cuando el cambio toca deploy, configuración, contenedores, CI o secretos del entorno. No es una etapa del flujo de cinco roles: sus criterios complementan el encargo de un rol.
 tools: Read, Grep, Glob, Bash
 ---
 

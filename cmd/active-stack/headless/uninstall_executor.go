@@ -94,5 +94,11 @@ func RunHeadlessUninstall(params ParsedUninstallFlags, cat uninstall.Catalog, re
 		return 1
 	}
 
+	if params.Intent.Strategy == uninstall.StrategyRestore {
+		// The install snapshot covers config, roles, commands and skills, not
+		// tool binaries the external steps downloaded (e.g. engram under
+		// ~/.local/bin). Say so instead of implying a full rollback.
+		fmt.Fprintln(w, "\nRestored from backup. Note: downloaded binaries (e.g. engram in ~/.local/bin) are not removed by restore.")
+	}
 	return 0
 }

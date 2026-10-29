@@ -10,6 +10,7 @@ import (
 // knownToggles is the catalogue of recognised toggle names.
 // Any toggle not in this set causes Compose to return an error.
 var knownToggles = map[string]bool{
+	"lean-workflow":  true,
 	"delegation":     true,
 	"model-routing":  true,
 	"engram":         true,
@@ -33,6 +34,7 @@ var knownToggles = map[string]bool{
 // side by side. A hardcoded list drifts silently every time the catalogue grows.
 func KnownToggles() []string {
 	return []string{
+		"lean-workflow",
 		"delegation", "model-routing", "governance", "evidence",
 		"auditor", "roles", "review", "knowledge-base", "senior", "ship", "engram", "tdd",
 	}
@@ -42,6 +44,9 @@ func KnownToggles() []string {
 // active toggles. It is a PURE function: same inputs always produce the same
 // output. No I/O is performed; all assets are read from the embedded FS.
 //
+// With lean-workflow, composition returns compact universal role contracts and
+// selected integration contracts, independent of the adapter's native roles.
+// Without it, the legacy assembly order is retained below.
 // Assembly order (deterministic, independent of toggle slice order):
 //
 //  1. base (always): assets/<variant>/sdd-orchestrator.md
@@ -63,7 +68,16 @@ func Compose(toggles []string, variantKey string) (string, error) {
 	// Validate all toggles first.
 	for _, t := range toggles {
 		if !knownToggles[t] {
-			return "", fmt.Errorf("config compose: unknown toggle %q (known: delegation, model-routing, engram, tdd, governance, evidence, auditor, roles, review, knowledge-base, senior, ship)", t)
+			return "", fmt.Errorf("config compose: unknown toggle %q (known: %s)", t, strings.Join(KnownToggles(), ", "))
+		}
+	}
+
+	// The lean lifecycle is a complete contract. Validate before selecting it so
+	// unknown options cannot be hidden by the early return. Without this toggle,
+	// the historical composition below remains unchanged.
+	for _, t := range toggles {
+		if t == "lean-workflow" {
+			return composeLean(toggles, variantKey)
 		}
 	}
 
@@ -155,7 +169,7 @@ func Compose(toggles []string, variantKey string) (string, error) {
 		// List review first, then other absences in canonical order.
 		missing := []string{"review"}
 		for _, toggle := range KnownToggles() {
-			if toggle != "review" && !active[toggle] {
+			if toggle != "review" && toggle != "lean-workflow" && !active[toggle] {
 				missing = append(missing, toggle)
 			}
 		}

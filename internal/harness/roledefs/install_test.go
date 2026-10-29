@@ -66,8 +66,8 @@ func TestInstall_AbsentCreates(t *testing.T) {
 			created++
 		}
 	}
-	if created != 7 {
-		t.Errorf("got %d OutcomeCreated, want 7 (full result: %+v)", created, res.Resources)
+	if created != 12 {
+		t.Errorf("got %d OutcomeCreated, want 12 (full result: %+v)", created, res.Resources)
 	}
 }
 

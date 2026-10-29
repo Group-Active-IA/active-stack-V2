@@ -1,9 +1,7 @@
 ---
 name: role-frontend
 description: >
-  Especialista de frontend del ciclo OPSX. Revisa contra un criterio fijo, no
-  contra su gusto. Convocalo cuando el cambio toca interfaz: componentes, formularios, estados de carga o error, layout. No lo convoques si el diff no tiene un archivo bajo el árbol de UI.
-model: opus
+  Opcional. Criterio de frontend: el orquestador lo consulta cuando el cambio toca interfaz: componentes, formularios, estados de carga o error, layout. No es una etapa del flujo de cinco roles: sus criterios complementan el encargo de un rol.
 tools: Read, Grep, Glob, Bash
 ---
 

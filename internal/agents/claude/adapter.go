@@ -57,6 +57,27 @@ func (a *Adapter) SettingsPath(homeDir string) string {
 	return filepath.Join(homeDir, ".claude", "settings.json")
 }
 
+// InstalledPluginsPath returns Claude Code's registry of installed plugins
+// (which plugins exist on disk; whether each is ENABLED lives in
+// SettingsPath under "enabledPlugins").
+// Example: /home/user/.claude/plugins/installed_plugins.json
+func (a *Adapter) InstalledPluginsPath(homeDir string) string {
+	return filepath.Join(homeDir, ".claude", "plugins", "installed_plugins.json")
+}
+
+// mcpPlugins maps an MCP server name to the Claude Code plugin that already
+// ships it. When that plugin is enabled the external installer does not
+// register the server again in ~/.claude.json (lean-agent-workflow 5.3).
+var mcpPlugins = map[string]string{
+	"engram": "engram@engram",
+}
+
+// MCPPluginID returns the Claude Code plugin that provides serverName, or ""
+// when no known plugin does.
+func (a *Adapter) MCPPluginID(serverName string) string {
+	return mcpPlugins[serverName]
+}
+
 // MCPConfigPath returns the path to Claude Code's user-scope MCP config file.
 // Claude Code reads user-scope MCP servers from the top-level "mcpServers" key
 // in ~/.claude.json — there is no ~/.claude/mcp/ auto-discovery. The serverName

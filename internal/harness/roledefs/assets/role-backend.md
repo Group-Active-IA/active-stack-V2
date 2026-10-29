@@ -1,9 +1,7 @@
 ---
 name: role-backend
 description: >
-  Especialista de backend del ciclo OPSX. Revisa contra un criterio fijo, no
-  contra su gusto. Convocalo cuando el cambio toca endpoints, servicios, validación de entrada o manejo de secretos. Obligatorio, sin excepción, si toca autenticación, pagos o datos de usuario: es la capa donde el control existe o no existe.
-model: opus
+  Opcional. Criterio de backend: el orquestador lo consulta cuando el cambio toca endpoints, servicios, validación de entrada, secretos, autenticación, pagos o datos de usuario. No es una etapa del flujo de cinco roles: sus criterios complementan el encargo de un rol.
 tools: Read, Grep, Glob, Bash
 ---
 

@@ -230,7 +230,10 @@ func RelPathForVariant(variantKey string) string {
 // timestamped sub-directory inside backupDir, before the file is overwritten.
 // Mirrors snapshotSkillDir from internal/harness/skill/idempotent.go.
 func snapshotCommandFile(backupDir, destFile, variantKey string) error {
-	snapName := fmt.Sprintf("%s-cmd-%s", time.Now().UTC().Format("20060102-150405"), variantKey)
+	// Nanoseconds plus the file name keep one snapshot per file: a name by
+	// second alone let two overwrites in the same second share a directory, and
+	// the second snapshot replaced the first file's backup.
+	snapName := fmt.Sprintf("%s-cmd-%s-%s", time.Now().UTC().Format("20060102-150405.000000000"), variantKey, filepath.Base(destFile))
 	snapDir := filepath.Join(backupDir, snapName)
 
 	s := backup.NewSnapshotter()

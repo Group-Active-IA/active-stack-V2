@@ -208,7 +208,7 @@ func TestDebtContractsComposition(t *testing.T) {
 // Additive mutations preserve every correct instruction already on the page.
 // Both the composed block and the shipped command copy must reject them.
 func TestDebtCorpusAdditiveCopies(t *testing.T) {
-	block, err := config.Compose(config.KnownToggles(), "claude")
+	block, err := config.Compose(legacyToggles(), "claude")
 	if err != nil {
 		t.Fatal(err)
 	}

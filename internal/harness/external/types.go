@@ -17,6 +17,10 @@ type Result struct {
 	// rollback the file is ours to delete: a binary that came from npm, brew or
 	// a previous run must never be removed on our behalf.
 	Downloaded bool
+	// Notes are human-readable messages about decisions the installer took
+	// that the user should see (e.g. an MCP not registered because a plugin
+	// already provides it).
+	Notes []string
 }
 
 type DownloadEventType string

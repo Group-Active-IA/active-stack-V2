@@ -14,23 +14,37 @@ type Resource struct {
 	Content []byte
 }
 
-// canonicalRoleIDs are the seven roles this harness installs. Sourced from
-// internal/roles so the two never drift — that package already owns the
-// canonical list (it is what `active-stack roles` classifies against).
-var canonicalRoleIDs = []string{
+// canonicalRoleIDs combines the seven specialist criteria (classified by
+// internal/roles) and the five sequential workflow responsibilities. The
+// classifier remains independent: installing a role does not require its attendance.
+var canonicalRoleIDs = append([]string{
 	roles.RoleDBA, roles.RoleBackend, roles.RoleFrontend, roles.RoleDevOps,
 	roles.RoleQA, roles.RoleArch, roles.RoleAnalyst,
+}, workflowRoleIDs...)
+
+// workflowRoleIDs are the five sequential responsibilities of the lean flow.
+// Unlike the specialists, the flow cannot run without the STACK's version of
+// each one: a personal role-auditor.md with another contract would be
+// convened as if it were ours. Install reports a conflict on any of them as
+// blocking, and Health flags one whose content is not the stack's (5.1).
+var workflowRoleIDs = []string{
+	"role-planner", "role-plan-reviewer", "role-constructor", "role-breaker", "role-auditor",
 }
 
-// forbiddenRoleIDs are roles that exist in this project but must NEVER be
-// bundled by this harness — "no importar archivos personales ni sumar
-// senior/auditor por accidente" (propose, sección 4). role-senior and
-// role-auditor are real sub-agents (see internal/harness/config's senior/
-// auditor toggles) with a different install story; this harness is not it.
-var forbiddenRoleIDs = map[string]bool{
-	"role-senior":  true,
-	"role-auditor": true,
+// IsWorkflowRole reports whether resource name (e.g. "role-auditor.md") is one
+// of the five sequential workflow roles.
+func IsWorkflowRole(name string) bool {
+	id := strings.TrimSuffix(name, ".md")
+	for _, w := range workflowRoleIDs {
+		if w == id {
+			return true
+		}
+	}
+	return false
 }
+
+// Senior is a legacy optional procedure, not one of the installed workflow roles.
+var forbiddenRoleIDs = map[string]bool{"role-senior": true}
 
 // DefaultResources returns the production resource set, read from the
 // embedded assets. It is the only place that touches embeddedAssets; Install
@@ -56,7 +70,7 @@ func DefaultResources() ([]Resource, error) {
 }
 
 // ValidateResources is the gate the propose requires BEFORE bundling:
-// exactly the seven canonical roles, none empty, none forbidden, no stray
+// exactly the twelve canonical roles, none empty, none forbidden, no stray
 // file. It is checked both against the embedded production set (
 // TestDefaultResources_PassesValidation) and against whatever Install/
 // Uninstall receive at runtime — a malformed catalog or a bad override in a
@@ -67,7 +81,7 @@ func ValidateResources(res []Resource) error {
 	for _, r := range res {
 		name := strings.TrimSuffix(r.Name, ".md")
 		if forbiddenRoleIDs[name] {
-			return fmt.Errorf("roledefs: %q is not one of the seven canonical roles — "+
+			return fmt.Errorf("roledefs: %q is not one of the twelve canonical roles — "+
 				"it must never be bundled by this harness", r.Name)
 		}
 		if _, dup := seen[r.Name]; dup {
@@ -105,7 +119,7 @@ func ValidateResources(res []Resource) error {
 			extra = append(extra, name)
 		}
 		sort.Strings(extra)
-		return fmt.Errorf("roledefs: unexpected resource(s) beyond the seven canonical roles: %s", strings.Join(extra, ", "))
+		return fmt.Errorf("roledefs: unexpected resource(s) beyond the twelve canonical roles: %s", strings.Join(extra, ", "))
 	}
 	return nil
 }

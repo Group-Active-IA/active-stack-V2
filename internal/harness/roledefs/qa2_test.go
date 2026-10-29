@@ -14,14 +14,14 @@ import (
 // mismo paso: el primero escribe, el segundo falla; exigir recuperación del
 // primero y conservación de ediciones posteriores".
 //
-// adapter 1 (claude) escribe los siete archivos con éxito. adapter 2 (codex)
+// adapter 1 (claude) escribe los archivos de roles con éxito. adapter 2 (codex)
 // falla porque su AgentsDir resuelve a una ruta donde YA existe un archivo
 // regular en el lugar de un componente del directorio (ENOTDIR real, no un
 // fallo simulado con un booleano) — falla determinística sin depender de
 // permisos de archivo, que bajo root no fallarían.
 //
 // Es RED first: hoy Install no revierte nada cuando un adapter posterior
-// falla — este test tiene que fallar por su aserción (los 7 archivos de
+// falla — este test tiene que fallar por su aserción (los archivos de
 // claude siguen ahí) antes de implementar el rollback cruzado.
 func TestInstall_SecondAdapterFails_FirstAdapterWriteIsUndone(t *testing.T) {
 	home := t.TempDir()

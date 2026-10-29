@@ -10,7 +10,6 @@ import (
 	"github.com/Group-Active-IA/active-stack/internal/model"
 	"github.com/Group-Active-IA/active-stack/internal/pipeline"
 	"github.com/Group-Active-IA/active-stack/internal/system"
-	"github.com/Group-Active-IA/active-stack/internal/verify"
 )
 
 // RunHeadless executes the headless install flow and returns the process exit code:
@@ -39,6 +38,10 @@ func RunHeadless(params ParsedFlags, cat install.Catalog, reg install.Registry, 
 	//
 	// Accumulate degraded events for the honest end-of-run summary (C-32).
 	var degradedEvents []pipeline.ProgressEvent
+	// Notes a step reported while still succeeding (e.g. the Engram MCP not
+	// registered because the engram@engram plugin provides it, 5.3). They
+	// arrive as StepStatusSkipped events carrying the message in Err.
+	var noteEvents []pipeline.ProgressEvent
 	progressFn := func(e pipeline.ProgressEvent) {
 		if params.ProgressEventFn != nil {
 			params.ProgressEventFn(e)
@@ -56,6 +59,11 @@ func RunHeadless(params ParsedFlags, cat install.Catalog, reg install.Registry, 
 			degradedEvents = append(degradedEvents, e)
 		case pipeline.StepStatusRolledBack:
 			fmt.Fprintf(w, "  ↩ %s (rolled back)\n", e.StepID)
+		case pipeline.StepStatusSkipped:
+			if e.Err != nil {
+				fmt.Fprintf(w, "  ↷ %s: %v\n", e.StepID, e.Err)
+				noteEvents = append(noteEvents, e)
+			}
 		}
 	}
 
@@ -143,13 +151,18 @@ func RunHeadless(params ParsedFlags, cat install.Catalog, reg install.Registry, 
 		return 1
 	}
 
-	// ── Print verify report ─────────────────────────────────────────────────
-	// Collect any check results from the verify hook by building an empty
-	// report (the real checks ran inside the verify-hook step). If no
-	// VerifyHookFn was wired and opts.VerifyHook is nil, print the
-	// "all passed" summary manually.
-	report := verify.BuildReport(nil) // zero checks → Ready == true
-	fmt.Fprint(w, verify.RenderReport(report))
+	// The real checks ran inside the verify-hook step: a failing one aborts the
+	// plan above, so reaching here means they passed. Rendering an empty report
+	// printed "0 passed, 0 failed" and then "verified", which read as if nothing
+	// had been checked (isolated-home install, 2026-10-29). The final status is
+	// printed last, after the degraded summary, so a blocking result is the
+	// last thing the operator reads.
+	blocking := false
+	for _, ev := range degradedEvents {
+		if install.IsBlocking(ev.Err) {
+			blocking = true
+		}
+	}
 
 	// ── Print degraded (best-effort) summary if any (C-32) ─────────────────
 	// Exit code STAYS 0: degraded harnesses are soft failures. The summary
@@ -164,7 +177,20 @@ func RunHeadless(params ParsedFlags, cat install.Catalog, reg install.Registry, 
 			fmt.Fprintf(w, "  ⚠ %s: %s\n", ev.StepID, reason)
 		}
 	}
+	if len(noteEvents) > 0 {
+		fmt.Fprintln(w, "\nNotes:")
+		for _, ev := range noteEvents {
+			fmt.Fprintf(w, "  ↷ %s: %v\n", ev.StepID, ev.Err)
+		}
+	}
 
+	// Exit code stays 0 even when blocking: degraded outcomes are soft by
+	// contract and scripts rely on it; the last line carries the result.
+	if blocking {
+		fmt.Fprintln(w, "\nInstalled with BLOCKING issues: the lean workflow cannot run until you resolve the BLOQUEANTE items above.")
+	} else {
+		fmt.Fprintln(w, "\nPost-install checks passed. Installation verified. You're ready to start building.")
+	}
 	return 0
 }
 

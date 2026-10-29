@@ -59,7 +59,7 @@ func TestAuditorDecideSinAutoridadParalela(t *testing.T) {
 			t.Errorf("falta secuencia: %s", frase)
 		}
 	}
-	all, err := config.Compose(config.KnownToggles(), "claude")
+	all, err := config.Compose(legacyToggles(), "claude")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -98,7 +98,7 @@ func TestVerifyDegradacionesComponibles(t *testing.T) {
 func TestVerifyVocabularioCompuesto(t *testing.T) {
 	for _, agent := range []string{"claude", "codex", "opencode"} {
 		t.Run(agent, func(t *testing.T) {
-			body, err := config.Compose(config.KnownToggles(), agent)
+			body, err := config.Compose(legacyToggles(), agent)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -112,7 +112,7 @@ func TestVerifySinReviewTresAgentes(t *testing.T) {
 		for _, auditor := range []bool{true, false} {
 			t.Run(fmt.Sprintf("%s/auditor=%t", agent, auditor), func(t *testing.T) {
 				toggles := []string{}
-				for _, toggle := range config.KnownToggles() {
+				for _, toggle := range legacyToggles() {
 					if toggle != "review" && (auditor || toggle != "auditor") {
 						toggles = append(toggles, toggle)
 					}

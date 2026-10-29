@@ -67,5 +67,6 @@ func maybeRegisterStdioMCP(binaryResult Result, h model.Harness, adapters []Agen
 		ConfigFiles:      mcpResult.ConfigFiles,
 		AlreadyInstalled: binaryResult.AlreadyInstalled && mcpResult.AlreadyInstalled,
 		Downloaded:       binaryResult.Downloaded,
+		Notes:            append(append([]string(nil), binaryResult.Notes...), mcpResult.Notes...),
 	}, nil
 }

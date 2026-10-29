@@ -182,7 +182,7 @@ Lo que Active Stack puede instalar hoy (fuente de verdad: [`internal/catalog/har
 | **OpenSpec CLI** | external | lite · full | CLI de Spec-Driven Development; fuente de verdad del estado |
 | **Engram** | external | lite · full | Memoria persistente local (SQLite + FTS) vía MCP |
 | **Context7** | external | lite · full | Documentación de librerías al día (MCP remoto) |
-| **SDD Orchestrator** | config | lite · full | Orquestador SDD componible por toggles (`delegation`, `model-routing`, `governance`, `evidence`, `auditor`, `roles`, `review`, `knowledge-base`, `senior`, `ship`, `engram`, `tdd`) |
+| **SDD Orchestrator** | config | lite · full | Orquestador SDD componible por toggles (`lean-workflow` por defecto; compatibilidad: `delegation`, `model-routing`, `governance`, `evidence`, `auditor`, `roles`, `review`, `knowledge-base`, `senior`, `ship`, `engram`, `tdd`) |
 | **Permissions** | config | lite · full | Permisos seguros por defecto (bloquea `.env`, confirma git destructivo) — **no opcional** |
 | **active-orchestrator** | skill | full | Orquestador delgado de la fase de fundación |
 | **kb-creator** | skill | full | Genera la knowledge-base canónica del dominio |
@@ -198,8 +198,11 @@ Lo que Active Stack puede instalar hoy (fuente de verdad: [`internal/catalog/har
 
 El **`sdd-orchestrator`** es el harness clave: es de tipo `config` y se compone a partir de **toggles modulares**. El resultado es el bloque de instrucciones del orquestador que se inyecta en el `CLAUDE.md` / `AGENTS.md` de tu proyecto.
 
-Los toggles, en orden de composición, y qué agrega cada uno:
+Por defecto `lean-workflow` selecciona el [flujo compacto de cinco roles](docs/lean-agent-workflow.md). El agente principal coordina planificador → revisor del plan → constructor → rompedor → auditor. Cada fase OPSX tiene sus roles (propose: planificador y revisor; apply: constructor; verify: rompedor y auditor), la profundidad escala con LOW/MEDIUM/HIGH/CRITICAL y cada proyecto declara quién ejecuta cada rol en `## Role executors` (subagente de Claude, Codex u otro proveedor). TDD es obligatorio para código; senior y especialistas no agregan etapas automáticamente.
 
+La matriz de precedencia y las excepciones de documentación están en esa guía. Quitar explícitamente `lean-workflow` conserva la composición anterior. **Solo en ese modo legacy** se aplica la siguiente lista:
+
+- `lean-workflow` — selector predeterminado; quitarlo activa la siguiente composición legacy.
 - `delegation` — reglas de delegación: qué resolvés inline y qué mandás a un sub-agente, para no inflar el contexto.
 - `model-routing` — qué modelo usa cada fase del ciclo, con sustitución declarada si no tenés acceso al asignado.
 - `governance` — cuánta autonomía tiene el agente según la criticidad del dominio que toca (CRITICAL, HIGH, MEDIUM, LOW).

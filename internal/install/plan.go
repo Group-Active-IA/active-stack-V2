@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/Group-Active-IA/active-stack/internal/backup"
+	cmdinstaller "github.com/Group-Active-IA/active-stack/internal/harness/command"
 	"github.com/Group-Active-IA/active-stack/internal/harness/external"
 	roledefsinstaller "github.com/Group-Active-IA/active-stack/internal/harness/roledefs"
 	"github.com/Group-Active-IA/active-stack/internal/model"
@@ -326,7 +327,9 @@ func collectWritePaths(adapters []AgentAdapter, effectiveBase string, target mod
 		case model.HarnessSkill:
 			for _, a := range adapters {
 				// SkillsDir is a directory path — must be tracked as a dir hint.
-				addDir(resolvedSkillsDir(a, effectiveBase, target))
+				skillsDir := resolvedSkillsDir(a, effectiveBase, target)
+				addDir(skillsDir)
+				collectSkillDirPaths(skillsDir, h.ID, addFile, addDir)
 			}
 		case model.HarnessExternal:
 			for _, a := range adapters {
@@ -337,7 +340,9 @@ func collectWritePaths(adapters []AgentAdapter, effectiveBase string, target mod
 		case model.HarnessCommand:
 			for _, a := range adapters {
 				// CommandsDir is a directory — track as dir hint so rollback can RemoveAll.
-				addDir(resolvedCommandsDir(a, effectiveBase, target))
+				commandsDir := resolvedCommandsDir(a, effectiveBase, target)
+				addDir(commandsDir)
+				collectCommandFilePaths(commandsDir, a.VariantKey(), addFile)
 			}
 		}
 		// permissions harness (id == "permissions") — settings paths.
@@ -433,6 +438,56 @@ func resolvedCommandsDir(a AgentAdapter, base string, t model.InstallTarget) str
 		return a.PathsFor(base, t).CommandsDir
 	}
 	return a.CommandsDir(base)
+}
+
+// A directory that already exists is a restore NO-OP (backup/restore.go): its
+// files come back only through their own entries. Listing just the directory
+// let restore skip every command and skill the install overwrote inside it
+// (isolated-home install, 2026-10-29). The two helpers below list the files.
+
+// collectCommandFilePaths adds every command file the command step writes for
+// this variant: the same embedded walk the installer uses, so both lists match.
+func collectCommandFilePaths(commandsDir, variantKey string, addFile func(string)) {
+	if commandsDir == "" || embeddedCommandsFS == nil {
+		return
+	}
+	relPaths, err := cmdinstaller.RelPathsForVariant(embeddedCommandsFS, variantKey)
+	if err != nil {
+		return
+	}
+	for _, rel := range relPaths {
+		addFile(filepath.Join(commandsDir, rel))
+	}
+}
+
+// collectSkillDirPaths covers <skillsDir>/<id>, which the skill step overwrites
+// file by file. Existing files are listed one by one so restore returns their
+// content; an absent skill dir is a dir hint so restore removes what the
+// install created. Files the install adds inside an EXISTING skill dir stay
+// after restore: they cannot be named before the clone runs.
+func collectSkillDirPaths(skillsDir, skillID string, addFile, addDir func(string)) {
+	if skillsDir == "" || skillID == "" {
+		return
+	}
+	skillDir := filepath.Join(skillsDir, skillID)
+	info, err := os.Stat(skillDir)
+	if err != nil || !info.IsDir() {
+		addDir(skillDir)
+		return
+	}
+	_ = filepath.WalkDir(skillDir, func(p string, d os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return nil
+		}
+		if d.IsDir() {
+			if d.Name() == ".git" {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		addFile(p)
+		return nil
+	})
 }
 
 // collectRoleDefinitionsPaths adds, for every adapter whose AgentsDir
@@ -563,6 +618,7 @@ func buildHarnessStep(h model.Harness, adapters []AgentAdapter, opts Options, ef
 			homeDir:    effectiveBase,
 			profile:    opts.Profile,
 			onDownload: opts.OnDownload,
+			onProgress: opts.OnProgress,
 		}, nil
 
 	case model.HarnessSkill:
@@ -592,10 +648,11 @@ func buildHarnessStep(h model.Harness, adapters []AgentAdapter, opts Options, ef
 		}
 		if h.ID == "role-definitions" {
 			return &roleDefinitionsStep{
-				h:         h,
-				adapters:  stepAdapters,
-				homeDir:   effectiveBase,
-				backupDir: filepath.Join(effectiveBase, ".active-stack", "backups", "role-definitions"),
+				h:          h,
+				adapters:   stepAdapters,
+				homeDir:    effectiveBase,
+				backupDir:  filepath.Join(effectiveBase, ".active-stack", "backups", "role-definitions"),
+				onProgress: opts.OnProgress,
 			}, nil
 		}
 		return &configStep{

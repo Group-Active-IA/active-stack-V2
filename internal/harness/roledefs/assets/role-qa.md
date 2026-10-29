@@ -1,9 +1,7 @@
 ---
 name: role-qa
 description: >
-  Especialista de QA del ciclo OPSX. Revisa contra un criterio fijo, no
-  contra su gusto. Convocalo en verify, siempre, sin importar qué toque el cambio. Los caminos de error son donde viven los bugs, y son lo que nadie escribe.
-model: opus
+  Opcional. Criterio de QA: el orquestador lo consulta cuando los caminos de error del cambio piden una mirada dedicada; el rompedor ya cubre correctitud en cada verify. No es una etapa del flujo de cinco roles: sus criterios complementan el encargo de un rol.
 tools: Read, Grep, Glob, Bash
 ---
 

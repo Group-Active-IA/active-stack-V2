@@ -332,12 +332,24 @@ func registerStdioMCP(
 	}
 
 	var configFiles []string
+	var notes []string
 	allAlready := true
 
 	for _, adapter := range adapters {
 		configPath := adapter.MCPConfigPath(homeDir, mcp.Name)
 		if configPath == "" {
 			continue
+		}
+
+		// 5.3: an enabled plugin already provides this server — registering
+		// it again would duplicate it. Skip (no backup, no write) and say so.
+		pluginID, provided, note := pluginProvidesMCP(adapter, homeDir, mcp.Name)
+		if provided {
+			notes = append(notes, pluginSkipNote(pluginID, mcp.Name, configPath))
+			continue
+		}
+		if note != "" {
+			notes = append(notes, note)
 		}
 
 		// Backup existing file before touching it (governance ALTO).
@@ -388,6 +400,7 @@ func registerStdioMCP(
 	return Result{
 		ConfigFiles:      configFiles,
 		AlreadyInstalled: allAlready && len(configFiles) == 0,
+		Notes:            notes,
 	}, nil
 }
 

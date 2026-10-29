@@ -266,7 +266,7 @@ func TestElRegistroLlevaElAlcancePorAgente(t *testing.T) {
 func TestLaSuposicionDelArchivadoEsUnaSola(t *testing.T) {
 	for _, variante := range variantes {
 		t.Run(variante, func(t *testing.T) {
-			bloque, err := Compose(KnownToggles(), variante)
+			bloque, err := Compose(legacyToggles(), variante)
 			if err != nil {
 				t.Fatalf("Compose(%q) error = %v", variante, err)
 			}
@@ -313,7 +313,7 @@ func TestElRepartoNoAutorizaRecortarLaRevision(t *testing.T) {
 
 	for _, variante := range variantes {
 		t.Run(variante, func(t *testing.T) {
-			bloque, err := Compose(KnownToggles(), variante)
+			bloque, err := Compose(legacyToggles(), variante)
 			if err != nil {
 				t.Fatalf("Compose(%q) error = %v", variante, err)
 			}

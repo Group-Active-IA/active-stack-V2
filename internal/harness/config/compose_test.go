@@ -36,10 +36,10 @@ func writeGolden(t *testing.T, name, content string) {
 	}
 }
 
-// TestCompose_AllToggles verifies that with all toggles active the composed
-// output is deterministic and matches the golden file.
-func TestCompose_AllToggles(t *testing.T) {
-	toggles := config.KnownToggles()
+// TestCompose_LegacyAllToggles preserves the prior complete legacy composition
+// byte-for-byte, with the new lean mode explicitly excluded.
+func TestCompose_LegacyAllToggles(t *testing.T) {
+	toggles := legacyToggles()
 	got, err := config.Compose(toggles, "claude")
 	if err != nil {
 		t.Fatalf("Compose error: %v", err)
@@ -60,10 +60,10 @@ func TestCompose_AllToggles(t *testing.T) {
 	}
 }
 
-// TestCompose_AllToggles_opencode verifies that with all toggles active the
-// composed output for the opencode variant is deterministic and matches the golden file.
-func TestCompose_AllToggles_opencode(t *testing.T) {
-	toggles := config.KnownToggles()
+// TestCompose_LegacyAllToggles_opencode preserves the OpenCode legacy golden
+// with the new lean mode explicitly excluded.
+func TestCompose_LegacyAllToggles_opencode(t *testing.T) {
+	toggles := legacyToggles()
 	got, err := config.Compose(toggles, "opencode")
 	if err != nil {
 		t.Fatalf("Compose error: %v", err)

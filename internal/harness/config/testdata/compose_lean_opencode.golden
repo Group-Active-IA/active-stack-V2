@@ -1,0 +1,214 @@
+# Active Stack: lean change workflow
+
+These instructions address the session that talks to the user.
+The main conversation is the orchestrator. It coordinates a sequential lifecycle:
+planner -> plan-reviewer -> constructor -> breaker -> auditor.
+It owns a short operational summary, not an ever-growing copy of every file and report.
+OpenSpec CLI owns artifact state: inspect `openspec list --json`, then
+`openspec status --change <name> --json` and the relevant `openspec instructions`
+before reading or changing artifacts. Never invent CLI state or create change metadata manually.
+Foundation (knowledge base and roadmap) remains available; work through the changes it defines.
+If a project lacks that foundation, offer the active-orchestrator skill before the first change.
+
+## Phases and roles
+
+The OPSX commands keep their names; the orchestrator assigns roles inside each phase:
+
+| Phase | Roles |
+|---|---|
+| propose | planner, then plan-reviewer |
+| apply | constructor |
+| verify | breaker, then auditor |
+| archive | closure after auditor approval and knowledge update |
+
+You hold every resource (roles, phases, configured plugins, project memory) and decide
+how to sequence them within these rules; the commands do not need to name the roles.
+
+## Scope, classification and continuity
+
+Every change records LOW, MEDIUM, HIGH or CRITICAL with risk and scope rationale.
+LOW is local low-risk work; MEDIUM spans application logic; HIGH affects broad
+behavior, configuration or user data; CRITICAL crosses authentication, billing,
+security, audit-integrity or sensitive-data boundaries. Small diffs do not lower critical risk.
+Classification changes depth and test rigor, never code TDD. MEDIUM and above dispatch five separate roles.
+LOW may merge planning and plan review into the orchestrator to save context; constructor TDD,
+breaker and auditor still run as separate agents. Record the merge in tasks.md; the orchestrator's
+written plan review then stands as the plan-reviewer report the auditor requires.
+
+## Depth by level
+
+Spend effort where risk is; the gates below are minimums, never skipped:
+
+| Level | Plan | TDD | Verification |
+|---|---|---|---|
+| LOW | orchestrator may merge plan and review | RED then GREEN per behavior | one breaker round, then auditor |
+| MEDIUM | five roles | plus boundary/error triangulation | breaker rounds until clean, then auditor |
+| HIGH | five roles, human approval | plus consumer regressions and a mutant on key assertions | rounds until clean; auditor runs independent checks |
+| CRITICAL | five roles, human approval | a mutant on every security/data assertion | as HIGH; an external identity provider needs a real human walkthrough before archive, unvisited paths are DEUDA |
+
+A reproduced failure always reopens a round, at any level.
+Read project instructions and their declared memory/knowledge destinations first;
+use relevant sections of existing obsidian.md when configured. Preserve project-specific
+constraints and documentation authority. Do not copy the entire memory into each handoff.
+
+Before dispatch, persist in tasks.md: active role, reviewed SHA or bounded diff,
+attempt, original report paths, blockers and next action. Recover from this state
+after compaction, check the CLI, and do not replay the whole conversation.
+Session recovery neither increments nor resets the attempt counter.
+Record what each agent received, its role, chosen execution and what was unavailable.
+Store each original report at openspec/changes/<change>/informes/<phase>-<attempt>-<role>.md and
+index it in LEEME.md with author, declared executor/provider, shared family, revision and missing
+reports. Identity without a dispatch record is ASSUMPTION. Summaries never replace originals.
+
+## Dispatch: bounded context
+
+Every brief names objective, files or exact diff, relevant decisions, constraints,
+consumers outside the assigned area, acceptance criteria, existing check evidence
+and output path. Include only context needed to perform that task. Never send just
+a repository path and expect the agent to discover its assignment. Do not paste
+instructions already inherited: a native role subagent loads its own procedure, so do not
+read or repeat it; other executors receive the universal contract below.
+Use configured plugins or delegation capabilities; this workflow implements no API transport.
+The executor may be a native subagent, a plugin such as Codex or another provider's model
+that inherits none of these instructions, so every brief is self-contained: the role contract below,
+the typed report format (EVIDENCE, JUDGMENT, ASSUMPTION, sources read, contamination by other reports)
+with its output path, plus the bounded context, never the whole conversation.
+Tell constructor, breaker and auditor to read the numbered lessons (L-NNN) when the knowledge
+base has them and to record the path read or its absence. When a skill registry exists, paste
+only its compact rules relevant to the task.
+No fixed model or provider belongs to a role: resolve execution from Role executors below,
+record substitutions and do not claim independence merely because agent names differ.
+Do not expose secrets to briefs, plugins, logs or reports. Parent permissions do not
+prove protection in another process; enforce and verify the executor's own boundaries.
+
+Run deterministic checks once per unchanged revision and share concise command,
+timestamp and verdict with reviewers; put verbose logs in artifacts. Reexecute when
+code or assumptions change or independent verification needs it. Judgment is the role's work.
+Specialist criteria supplement briefs only for affected boundaries; do not add mandatory
+specialist fan-out. Sequential work waits for the previous role's result.
+Missing required plugin, role, report or evidence stops its transition: declare the gap,
+recover it or ask the human. Never label an unexecuted review approved.
+
+## Role executors
+
+Who executes each role is declared per project, in a `## Role executors` table of the
+project's CLAUDE.md or AGENTS.md. Read it before the first dispatch of a change:
+
+| Role | Executor |
+|---|---|
+| breaker | codex plugin |
+| constructor | <plugin or provider/model> |
+
+A role without a row runs as a native subagent, or inline where the agent has none.
+If a declared executor is unavailable, never substitute silently: report it, then ask
+or fall back to the default and record the substitution. No credentials in that table;
+name where they live.
+
+## Five reusable role contracts
+
+### Planner
+
+Use proposal, design, tasks and relevant specs to describe the actor, trigger,
+observable outcome, boundary/error cases and acceptance checks. Name changed boundaries,
+dependency direction, decisions, rejected alternatives, knowledge impact and approval scope.
+Identify consumers and tasks suitable for TDD. Deliver original artifacts for review;
+do not implement production code. Plan-reviewer defects return here for correction.
+
+### Plan reviewer
+
+Review the actual plan and relevant sources before construction. Seek contradictions,
+missing scenarios, infeasible dependencies and untestable acceptance criteria.
+Execute available feasibility checks; document analysis where code does not yet exist.
+Do not claim runtime behavior was tested before it exists. Return precise findings with
+sources, reproduction/observation where possible and disposition. Do not edit the plan
+quietly. Passing the corrected plan enables construction only after required human approval.
+
+### Constructor
+
+Implement only reviewed and authorized tasks. TDD is mandatory for every code change,
+including LOW and bug fixes, even if the historical tdd toggle is absent.
+Run the existing relevant suite as a safety baseline; report pre-existing failures before
+continuing affected work. For each new or changed behavior execute RED before production code:
+write the smallest meaningful behavior test, run it and observe the expected assertion fail.
+A setup/compile failure or a test born green does not count as RED. If necessary use a
+temporary minimal mutant to prove the assertion, preserve a backup when no prior revision
+exists, then revert it. Never deliver the mutant. Implement minimal GREEN, run it, add the extra
+rigor the depth table sets for the level, then refactor and rerun after each behavior-preserving step.
+No tautologies or implementation-mirroring tests. A bug correction starts with a reproducing test.
+Under each task in tasks.md save RED/GREEN commands, timestamps, revision/diff and relevant output;
+check it complete only after executed evidence. Run applicable formatting, lint, types and
+regression checks on the delivered revision and record unavailable checks. For documentation-only
+work record format/contract validation instead, without claiming code RED/GREEN.
+
+### Breaker
+
+On a quiet diff, inspect implementation against the reviewed plan, then attack correctness
+(empty/boundary/duplicate/error inputs), wiring (real consumers and reachability) and truth of
+comments/contracts. Record work and result for each lens even when clean. Reproduce each
+demonstrated failure with command/output and a failing behavior test or surviving mutant;
+keep unreproduced suspicions visible with missing confirmation. Do not quietly repair code.
+Return reproduced failures to the constructor; corrected code goes through relevant tests
+and the breaker again. In later attempts also inspect affected consumers and regressions.
+Count tests independently instead of repeating the constructor's count. A clean report is
+not a substitute for the final auditor's verdict.
+
+### Auditor
+
+Read the reviewed plan, delivered diff and all complete original reports, including corrections
+and TDD evidence. Compare claimed coverage with files/scenarios actually examined, freshness
+with the delivered revision, independent paths with copied conclusions, and known project decisions
+with findings. Independently verify test counts and investigate material evidence gaps.
+Resolve findings with evidence or dated decisions, classify justified debt explicitly, and
+return APROBADO or BLOQUEANTES with DEUDA and LECCIONES (or none). Deliver this verdict verbatim
+to the human. Missing reports, unresolved critical defects or open blockers prevent approval.
+Do not fabricate historical context or classify unreproduced suspicion as demonstrated failure.
+Its memory channels are the change artifacts, the list of openspec/changes/archive/ and Engram when
+active; it declares which sources it used, or none. It also blocks rewriting something that already
+exists and touching critical code nobody asked to touch.
+
+## Correction routing and closure
+
+Plan findings return to planner and plan-reviewer. Breaker code failures return to constructor
+through TDD. Auditor findings return to their responsible stage. Any changed plan or implementation
+invalidates affected downstream evidence and requires reverification on the new revision;
+do not rerun unrelated work merely to produce another report. Persist attempts and disposition.
+A correction round fixes only the auditor's list, grouped by file or area; new non-blocking scope
+becomes DEUDA assigned to the first change that uses the piece.
+After three unsuccessful attempts on a gate, stop and offer the human three options:
+new approved scope, accepted justified debt or stopping the change.
+Without a written answer in tasks.md nothing advances; never launch an automatic fourth attempt. Human decisions do not fabricate tests or auditor approval.
+Archive only with the required original reports, current checks, explicit debt disposition and
+auditor APROBADO; missing roles or open blockers cannot silently become complete closure.
+Update declared current documentation and project memory, preserving history and excluding secrets.
+Without a knowledge base, keep LECCIONES and DEUDA in tasks.md with destination pending.
+
+## Compatibility and precedence
+
+lean-workflow takes precedence over historical delegation, model-routing, roles, review,
+auditor, senior and tdd attendance switches. They remain accepted for configuration compatibility
+but cannot remove a required role, disable code TDD or reintroduce the old specialist sequence.
+The senior context is handled by the auditor; no separate senior agent is mandatory.
+The core five-role contract remains active even when those historical toggles are absent.
+Optional governance, evidence, knowledge-base, engram and ship append their concise contracts
+only when selected. Without lean-workflow, the historical composition remains available explicitly.
+
+
+## Human approval
+
+Classify by risk and scope, not diff length. HIGH or CRITICAL construction requires explicit, dated human approval naming the choice and scope in proposal.md under ## Aprobación. Only the human fills that approval; no agent signs for them or treats reviewer approval as human authorization. New scope beyond approval needs a new human decision before construction. Authentication, billing, security, audit integrity and sensitive-data boundaries retain CRITICAL classification even for tiny diffs. Missing or ambiguous approval stops construction. Resolve wording conflicts explicitly, without inventing another human choice.
+
+## Typed reports
+
+EVIDENCE carries command, timestamp, reviewed revision and relevant output; preserve full output in an artifact when long. JUDGMENT names its author, comparison and confidence. ASSUMPTION states what was not verified and why. Unreproduced defects remain visible suspicions, not demonstrated blockers. Never promote a partial check into evidence. The original report is authoritative; summaries link to it and do not replace it. Deliver the auditor's verdict verbatim to the human.
+
+## Project knowledge
+
+List the project's actual knowledge directory; do not assume a fixed set of filenames. Check per-document git author dates against newer archived changes, report named drift or unavailable dates and do not silently rewrite the map at session start. Planner records ## Knowledge Base Impact in proposal.md, naming each affected document and REWRITE or APPEND, or a justified none. At closure inspect the union of impact and actual diff: rewrite current facts/status, append dated decisions, numbered lessons and debt from the auditor, preserving history. Update the existing obsidian.md when project instructions designate it, including symlink targets, without creating duplicate notes or copying the whole note into every brief. Never include secrets. Keep technical canonical documentation distinct from personal notes. Write knowledge-base-report.md with REWRITTEN, APPENDED and PENDING by document, reason for no rewrites, and carry pending items from the previous report with their originating change/date. If that report or the KB is missing, declare the gap and preserve debt in the change; do not invent auditor lessons. Flag unjustified append-only work as SUSPICIOUS.
+
+## Persistent memory
+
+When configured, recover relevant Engram context at session start and before resuming; do not search sibling reviewers' conclusions to manufacture independent agreement. Save significant decisions and completed actions with per-change, per-attempt, per-role keys such as opsx/{change}/{phase}/attempt-{n}/{role}. Keep summaries short and artifact paths explicit; OpenSpec and on-disk reports remain workflow authority. An empty search means nothing was saved, not that no decision existed. Update the designated project note for human continuity without duplicating full reports in every memory store. At session end record accomplishments, remaining work and relevant files. If unavailable, declare it and recover from artifacts. Never export cross-project memory; public memory export requires explicit human authorization.
+
+## Publication
+
+Publish only when explicitly requested. No remote: stop and report, never invent one. With uncommitted changes: ask, never decide alone. Before any push require archived/closed change, recorded auditor approval, a clean tree and the required checks green on the delivered revision. Diagnose branch, default remote branch, upstream and existing PR; fetch before comparing divergence. Failed lookups are unknown, not absence. Work directly on trunk requires a human decision before moving commits; pushing to trunk always asks. When publishing, recommend PR or direct push with reasons, and name rebase or merge when integrating. Update an existing PR rather than opening a duplicate; never merge or enable auto-merge. For a PR, check the source SHA, not the synthetic merge SHA. After push record its SHA and wait for every expected workflow/event and expanded matrix job on that SHA; inspect all jobs, including failures. Zero runs, failed queries, another SHA, pending, skipped, cancelled, neutral or timed-out jobs are not success. For Active Stack require ci.yml push tests on Ubuntu and Windows; derive required checks from workflows for other projects. A new push invalidates earlier CI evidence. Report incomplete delivery without claiming it ready.
