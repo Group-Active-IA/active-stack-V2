@@ -249,6 +249,7 @@ Tres garantías **no negociables** del instalador (los pasos marcados arriba en 
 
 - Un `role-*.md` idéntico a una versión que el stack ya publicó se respalda y se actualiza. Uno desconocido (personal o editado) no se toca: la versión del stack queda al lado como `<archivo>.active-stack.md` y el conflicto se informa. Si es uno de los cinco roles del flujo, se marca **BLOQUEANTE** y el mensaje final dice que el flujo lean no puede correr hasta resolverlo (el exit code sigue en 0).
 - El instalador nunca borra archivos que no pueda probar propios.
+- Las skills no se vuelven a clonar si el commit remoto no cambió y la copia instalada sigue intacta: una consulta `git ls-remote` por skill en vez de un clon completo (una reinstalación pasa de ~21 s a ~7 s). Si la consulta falla, se clona como siempre.
 - El snapshot de la instalación guarda cada archivo de comandos y skills que se va a pisar, no sólo la carpeta: `active-stack uninstall --strategy restore --restore-manifest ~/.active-stack/backups/install/manifest.json` devuelve tu configuración tal como estaba. Los binarios que descargó la instalación (por ejemplo `engram` en `~/.local/bin`) quedan, y el restore lo avisa.
 - Se verificó instalando, reinstalando y restaurando en un HOME aislado, incluido un home con roles personales y una skill propia editada.
 

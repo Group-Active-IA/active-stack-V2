@@ -33,6 +33,15 @@ func (defaultCmdRunner) Run(ctx context.Context, args []string) error {
 	return exec.CommandContext(ctx, args[0], args[1:]...).Run()
 }
 
+// Output runs the command and returns its stdout. The skill installer uses it
+// for `git ls-remote` to skip clones of unchanged skills.
+func (defaultCmdRunner) Output(ctx context.Context, args []string) ([]byte, error) {
+	if len(args) == 0 {
+		return nil, nil
+	}
+	return exec.CommandContext(ctx, args[0], args[1:]...).Output()
+}
+
 // Intent describes what the user wants to install.
 type Intent struct {
 	// Agents is the ordered list of agents to target.

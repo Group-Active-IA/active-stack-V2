@@ -2,6 +2,8 @@ package skill
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"io/fs"
@@ -28,6 +30,29 @@ func cloneInstaller(
 	repoURL := repo
 	if !strings.Contains(repo, "://") {
 		repoURL = "https://github.com/" + repo
+	}
+
+	// Skip the clone when the remote has not moved (review 2026-10-29, 8.1:
+	// every install cloned every skill and compared afterwards). One
+	// `git ls-remote` per skill; a failure or a runner without output keeps
+	// the clone path exactly as before.
+	destDir := filepath.Join(skillsDir, skillID)
+	stamp := ""
+	if out, ok := runner.(OutputRunner); ok {
+		lsRef := "HEAD"
+		if ref != "" && ref != "latest" {
+			lsRef = ref
+		}
+		if raw, err := out.Output(ctx, []string{"git", "ls-remote", repoURL, lsRef}); err == nil {
+			if fields := strings.Fields(string(raw)); len(fields) > 0 {
+				stamp = strings.Join([]string{repoURL, ref, path, fields[0]}, " ")
+			}
+		}
+	}
+	if stamp != "" && fileExists(filepath.Join(destDir, "SKILL.md")) {
+		if recorded, err := os.ReadFile(filepath.Join(destDir, sourceStampFile)); err == nil && string(recorded) == stampWithContent(destDir, stamp) {
+			return Result{SkillPath: destDir, AlreadyInstalled: true}, nil
+		}
 	}
 
 	// Clone into a fresh temp directory.
@@ -82,13 +107,12 @@ func cloneInstaller(
 		return Result{}, fmt.Errorf("skill %q: SKILL.md not found in cloned repo: %w", skillID, err)
 	}
 
-	destDir := filepath.Join(skillsDir, skillID)
-
 	identical, err := checkIdempotent(skillsDir, skillID, newContent)
 	if err != nil {
 		return Result{}, err
 	}
 	if identical {
+		writeSourceStamp(destDir, stamp)
 		return Result{SkillPath: destDir, AlreadyInstalled: true}, nil
 	}
 
@@ -103,8 +127,42 @@ func cloneInstaller(
 	if err := copyDir(srcDir, destDir); err != nil {
 		return Result{}, fmt.Errorf("skill %q: copy to skills dir: %w", skillID, err)
 	}
+	writeSourceStamp(destDir, stamp)
 
 	return Result{SkillPath: destDir}, nil
+}
+
+// OutputRunner is an optional Runner capability: a runner that can return a
+// command's output lets cloneInstaller ask `git ls-remote` before cloning.
+type OutputRunner interface {
+	Output(ctx context.Context, args []string) ([]byte, error)
+}
+
+// sourceStampFile records "<repo> <ref> <path> <remote commit> <SKILL.md sha256>"
+// of the last install inside the skill dir, so an unchanged remote skips the
+// clone. The content hash keeps a restored or hand-edited SKILL.md from being
+// vouched for by a stamp that described the stack's version.
+const sourceStampFile = ".active-stack-source"
+
+// writeSourceStamp is best effort: a missing stamp only costs a clone next time.
+func writeSourceStamp(destDir, stamp string) {
+	if full := stampWithContent(destDir, stamp); full != "" {
+		_ = os.WriteFile(filepath.Join(destDir, sourceStampFile), []byte(full), 0o644)
+	}
+}
+
+// stampWithContent appends the sha256 of the SKILL.md currently on disk; ""
+// when there is no remote stamp or the file cannot be read.
+func stampWithContent(destDir, stamp string) string {
+	if stamp == "" {
+		return ""
+	}
+	content, err := os.ReadFile(filepath.Join(destDir, "SKILL.md"))
+	if err != nil {
+		return ""
+	}
+	sum := sha256.Sum256(content)
+	return stamp + " " + hex.EncodeToString(sum[:]) + "\n"
 }
 
 // copyDir recursively copies src directory to dst, excluding the .git/
