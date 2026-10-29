@@ -150,7 +150,7 @@ active-stack install                 # TUI interactiva (Bubbletea): elegís agen
 active-stack install --dry-run       # Muestra el plan de instalación, no ejecuta nada
 active-stack install --mode full     # Instalación headless (no interactiva)
 active-stack install --agent claude  # Apuntá a un agente concreto
-active-stack install --mode full --toggles lean-workflow,governance,evidence  # Elegí los toggles del orquestador
+active-stack install --mode full --toggles lean-workflow,evidence  # Elegí los toggles del orquestador
 active-stack install --help          # Todos los flags
 ```
 
