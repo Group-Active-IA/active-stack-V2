@@ -298,3 +298,24 @@ func TestLeanWorkflow_OneReportLabelSet(t *testing.T) {
 		}
 	}
 }
+
+// Review 2026-10-29 (4.x, 7.7): one task ran the suite 5 to 10+ times because
+// the contract never told focused tests from the full suite. TDD steps run the
+// focused tests; the full suite runs once on the delivered revision and its
+// result is shared; a result stays valid while the files it covers do not change.
+func TestLeanWorkflow_FocusedTestsAndOneFullSuite(t *testing.T) {
+	body, err := config.Compose([]string{"lean-workflow"}, "generic")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, required := range []string{
+		"RED, GREEN and refactor steps run only the focused tests",
+		"The full suite runs once on the delivered revision",
+		"stays valid while the files it covers are unchanged",
+		"reviewers reuse it instead of rerunning it",
+	} {
+		if !strings.Contains(body, required) {
+			t.Errorf("missing test-cost rule %q", required)
+		}
+	}
+}

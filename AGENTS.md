@@ -14,7 +14,7 @@
 - **Entrypoint**: `cmd/active-stack/`.
 - **Catálogo**: embebido en el binario vía `//go:embed` (`internal/catalog/harnesses.yaml`).
 
-Qué es esto: un **instalador methodology-first**. Materializa el `MANUAL-METODOLOGICO.md`.
+Qué es esto: un **instalador methodology-first**. Materializa la metodología OPSX descrita en [docs/metodologia-opsx.md](docs/metodologia-opsx.md) y [docs/lean-agent-workflow.md](docs/lean-agent-workflow.md).
 Un comando (`active-stack install`) instala/configura el sustrato (harnesses); un único
 orquestador de fundación deja el proyecto listo para el ciclo OPSX
 (`explore → propose → apply → verify → archive`).
@@ -43,7 +43,7 @@ internal/
 assets/                  catálogo + configs bundleadas (sdd-orchestrator, etc.)
 ```
 
-Procedencia histórica: port del repo viejo (`E:\ESCRITORIO\programar\2026\jr-stack`), limpiado de branding excluido.
+Procedencia histórica: port del repo anterior (`jr-stack`), limpiado de branding excluido.
 Los paquetes listados ya existen. Se descarta: `components/gga`, `components/theme`,
 `components/persona` (marketing). `components/permissions` **se mantiene** (la
 seguridad no es opcional).
@@ -61,6 +61,7 @@ Detalle real en `internal/model/harness.go`. Tipos clave:
   - `skill` → `SKILL.md` + assets, clonado de un repo y copiado al dir de skills del agente.
   - `config` → texto/archivos bundleados que configuran el agente (ej. `sdd-orchestrator`, `permissions`).
   - `external` → binario/servicio de terceros que instalamos/configuramos pero no son nuestros (Engram, OpenSpec, Context7).
+  - `command` → slash-commands nativos del agente, embebidos en el binario (`/active:init`, `/opsx:ship`, `/opsx:verify`).
 - **`InstallMode`** — `lite` | `full` | `custom`. Convención: un harness Lite lista
   `[lite, full]` (Full incluye a Lite); uno exclusivo de Full lista `[full]`; Custom matchea todos.
 - **`Agent`** — `claude`, `opencode`, `gemini`, `codex`, `cursor`, `vscode`, `windsurf`, `antigravity`.
@@ -131,7 +132,7 @@ El nivel de autonomía es proporcional a la criticidad del paquete tocado.
 | Necesito… | Leer / mirar |
 |---|---|
 | El blueprint del diseño (fuente de verdad) | `ARCHITECTURE.md` |
-| La metodología (etapas, governance, flujo) | `../MANUAL-METODOLOGICO.md` |
+| La metodología (etapas, governance, flujo) | `docs/lean-agent-workflow.md` (predeterminada) y `docs/metodologia-opsx.md` (historia y legacy) |
 | Roadmap de changes, deps, camino crítico | `CHANGES.md` |
 | Qué harnesses existen y de qué tipo | `internal/catalog/harnesses.yaml` |
 | Los tipos de dominio | `internal/model/harness.go` |

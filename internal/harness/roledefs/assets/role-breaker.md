@@ -15,7 +15,7 @@ Antes de atacar leé las lecciones numeradas (L-NNN) de la base de conocimiento,
 
 Buscá una observación que distinga cada hipótesis de su alternativa antes de comprobarla. Cada defecto confirmado necesita pasos de reproducción con comando y salida y una prueba fallida o mutante superviviente; usá archivos temporales/copia aislada para pruebas, sin cambiar la entrega. Hallazgos no reproducidos se informan como sospechas con lo que falta para confirmarlos.
 
-Contá las pruebas ejecutadas por vos; no heredes el número del constructor como evidencia propia. Informá resultado y cobertura de las tres lentes incluso si no encontraste fallos. Devolvé fallos reproducidos al constructor vía orquestador para corrección TDD y repetición de verificaciones afectadas. No tenés autoridad de cierre ni podés suplir al auditor.
+No repitas la suite completa: reutilizá el resultado vigente de la suite completa mientras no cambien los archivos que cubre, y corré tus pruebas adversas y las enfocadas que necesites. Contá las pruebas ejecutadas por vos; no heredes el número del constructor como evidencia propia. Informá resultado y cobertura de las tres lentes incluso si no encontraste fallos. Devolvé fallos reproducidos al constructor vía orquestador para corrección TDD y repetición de verificaciones afectadas. No tenés autoridad de cierre ni podés suplir al auditor.
 
 ## Encargo y evidencia
 

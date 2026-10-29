@@ -1,7 +1,7 @@
 # Active Stack — Arquitectura vigente
 
 > Instalador **methodology-first** del harness de desarrollo asistido por IA.
-> Materializa el `MANUAL-METODOLOGICO.md`: un comando instala y configura el
+> Materializa la metodología OPSX ([docs/metodologia-opsx.md](docs/metodologia-opsx.md), [docs/lean-agent-workflow.md](docs/lean-agent-workflow.md)): un comando instala y configura el
 > sustrato (harnesses), y un único orquestador de fundación deja el proyecto
 > listo para el ciclo OPSX (`explore → propose → apply → verify → archive`).
 
@@ -46,13 +46,14 @@ El repo es nuevo por el volumen de cambios, pero NO se tira todo. Buckets:
 ## 2. Definición de Harness
 
 Un **harness** es cualquier módulo que prepara o guía el entorno de la IA.
-**No es sinónimo de "repo".** Se materializa de tres formas:
+**No es sinónimo de "repo".** Se materializa de cuatro formas:
 
 | Forma | Qué es | Origen | Ejemplos |
 |-------|--------|--------|----------|
 | **Skill** | `SKILL.md` + assets, cargada bajo demanda | repo propio o de terceros, se baja al instalar | kb-creator, roadmap-generator, agent-instruction, active-orchestrator, skill-registry (propias); find-skill, skill-creator (terceros) |
 | **Configuración** | Texto/archivos que configuran el agente | bundleado en el instalador | `sdd-orchestrator` (orquestador con toggles: TDD, Engram, …), config de `AGENTS.md`/`CLAUDE.md`, permisos, MCP |
 | **Herramienta externa** | Binario/servicio de terceros | instalado/configurado, no es nuestro repo | Engram, OpenSpec CLI, Context7 (MCP) |
+| **Comando** | Slash-commands nativos del agente | bundleado en el instalador | `/active:init`, `/active:starter-add`, `/opsx:ship`, `/opsx:verify` |
 
 Principio: el instalador no instala "repos", instala **harnesses**, y cada
 harness sabe cómo se materializa.
@@ -101,7 +102,7 @@ que es la fuente de verdad de qué harnesses existen. Cada entrada declara:
 
 ```yaml
 - id: kb-creator
-  type: skill            # skill | config | external
+  type: skill            # skill | config | external | command
   source:
     repo: Group-Active-IA/kb-creator
     ref: latest          # tag/branch/commit
@@ -165,7 +166,7 @@ La siguiente descripción corresponde **solo al modo legacy**, sin `lean-workflo
 - **Archive:** lee la unión del impacto declarado y el diff; reescribe las descripciones actuales y agrega decisiones, lecciones numeradas y deuda del auditor con fecha, costo y evidencia tipada. Deja `knowledge-base-report.md` por change con REWRITTEN, APPENDED y PENDING por documento; sólo APPEND se justifica y se señala como `SUSPICIOUS: append-only` cuando correspondía reescribir.
 - **Ship:** espera todo el CI requerido sobre el SHA pusheado, inspeccionando workflows, eventos y jobs. En active-stack exige `ci.yml` en push con tests Ubuntu y Windows; en otros repos deriva su conjunto. Cero runs, consulta fallida, SHA ajeno o estados incompletos no confirman entrega. `main` exige permiso y nunca se mergea el PR automáticamente.
 
-Si falta un toggle se declara la degradación; sin review no hay rompedor ni bucle. Sin auditor se necesita decisión escrita de Juani para cerrar con alcance degradado. Un informe obligatorio faltante detiene el cierre.
+Si falta un toggle se declara la degradación; sin review no hay rompedor ni bucle. Sin auditor se necesita decisión escrita de la persona responsable para cerrar con alcance degradado. Un informe obligatorio faltante detiene el cierre.
 
 EVIDENCIA: [contratos, decisiones y deuda de fase 1](docs/metodologia-opsx.md). OpenSpec CLI conserva el estado; no actualiza por sí solo esta base.
 

@@ -82,8 +82,9 @@ Do not expose secrets to briefs, plugins, logs or reports. Parent permissions do
 prove protection in another process; enforce and verify the executor's own boundaries.
 
 Run deterministic checks once per unchanged revision and share concise command,
-timestamp and verdict with reviewers; put verbose logs in artifacts. Reexecute when
-code or assumptions change or independent verification needs it. Judgment is the role's work.
+timestamp and verdict with reviewers; put verbose logs in artifacts. A check result
+stays valid while the files it covers are unchanged; reviewers reuse it instead of rerunning it.
+Reexecute when those files or assumptions change or independent verification needs it. Judgment is the role's work.
 Specialist criteria supplement briefs only for affected boundaries; do not add mandatory
 specialist fan-out. Sequential work waits for the previous role's result.
 Missing required plugin, role, report or evidence stops its transition: declare the gap,
@@ -134,6 +135,8 @@ A setup/compile failure or a test born green does not count as RED. If necessary
 temporary minimal mutant to prove the assertion, preserve a backup when no prior revision
 exists, then revert it. Never deliver the mutant. Implement minimal GREEN, run it, add the extra
 rigor the depth table sets for the level, then refactor and rerun after each behavior-preserving step.
+RED, GREEN and refactor steps run only the focused tests (the package or files touched).
+The full suite runs once on the delivered revision, not after every step.
 No tautologies or implementation-mirroring tests. A bug correction starts with a reproducing test.
 Under each task in tasks.md save RED/GREEN commands, timestamps, revision/diff and relevant output;
 check it complete only after executed evidence. Run applicable formatting, lint, types and

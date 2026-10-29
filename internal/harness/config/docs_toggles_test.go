@@ -280,3 +280,20 @@ func TestDocsSeniorSoloVerify(t *testing.T) {
 		}
 	}
 }
+
+// Root docs are read by whoever clones the repo. On 2026-10-29 a review found
+// a path of one developer's machine (E:\ESCRITORIO\...) and a link to
+// ../MANUAL-METODOLOGICO.md, a file that lives outside the repository.
+func TestRootDocs_NoMachinePathsOrOutOfRepoLinks(t *testing.T) {
+	for _, name := range docsThatEnumerateToggles {
+		raw, err := os.ReadFile(filepath.Join("..", "..", "..", name))
+		if err != nil {
+			t.Fatalf("read %s: %v", name, err)
+		}
+		for _, bad := range []string{`E:\ESCRITORIO`, "MANUAL-METODOLOGICO"} {
+			if strings.Contains(string(raw), bad) {
+				t.Errorf("%s contains %q", name, bad)
+			}
+		}
+	}
+}
