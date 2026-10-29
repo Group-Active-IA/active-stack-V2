@@ -30,6 +30,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Full history: TestShippedRoleHashes_MatchGitHistory recomputes the
+          # hash of every published role version from git log; a shallow clone
+          # only sees HEAD and the check cannot run.
+          fetch-depth: 0
 
       - uses: actions/setup-go@v5
         with:

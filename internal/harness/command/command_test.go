@@ -17,6 +17,7 @@ import (
 	"testing/fstest"
 
 	"github.com/Group-Active-IA/active-stack/assets"
+	"github.com/Group-Active-IA/active-stack/internal/backup"
 	"github.com/Group-Active-IA/active-stack/internal/harness/command"
 	"github.com/Group-Active-IA/active-stack/internal/model"
 )
@@ -543,10 +544,15 @@ func TestInstaller_Backup_EveryOverwrittenFileInSameSecond(t *testing.T) {
 		if err != nil || d.IsDir() || d.Name() != "manifest.json" {
 			return nil
 		}
-		raw, _ := os.ReadFile(p)
-		for _, name := range []string{"ship.md", "verify.md"} {
-			if strings.Contains(string(raw), filepath.Join("opsx", name)) {
-				backedUp[name] = true
+		// Parse the manifest: on Windows the JSON escapes the path separator,
+		// so a raw substring search for opsx\ship.md never matches.
+		m, readErr := backup.ReadManifest(p)
+		if readErr != nil {
+			return nil
+		}
+		for _, e := range m.Entries {
+			if filepath.Base(filepath.Dir(e.OriginalPath)) == "opsx" {
+				backedUp[filepath.Base(e.OriginalPath)] = true
 			}
 		}
 		return nil
