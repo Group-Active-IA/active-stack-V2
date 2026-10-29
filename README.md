@@ -17,7 +17,7 @@
 
 **Active Stack** es un **instalador _methodology-first_**: un único binario en Go que toma tu agente de IA (Claude Code, Codex, OpenCode…) y le **inyecta, de forma modular y actualizable, todo el sustrato que exige una metodología de desarrollo asistido por IA.**
 
-No es un framework que corre en tu app. Es un **configurador del entorno del agente**. Corrés un comando, elegís un modo, y el stack deja tu proyecto listo para el ciclo **OPSX** (`explore → propose → apply → verify → archive`).
+No es un framework que corre en tu app. Es un **configurador del entorno del agente**. Corrés un comando, elegís un modo, y el stack deja tu proyecto listo para el ciclo **OPSX** (`explore → propose → apply → verify → archive`). Por defecto instala el [flujo compacto de cinco roles](docs/lean-agent-workflow.md): el agente principal orquesta y reparte cada fase entre planificador, revisor del plan, constructor, rompedor y auditor, con TDD obligatorio y profundidad según el riesgo del cambio.
 
 La idea central, en una frase:
 
@@ -84,7 +84,7 @@ Hay **tres tipos** de harness, y el instalador no instala "repos": instala harne
 | Tipo | Qué es | De dónde sale | Ejemplos |
 |------|--------|---------------|----------|
 | **`skill`** | `SKILL.md` + assets, cargada bajo demanda | repo propio o de terceros, se clona al instalar | `kb-creator`, `roadmap-generator`, `active-orchestrator`, `find-skill` |
-| **`config`** | Texto/archivos que configuran al agente | bundleado en el binario | `sdd-orchestrator`, `permissions` |
+| **`config`** | Texto/archivos que configuran al agente | bundleado en el binario | `sdd-orchestrator`, `permissions`, `role-definitions` |
 | **`external`** | Binario/servicio de terceros | se instala/configura (no es nuestro) | `OpenSpec`, `Engram`, `Context7` |
 
 ---
@@ -165,7 +165,7 @@ El catálogo agrupa los harnesses en tres presets. Convención: un harness de Li
 
 | Modo | Qué instala | Para qué |
 |------|-------------|----------|
-| **Lite** | El **sustrato** mínimo: `openspec`, `engram`, `context7`, `sdd-orchestrator`, `permissions`, `starter-add-command` | Empezar a trabajar con la metodología ya |
+| **Lite** | El **sustrato** mínimo: `openspec`, `engram`, `context7`, `sdd-orchestrator`, `permissions`, `role-definitions`, `starter-add-command` | Empezar a trabajar con la metodología ya |
 | **Full** | Sustrato **+ fundación guiada**: `active-orchestrator` y las skills de fundación (`kb-creator`, `project-scaffold`, `roadmap-generator`, `agent-instruction`, `skill-registry`, `web-scraper`, `discovery-research`, `find-skill`, `skill-creator`) | El ecosistema completo, proyecto desde cero |
 | **Custom** | Vos elegís cada harness | Control total — con una excepción 👇 |
 
