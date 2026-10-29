@@ -1,4 +1,4 @@
-// Package permissions implements the permissions harness for JR Stack.
+// Package permissions implements the permissions harness for Active Stack.
 // It injects safe-by-default permission overlays into each supported agent's
 // settings.json file, with mandatory backup before any write.
 //

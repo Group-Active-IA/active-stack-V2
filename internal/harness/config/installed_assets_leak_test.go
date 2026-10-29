@@ -15,7 +15,10 @@ import (
 // would escalate to someone who is not its operator), and "For Active Stack
 // require ci.yml" in the lean ship contract. This guard scans every installable
 // asset so the next one fails here instead of in someone's project.
-var projectOnlyFacts = []string{"Juani", "For Active Stack require", `E:\ESCRITORIO`}
+// "JR Stack" is the pre-rebrand name: AGENTS.md §3 says leftovers must go, yet
+// it still reached every OpenCode user as the primary agent description and
+// sat in nine embedded skills (found closing instalacion-sana, 2026-10-29).
+var projectOnlyFacts = []string{"Juani", "For Active Stack require", `E:\ESCRITORIO`, "JR Stack"}
 
 func TestInstalledAssets_CarryNoProjectOnlyFacts(t *testing.T) {
 	check := func(origin, name, content string) {
@@ -44,7 +47,7 @@ func TestInstalledAssets_CarryNoProjectOnlyFacts(t *testing.T) {
 	walk("orchestrator fragment", embeddedAssets)
 	walk("command", assets.CommandsFS)
 	walk("embedded skill", assets.SkillsFS)
-	for _, constant := range []string{leanGovernance, leanEvidence, leanKnowledge, leanMemory, leanShip, leanClaudeDispatch} {
+	for _, constant := range []string{leanGovernance, leanEvidence, leanKnowledge, leanMemory, leanShip, leanClaudeDispatch, primaryAgentDescription} {
 		check("lean contract", "lean.go", constant)
 	}
 	roles, err := roledefs.DefaultResources()

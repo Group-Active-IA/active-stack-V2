@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 	"time"
 
 	"github.com/Group-Active-IA/active-stack/internal/backup"
@@ -89,8 +91,23 @@ func RunWindowsBackupsList(homeDir string, lang i18n.Lang, w io.Writer) error {
 func readWindowsBackupSlots(homeDir string) ([]backup.Manifest, error) {
 	root := filepath.Join(homeDir, ".active-stack", "backups")
 
+	// Since 2026-10-29 each install snapshots to its own install-<time> dir
+	// (the fixed "install" slot was overwritten by the next install); list
+	// them all, newest name last, after the legacy fixed slots.
+	slots := append([]string(nil), windowsBackupSlots...)
+	if entries, err := os.ReadDir(root); err == nil {
+		var stamped []string
+		for _, e := range entries {
+			if e.IsDir() && strings.HasPrefix(e.Name(), "install-") {
+				stamped = append(stamped, e.Name())
+			}
+		}
+		sort.Strings(stamped)
+		slots = append(slots, stamped...)
+	}
+
 	var manifests []backup.Manifest
-	for _, slot := range windowsBackupSlots {
+	for _, slot := range slots {
 		m, err := backup.ReadManifest(filepath.Join(root, slot, backup.ManifestFilename))
 		if err != nil {
 			if errors.Is(err, os.ErrNotExist) {

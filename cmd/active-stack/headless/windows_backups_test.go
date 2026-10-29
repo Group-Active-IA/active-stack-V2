@@ -241,3 +241,46 @@ func TestRunWindowsBackupsList_LocalizedSourceWithRawFallback(t *testing.T) {
 		t.Errorf("uninstall source = %q, want raw fallback %q", got, backup.BackupSource("other").Label())
 	}
 }
+
+// Since 2026-10-29 each install snapshots to its own backups/install-<time>
+// dir (a fixed backups/install was overwritten by the next install). The
+// Windows GUI must list every one of them, plus the legacy fixed slot.
+func TestRunWindowsBackupsList_ListsEveryTimestampedInstall(t *testing.T) {
+	home := t.TempDir()
+	file := filepath.Join(home, ".claude", "CLAUDE.md")
+	if err := os.MkdirAll(filepath.Dir(file), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(file, []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	for _, slot := range []string{"install", "install-20261029-100000.000000000", "install-20261029-110000.000000000", "permissions-claude"} {
+		if _, err := backup.NewSnapshotter().Create(filepath.Join(home, ".active-stack", "backups", slot), []string{file}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	var out bytes.Buffer
+	if err := headless.RunWindowsBackupsList(home, i18n.LangEN, &out); err != nil {
+		t.Fatal(err)
+	}
+	var resp struct {
+		Backups []struct {
+			ID string `json:"id"`
+		} `json:"backups"`
+	}
+	if err := json.Unmarshal(out.Bytes(), &resp); err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]bool{}
+	for _, b := range resp.Backups {
+		got[b.ID] = true
+	}
+	for _, want := range []string{"install", "install-20261029-100000.000000000", "install-20261029-110000.000000000"} {
+		if !got[want] {
+			t.Errorf("backup %q not listed; got %v", want, resp.Backups)
+		}
+	}
+	if got["permissions-claude"] {
+		t.Error("per-harness scratch backups must stay out of the GUI list")
+	}
+}

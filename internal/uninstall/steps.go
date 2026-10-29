@@ -61,7 +61,7 @@ var markerRemovalFn = func(path, sectionID string) error {
 		// No change — section was absent; no-op.
 		return nil
 	}
-	_, err = filemerge.WriteFileAtomic(path, []byte(updated), 0o644)
+	_, err = filemerge.WriteFileAtomic(path, []byte(updated), 0)
 	return err
 }
 
@@ -86,7 +86,7 @@ var stalePurgeFn = func(path string) error {
 		// No stale sections present; no-op.
 		return nil
 	}
-	_, err = filemerge.WriteFileAtomic(path, []byte(updated), 0o644)
+	_, err = filemerge.WriteFileAtomic(path, []byte(updated), 0)
 	return err
 }
 
@@ -132,7 +132,7 @@ var primaryAgentRemovalFn = func(settingsPath, agentID string) error {
 		return fmt.Errorf("marshal settings %q: %w", settingsPath, err)
 	}
 	encoded = append(encoded, '\n')
-	if _, err := filemerge.WriteFileAtomic(settingsPath, encoded, 0o644); err != nil {
+	if _, err := filemerge.WriteFileAtomic(settingsPath, encoded, 0); err != nil {
 		return fmt.Errorf("write settings %q: %w", settingsPath, err)
 	}
 	return nil
@@ -486,7 +486,7 @@ func (s *codexMCPRemovalStep) Run() error {
 		if err != nil {
 			return fmt.Errorf("remove Codex MCP %q: %w", name, err)
 		}
-		if _, err := filemerge.WriteFileAtomic(path, []byte(merged), 0o644); err != nil {
+		if _, err := filemerge.WriteFileAtomic(path, []byte(merged), 0); err != nil {
 			return fmt.Errorf("write Codex MCP config %q: %w", path, err)
 		}
 	}

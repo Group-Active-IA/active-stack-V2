@@ -13,8 +13,16 @@ type WriteResult struct {
 	Created bool
 }
 
+// WriteFileAtomic replaces path with content via a temp file and rename.
+//
+// perm == 0 keeps the mode of an existing file and uses 0644 for a new one.
+// On 2026-10-29 installing rewrote a user's 0600 opencode.json and
+// ~/.codex/config.toml as 0644 because every config writer passed 0o644;
+// those files may hold API keys. An explicit perm still wins: restore passes
+// the mode recorded in the backup manifest.
 func WriteFileAtomic(path string, content []byte, perm fs.FileMode) (WriteResult, error) {
-	if perm == 0 {
+	keepMode := perm == 0
+	if keepMode {
 		perm = 0o644
 	}
 
@@ -23,6 +31,11 @@ func WriteFileAtomic(path string, content []byte, perm fs.FileMode) (WriteResult
 	if err == nil {
 		if bytes.Equal(existing, content) {
 			return WriteResult{}, nil
+		}
+		if keepMode {
+			if info, statErr := os.Stat(path); statErr == nil {
+				perm = info.Mode().Perm()
+			}
 		}
 	} else if !os.IsNotExist(err) {
 		return WriteResult{}, fmt.Errorf("read existing file %q: %w", path, err)

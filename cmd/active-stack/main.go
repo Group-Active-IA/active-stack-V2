@@ -55,7 +55,7 @@ func main() {
 	wireEmbeddedFS()
 
 	// Sin argumentos (caso típico: doble-click del .exe en Windows) → lanzar el
-	// flujo interactivo. JR Stack es methodology-first para usuario final: el
+	// flujo interactivo. Active Stack es methodology-first para usuario final: el
 	// doble-click debe ABRIR la TUI, no imprimir un usage y cerrarse. runInstall
 	// con args vacíos resuelve a TUI == true vía ParseInstallFlags.
 	if len(os.Args) < 2 {

@@ -100,7 +100,7 @@ func Inject(path, composed, snapshotDir string) (InjectResult, error) {
 	updated := filemerge.InjectMarkdownSection(existing, "sdd-orchestrator", composed)
 
 	// Write atomically (skips if byte-identical).
-	wr, err := filemerge.WriteFileAtomic(path, []byte(updated), 0o644)
+	wr, err := filemerge.WriteFileAtomic(path, []byte(updated), 0)
 	if err != nil {
 		return InjectResult{}, fmt.Errorf("write %q: %w", path, err)
 	}

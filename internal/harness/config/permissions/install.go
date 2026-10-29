@@ -141,7 +141,7 @@ func mergeOpencodeJSONFile(path string, overlay []byte) (filemerge.WriteResult, 
 		return filemerge.WriteResult{}, fmt.Errorf("merge json objects: %w", err)
 	}
 
-	return filemerge.WriteFileAtomic(path, merged, 0o644)
+	return filemerge.WriteFileAtomic(path, merged, 0)
 }
 
 // mergeCodexTOMLFile writes codex's permission keys for the given tier.
@@ -217,7 +217,7 @@ func mergeCodexTOMLFile(path string, tier model.PermissionTier) (filemerge.Write
 	if err != nil {
 		return filemerge.WriteResult{}, err
 	}
-	return filemerge.WriteFileAtomic(path, []byte(merged), 0o644)
+	return filemerge.WriteFileAtomic(path, []byte(merged), 0)
 }
 
 // backupIfExists creates a snapshot of settingsPath if the file exists.
@@ -252,5 +252,5 @@ func mergeJSONFile(path string, overlay []byte) (filemerge.WriteResult, error) {
 		return filemerge.WriteResult{}, fmt.Errorf("merge json objects: %w", err)
 	}
 
-	return filemerge.WriteFileAtomic(path, merged, 0o644)
+	return filemerge.WriteFileAtomic(path, merged, 0)
 }

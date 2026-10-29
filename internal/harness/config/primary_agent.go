@@ -10,7 +10,7 @@ import (
 
 // primaryAgentDescription is the human-facing label shown for the orchestrator
 // in the host TUI's agent picker. Kept constant so re-installs stay idempotent.
-const primaryAgentDescription = "JR Stack SDD Orchestrator — coordina sub-agentes; nunca ejecuta trabajo inline."
+const primaryAgentDescription = "Active Stack: orquestador del ciclo OPSX; coordina los roles y decide qué delegar."
 
 // primaryAgentEntry is the fixed schema written under agent.<id> in the
 // settings JSON for a primary-agent config harness. mode:primary is what makes
@@ -80,7 +80,7 @@ func InjectPrimaryAgent(agentID, composed, instrPath, settingsPath, snapshotDir 
 		return InjectResult{}, fmt.Errorf("merge primary agent into %q: %w", settingsPath, err)
 	}
 
-	wr, err := filemerge.WriteFileAtomic(settingsPath, merged, 0o644)
+	wr, err := filemerge.WriteFileAtomic(settingsPath, merged, 0)
 	if err != nil {
 		return InjectResult{}, fmt.Errorf("write %q: %w", settingsPath, err)
 	}
@@ -115,7 +115,7 @@ func purgeInstructionsSection(instrPath, sectionID, snapshotDir string) error {
 	if err := SnapshotterCreate(snapshotDir, []string{instrPath}); err != nil {
 		return fmt.Errorf("backup %q before purge: %w", instrPath, err)
 	}
-	if _, err := filemerge.WriteFileAtomic(instrPath, []byte(updated), 0o644); err != nil {
+	if _, err := filemerge.WriteFileAtomic(instrPath, []byte(updated), 0); err != nil {
 		return fmt.Errorf("write %q: %w", instrPath, err)
 	}
 	return nil

@@ -1,4 +1,4 @@
-// Package model defines the core domain types of the JR Stack installer.
+// Package model defines the core domain types of the Active Stack installer.
 package model
 
 // HarnessType is how a harness materializes when installed.

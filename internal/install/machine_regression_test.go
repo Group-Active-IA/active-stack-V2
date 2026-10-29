@@ -55,8 +55,8 @@ func TestBuildPlanMachineTarget_SnapshotDirUnderHomeDir(t *testing.T) {
 		_ = step.Run()
 	}
 
-	wantSnapDir := filepath.Join(homeDir, ".active-stack", "backups", "install")
-	if capturedSnapDir != wantSnapDir {
+	wantSnapDir := filepath.Join(homeDir, ".active-stack", "backups")
+	if filepath.Dir(capturedSnapDir) != wantSnapDir || !strings.HasPrefix(filepath.Base(capturedSnapDir), "install-") {
 		t.Errorf("machine snapshot dir = %q, want %q", capturedSnapDir, wantSnapDir)
 	}
 }

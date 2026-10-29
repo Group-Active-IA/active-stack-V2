@@ -1,4 +1,4 @@
-// Package opencode provides the JR Stack agent adapter for OpenCode.
+// Package opencode provides the Active Stack agent adapter for OpenCode.
 package opencode
 
 import (

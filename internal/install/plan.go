@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/Group-Active-IA/active-stack/internal/backup"
 	cmdinstaller "github.com/Group-Active-IA/active-stack/internal/harness/command"
@@ -150,7 +151,13 @@ func BuildPlan(cat Catalog, intent Intent, opts Options) (Plan, error) {
 	// Snapshot dir always resolves against the real home (resolveSnapshotHomeDir),
 	// never against effectiveBase — a Project-target install must not leave its
 	// backup mixed into the project folder it writes content to.
-	snapshotDir := filepath.Join(resolveSnapshotHomeDir(opts), ".active-stack", "backups", "install")
+	//
+	// One dir per install: a fixed backups/install was overwritten by the next
+	// install, so restore could only reach the state after the previous one,
+	// never the user's original config (found 2026-10-29). Siblings of the
+	// other backups, so the TUI backups screen lists each install.
+	snapshotDir := filepath.Join(resolveSnapshotHomeDir(opts), ".active-stack", "backups",
+		"install-"+time.Now().UTC().Format("20060102-150405.000000000"))
 	writePaths := collectWritePaths(adapters, effectiveBase, opts.Target, resolved.OrderedIDs, cat)
 	// Also include MCP write paths from the starter (C-28 D5).
 	collectStarterMCPPaths(opts.Starter, adapters, effectiveBase, opts.Target, &writePaths)

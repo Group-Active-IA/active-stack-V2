@@ -1,4 +1,4 @@
-// Package claude provides the JR Stack agent adapter for Claude Code.
+// Package claude provides the Active Stack agent adapter for Claude Code.
 package claude
 
 import (

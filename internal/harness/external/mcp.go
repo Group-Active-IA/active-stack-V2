@@ -83,7 +83,7 @@ func installMCP(
 			return Result{}, fmt.Errorf("merge mcp config for %s: %w", adapter.Agent(), err)
 		}
 
-		wr, err := filemerge.WriteFileAtomic(configPath, merged, 0o644)
+		wr, err := filemerge.WriteFileAtomic(configPath, merged, 0)
 		if err != nil {
 			return Result{}, fmt.Errorf("write mcp config %q: %w", configPath, err)
 		}
@@ -138,7 +138,7 @@ func writeCodexMCPBody(name, body, configPath string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	wr, err := filemerge.WriteFileAtomic(configPath, []byte(merged), 0o644)
+	wr, err := filemerge.WriteFileAtomic(configPath, []byte(merged), 0)
 	return wr.Changed, err
 }
 
@@ -386,7 +386,7 @@ func registerStdioMCP(
 			return Result{}, fmt.Errorf("merge stdio mcp config for %s: %w", adapter.Agent(), err)
 		}
 
-		wr, err := filemerge.WriteFileAtomic(configPath, merged, 0o644)
+		wr, err := filemerge.WriteFileAtomic(configPath, merged, 0)
 		if err != nil {
 			return Result{}, fmt.Errorf("write stdio mcp config %q: %w", configPath, err)
 		}
@@ -442,7 +442,7 @@ func WriteMCPProjectEntry(
 		return false, fmt.Errorf("merge mcp config for %q: %w", mcp.Name, err)
 	}
 
-	wr, err := filemerge.WriteFileAtomic(configPath, merged, 0o644)
+	wr, err := filemerge.WriteFileAtomic(configPath, merged, 0)
 	if err != nil {
 		return false, fmt.Errorf("write mcp config %q: %w", configPath, err)
 	}
