@@ -20,7 +20,7 @@ func debtViolations(body string) []string {
 		{"autoridad personal", `\b(belongs? to|rests? with|defer to)\b.*\b(person|human|persona)\b.*\b(reviewer|auditor)\b`},
 		{"review sin autoridad", `\breview\b.*\bdoes not block\b`},
 		{"senior decide", `\b(senior|historian)\s+(independently\s+|alone\s+)?(decides|approves|authorizes|aprueba|decide)\b`},
-		{"bloqueantes vuelta 1", `\b(round 1|vuelta 1)\b.*\b(juani|person|persona)\b.*\b(decides|chooses|decide|elige)\b.*\b(blockers|bloqueantes)\b`},
+		{"bloqueantes vuelta 1", `\b(round 1|vuelta 1)\b.*\b(juani|person|persona|human owner)\b.*\b(decides|chooses|decide|elige)\b.*\b(blockers|bloqueantes)\b`},
 		{"senior detiene", `\b(senior|historian)\b.*\b(stops|halts|detiene|frena)\b.*\b(cycle|ciclo)\b`},
 		{"append sin rewrite", `\b(never|do not)\s+(delete|rewrite|replace)\b.*\b(superseded|outdated|old)\s+text\b`},
 		{"agente aprueba", `\b(orchestrator|agent|orquestador|agente)\b.*\b(complete|fill|write|completa|llena)\b.*\b(approval|aprobación|aprobacion)\b`},
@@ -119,7 +119,7 @@ func TestAuthorityVocabularyClasses(t *testing.T) {
 
 func TestDebtVocabularyOwnVariants(t *testing.T) {
 	for _, bad := range []string{
-		"In round 1, Juani decides which blockers to fix",
+		"In round 1, the human owner decides which blockers to fix",
 		"A BLOCKING label from the senior stops the cycle",
 		"Never delete superseded text; append the new state below it",
 		"Do not replace outdated text, append instead",
@@ -190,7 +190,7 @@ func TestDebtContractsComposition(t *testing.T) {
 					}
 
 					senior := body[seniorStart:]
-					required := []string{`(?i)senior.*(report|context)`, `(?i)auditor.*absent`, `(?i)Juani.*written decision`}
+					required := []string{`(?i)senior.*(report|context)`, `(?i)auditor.*absent`, `(?i)the human owner.*written decision`}
 					for _, pattern := range required {
 						if !regexp.MustCompile(pattern).MatchString(senior) {
 							t.Errorf("senior sin auditor: falta vocabulario %s", pattern)
@@ -254,7 +254,7 @@ func TestAuthorityFragmentMutations(t *testing.T) {
 		{"M2", "b", "senior-without-auditor.md", "Do not wait for a verdict from an absent auditor, impersonate it or authorize an automatic return to apply.", "Keep the round open until the auditor returns its verdict; meanwhile send blockers back to apply."},
 		{"M3", "c", "review.md", "the breaker cannot authorize closure.", "the breaker's report is enough to close the change."},
 		{"M5", "d", "knowledge-base.md", "do not invent its lists", "fill its lists from your own reading of the diff"},
-		{"M6", "a", "review.md", "closure stops for Juani's written decision on degraded scope", "closure proceeds on the senior's report alone"},
+		{"M6", "a", "review.md", "closure stops for the human owner's written decision on degraded scope", "closure proceeds on the senior's report alone"},
 		{"V1", "a", "senior-without-auditor.md", "It has no closing authority.", "The historian grants approval for archiving."},
 		{"V2", "b", "senior-without-auditor.md", "Do not wait for a verdict from an absent auditor, impersonate it or authorize an automatic return to apply.", "Archiving awaits the absent auditor's approval."},
 		{"V3", "c", "review.md", "the breaker cannot authorize closure.", "Approval for archive rests with the breaker."},

@@ -159,7 +159,7 @@ in the report that that is what you did.
 
 Cover the union of Knowledge Base Impact and the actual diff, even when the impact section exists. Inspect all KB documents touched by either source; reconcile omissions in the report.
 
-If auditor is absent, mark "auditor source absent": update facts with evidence but do not invent LECCIONES or DEUDA. Closure needs Juani's written decision accepting degraded scope or enabling auditor. If knowledge-base is absent, preserve the verdict lessons and debt in the change and tell Juani the destination is pending.
+If auditor is absent, mark "auditor source absent": update facts with evidence but do not invent LECCIONES or DEUDA. Closure needs the human owner's written decision accepting degraded scope or enabling auditor. If knowledge-base is absent, preserve the verdict lessons and debt in the change and tell the human owner the destination is pending.
 
 Archiving is already the moment the system declares that something stopped being
 a proposal and became true. That moment existed and **nobody was using it**.
@@ -188,7 +188,7 @@ performs this step, and no part of the block above mentions it either.
 ## Knowledge Base
 Read `## Knowledge Base Impact` in proposal.md and the actual diff, even when the section exists. Cover their union; if the section is missing, say so. Then, for each document either source names: REWRITE status, next
 steps and frontmatter so they describe the new state and the old text is gone;
-APPEND decisions, lessons L-NNN from auditor LECCIONES and debt from auditor DEUDA, dated, with what each one cost. Only append lessons. Each entry states what changed and typed evidence: SHA, test or decision. If the auditor is absent, mark auditor source absent and do not invent its lists; closure requires Juani's written decision on degraded scope. Return the two
+APPEND decisions, lessons L-NNN from auditor LECCIONES and debt from auditor DEUDA, dated, with what each one cost. Only append lessons. Each entry states what changed and typed evidence: SHA, test or decision. If the auditor is absent, mark auditor source absent and do not invent its lists; closure requires the human owner's written decision on degraded scope. Return the two
 lists separately and by document, headed REWRITTEN and APPENDED. If REWRITTEN
 is empty, say why in one line and label the report SUSPICIOUS: append-only when only APPEND was done. Then open the previous closed change's
 `knowledge-base-report.md`, carry whatever it left undone into a third list

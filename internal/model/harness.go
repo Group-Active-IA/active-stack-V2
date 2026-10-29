@@ -105,6 +105,9 @@ type External struct {
 	Pkg    string `yaml:"pkg,omitempty"`  // package/formula/module identifier (brew formula, npm pkg)
 	Repo   string `yaml:"repo,omitempty"` // GitHub owner/repo for binary download fallback (distinct from Pkg)
 	URL    string `yaml:"url,omitempty"`  // for download/mcp transports
+	// MinVersion is the oldest version the stack works with (npm method). A
+	// binary already on PATH below it is upgraded; empty keeps the presence check.
+	MinVersion string `yaml:"min_version,omitempty"`
 	// MCP is an optional local (stdio) MCP server to register into each agent's
 	// config after the binary is installed (applicable to homebrew/npm/download
 	// methods). Nil means no MCP registration. Reuses model.MCP (Name, Command,

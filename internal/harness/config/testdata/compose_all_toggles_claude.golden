@@ -980,7 +980,7 @@ verdict. With auditor active, ordinary closure requires APROBADO with conformity
 With auditor active, an open finding may remain only as debt explicitly justified by the auditor's
 verdict. At the three-round limit, the written human decision governs the
 exceptional scope, justified debt or stop described below. With auditor absent,
-closure stops for Juani's written decision on degraded scope. Findings remain
+closure stops for the human owner's written decision on degraded scope. Findings remain
 visible with their evidence and disposition; the breaker cannot authorize closure.
 
 ### An empty verdict is a finding
@@ -1012,28 +1012,28 @@ answer on offer, because it looks exactly like the right one.
 
 With auditor active, run conformity -> breaker -> senior (if active) -> auditor, in that order on a quiet diff. With auditor active, wait for the senior report before launching the auditor. With auditor absent, run conformity -> breaker -> senior (if active) on a quiet diff. With auditor active, only APROBADO from the auditor, with conformity satisfied and complete reports, enables archive. Unresolved CRITICAL prevents APROBADO. The breaker reports. With auditor active, the auditor decides and the orchestrator executes that verdict, never substitutes its own approval.
 
-Before convening reviewers, write `## Bucle de verify` in the change's tasks.md: round 1, 2 or 3, in progress or closed, SHA or reviewed diff, report paths, blockers and decision. Resume reads tasks.md, not Engram as authority. Session recovery or failed capture does not increment or reset the counter. A round begins with verify on a quiet diff. With auditor active, it closes with the auditor verdict. With auditor absent, closure stops for Juani’s written decision in tasks.md on enabling auditor, accepting justified degraded scope or stopping.
+Before convening reviewers, write `## Bucle de verify` in the change's tasks.md: round 1, 2 or 3, in progress or closed, SHA or reviewed diff, report paths, blockers and decision. Resume reads tasks.md, not Engram as authority. Session recovery or failed capture does not increment or reset the counter. A round begins with verify on a quiet diff. With auditor active, it closes with the auditor verdict. With auditor absent, closure stops for the human owner’s written decision in tasks.md on enabling auditor, accepting justified degraded scope or stopping.
 
 With auditor active, blockers in round 1 or 2 return only the auditor's list to apply. Increment only after correcting those blockers, at the next verify. In rounds 2 and 3 the breaker checks corrections, consumers and regressions outside the diff. New blocking findings go to the auditor; other findings become debt assigned to the first change that uses the piece. A new rule requires human signature before construction (L-029).
 
-Round 3 closes the loop, including open blockers. No automatic fourth round. Present the open list to Juani for a written decision in tasks.md: correct in a newly approved scope, accept justified debt, or stop the change. Without a written answer nothing advances. Human acceptance neither resolves a CRITICAL nor fabricates APROBADO.
+Round 3 closes the loop, including open blockers. No automatic fourth round. Present the open list to the human owner for a written decision in tasks.md: correct in a newly approved scope, accept justified debt, or stop the change. Without a written answer nothing advances. Human acceptance neither resolves a CRITICAL nor fabricates APROBADO.
 
 The breaker delivers these three sections even with no findings:
 - Correctness: record boundary cases, command, output and result.
 - Wiring: trace consumers and connections, command, output and result.
 - Comments/documentation: compare contracts with behavior, sources and result.
-Each failure has a concrete reproduction with command and output, and a failing test or a surviving mutant. The breaker and auditor count tests themselves, independently of the constructor's count. Before acting, read numbered lessons when KB is available; record the path read or its absence. With an external identity provider, request a real walkthrough with Juani at the keyboard before archive. Unvisited paths are explicit debt and a limitation for the auditor, never validated.
+Each failure has a concrete reproduction with command and output, and a failing test or a surviving mutant. The breaker and auditor count tests themselves, independently of the constructor's count. Before acting, read numbered lessons when KB is available; record the path read or its absence. With an external identity provider, request a real walkthrough with the human owner at the keyboard before archive. Unvisited paths are explicit debt and a limitation for the auditor, never validated.
 
 ### Degraded operation
 
 Announce missing toggles at verify start and record degradation in tasks.md. These are conditional rules, not mandatory catalog dependencies:
-- Auditor absent with review active: no automatic approval or return to apply. Stop closure and ask Juani for a written decision in tasks.md to enable auditor or accept degraded scope. Do not impersonate an auditor.
+- Auditor absent with review active: no automatic approval or return to apply. Stop closure and ask the human owner for a written decision in tasks.md to enable auditor or accept degraded scope. Do not impersonate an auditor.
 - TDD absent: apply keeps its usual behavior; do not claim strict TDD or accredited red/green. Disclose absence to the auditor; verify still evaluates evidence and its loop.
 - Senior absent: omit its report, announce this and let the auditor decide on conformity and breaker; do not invent historical context.
-- Knowledge-base absent: do not promise automatic KB updates. Preserve LECCIONES and DEUDA in the change, with destination pending for Juani.
-- Knowledge-base active with auditor absent: archive may update facts with evidence; do not invent auditor lessons or debt. Mark the source absent; closure needs Juani's written decision on degraded scope.
-- Review absent: no breaker or three-round loop. Declare ordinary verify. If auditor is active, it decides on available reports; otherwise report conformity and request Juani's written decision, never approval of the complete cycle.
-A missing required report stops closure, including an incomplete return: identify it, recover it or escalate to Juani; never replace it with a summary or assumed APROBADO. This is not an absent toggle.
+- Knowledge-base absent: do not promise automatic KB updates. Preserve LECCIONES and DEUDA in the change, with destination pending for the human owner.
+- Knowledge-base active with auditor absent: archive may update facts with evidence; do not invent auditor lessons or debt. Mark the source absent; closure needs the human owner's written decision on degraded scope.
+- Review absent: no breaker or three-round loop. Declare ordinary verify. If auditor is active, it decides on available reports; otherwise report conformity and request the human owner's written decision, never approval of the complete cycle.
+A missing required report stops closure, including an incomplete return: identify it, recover it or escalate to the human owner; never replace it with a summary or assumed APROBADO. This is not an absent toggle.
 
 ### Complete reports
 
@@ -1201,7 +1201,7 @@ in the report that that is what you did.
 
 Cover the union of Knowledge Base Impact and the actual diff, even when the impact section exists. Inspect all KB documents touched by either source; reconcile omissions in the report.
 
-If auditor is absent, mark "auditor source absent": update facts with evidence but do not invent LECCIONES or DEUDA. Closure needs Juani's written decision accepting degraded scope or enabling auditor. If knowledge-base is absent, preserve the verdict lessons and debt in the change and tell Juani the destination is pending.
+If auditor is absent, mark "auditor source absent": update facts with evidence but do not invent LECCIONES or DEUDA. Closure needs the human owner's written decision accepting degraded scope or enabling auditor. If knowledge-base is absent, preserve the verdict lessons and debt in the change and tell the human owner the destination is pending.
 
 Archiving is already the moment the system declares that something stopped being
 a proposal and became true. That moment existed and **nobody was using it**.
@@ -1230,7 +1230,7 @@ performs this step, and no part of the block above mentions it either.
 ## Knowledge Base
 Read `## Knowledge Base Impact` in proposal.md and the actual diff, even when the section exists. Cover their union; if the section is missing, say so. Then, for each document either source names: REWRITE status, next
 steps and frontmatter so they describe the new state and the old text is gone;
-APPEND decisions, lessons L-NNN from auditor LECCIONES and debt from auditor DEUDA, dated, with what each one cost. Only append lessons. Each entry states what changed and typed evidence: SHA, test or decision. If the auditor is absent, mark auditor source absent and do not invent its lists; closure requires Juani's written decision on degraded scope. Return the two
+APPEND decisions, lessons L-NNN from auditor LECCIONES and debt from auditor DEUDA, dated, with what each one cost. Only append lessons. Each entry states what changed and typed evidence: SHA, test or decision. If the auditor is absent, mark auditor source absent and do not invent its lists; closure requires the human owner's written decision on degraded scope. Return the two
 lists separately and by document, headed REWRITTEN and APPENDED. If REWRITTEN
 is empty, say why in one line and label the report SUSPICIOUS: append-only when only APPEND was done. Then open the previous closed change's
 `knowledge-base-report.md`, carry whatever it left undone into a third list

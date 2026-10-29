@@ -98,7 +98,7 @@ func TestLeanWorkflow_PhaseMapLowMergeAndSelfContainedBriefs(t *testing.T) {
 				"MEDIUM and above dispatch five separate roles",
 				"self-contained",
 				"another provider's model",
-				"typed report format (EVIDENCE, JUDGMENT, ASSUMPTION, sources read, contamination by other reports)",
+				"typed report format (EVIDENCIA, JUICIO, SUPOSICIÓN, sources read, contamination by other reports)",
 			} {
 				if !strings.Contains(body, required) {
 					t.Errorf("missing orchestrator resource %q", required)
@@ -118,7 +118,7 @@ func TestLeanWorkflow_DepthByLevelAndRecoveredLegacyMechanisms(t *testing.T) {
 		// 1 reports and provenance index
 		"openspec/changes/<change>/informes/<phase>-<attempt>-<role>.md",
 		"LEEME.md",
-		"Identity without a dispatch record is ASSUMPTION",
+		"Identity without a dispatch record is SUPOSICIÓN",
 		// 2 lessons are read before acting
 		"read the numbered lessons (L-NNN)",
 		// 3 auditor memory channels
@@ -275,5 +275,26 @@ func TestLeanWorkflow_HistoricalSwitchesCannotDisableContracts(t *testing.T) {
 				t.Fatal("legacy attendance leaked")
 			}
 		})
+	}
+}
+
+// The five roles report with EVIDENCIA/JUICIO/SUPOSICIÓN and verdicts are
+// APROBADO/BLOQUEANTES; the core asked for EVIDENCE/JUDGMENT/ASSUMPTION, so
+// the auditor received labels it was not told to look for (review of
+// 2026-10-29, finding 10.6). One label set across core and roles.
+func TestLeanWorkflow_OneReportLabelSet(t *testing.T) {
+	body, err := config.Compose(config.KnownToggles(), "claude")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, label := range []string{"EVIDENCIA", "JUICIO", "SUPOSICIÓN"} {
+		if !strings.Contains(body, label) {
+			t.Errorf("lean core lacks report label %q used by the roles", label)
+		}
+	}
+	for _, label := range []string{"EVIDENCE", "JUDGMENT", "ASSUMPTION"} {
+		if strings.Contains(body, label) {
+			t.Errorf("lean core still uses English report label %q", label)
+		}
 	}
 }

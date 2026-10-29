@@ -18,7 +18,9 @@ harnesses:
     description: { es: "CLI de Spec-Driven Development; fuente de verdad del estado.", en: "Spec-Driven Development CLI; source of truth for change state." }
     long_description: { es: "El CLI de Spec-Driven Development: la fuente de verdad del estado de cada change del proyecto. Se instala como paquete npm (`@fission-ai/openspec`) y expone el comando `openspec`, que gestiona el ciclo explorar → proponer → aplicar → verificar → archivar manteniendo specs y tareas sincronizadas. Elegilo si querés que el flujo OPSX tenga un motor real detrás en vez de coordinar changes a mano; es la base sobre la que se apoyan casi todas las skills de fundación. Si no vas a trabajar con changes especificados, no lo necesitás.", en: "The Spec-Driven Development CLI: the source of truth for every project change's state. It installs as an npm package (`@fission-ai/openspec`) and exposes the `openspec` command, which drives the explore → propose → apply → verify → archive cycle while keeping specs and tasks in sync. Choose it when you want a real engine behind the OPSX flow instead of tracking changes by hand; it's the foundation most of the foundation skills build on. If you're not going to work with specified changes, you don't need it." }
     type: external
-    external: { method: npm, pkg: "@fission-ai/openspec" }
+    # min_version: la versión con la que se verificó el stack (openspec validate
+    # --strict, 2026-10-29). Una más vieja en el PATH se actualiza (8.2).
+    external: { method: npm, pkg: "@fission-ai/openspec", min_version: "1.14.3" }
     install_modes: [lite, full]
 
   - id: engram

@@ -133,7 +133,7 @@ func TestVerifySinReviewTresAgentes(t *testing.T) {
 					}
 				}
 				if !auditor {
-					for _, want := range []string{"Missing toggles: review, auditor", "Juani's written decision"} {
+					for _, want := range []string{"Missing toggles: review, auditor", "the human owner's written decision"} {
 						if !strings.Contains(body, want) {
 							t.Errorf("falta salida humana: %s", want)
 						}

@@ -58,7 +58,7 @@ Session recovery neither increments nor resets the attempt counter.
 Record what each agent received, its role, chosen execution and what was unavailable.
 Store each original report at openspec/changes/<change>/informes/<phase>-<attempt>-<role>.md and
 index it in LEEME.md with author, declared executor/provider, shared family, revision and missing
-reports. Identity without a dispatch record is ASSUMPTION. Summaries never replace originals.
+reports. Identity without a dispatch record is SUPOSICIÓN. Summaries never replace originals.
 
 ## Dispatch: bounded context
 
@@ -71,7 +71,7 @@ read or repeat it; other executors receive the universal contract below.
 Use configured plugins or delegation capabilities; this workflow implements no API transport.
 The executor may be a native subagent, a plugin such as Codex or another provider's model
 that inherits none of these instructions, so every brief is self-contained: the role contract below,
-the typed report format (EVIDENCE, JUDGMENT, ASSUMPTION, sources read, contamination by other reports)
+the typed report format (EVIDENCIA, JUICIO, SUPOSICIÓN, sources read, contamination by other reports)
 with its output path, plus the bounded context, never the whole conversation.
 Tell constructor, breaker and auditor to read the numbered lessons (L-NNN) when the knowledge
 base has them and to record the path read or its absence. When a skill registry exists, paste
@@ -199,7 +199,7 @@ Classify by risk and scope, not diff length. HIGH or CRITICAL construction requi
 
 ## Typed reports
 
-EVIDENCE carries command, timestamp, reviewed revision and relevant output; preserve full output in an artifact when long. JUDGMENT names its author, comparison and confidence. ASSUMPTION states what was not verified and why. Unreproduced defects remain visible suspicions, not demonstrated blockers. Never promote a partial check into evidence. The original report is authoritative; summaries link to it and do not replace it. Deliver the auditor's verdict verbatim to the human.
+EVIDENCIA carries command, timestamp, reviewed revision and relevant output; preserve full output in an artifact when long. JUICIO names its author, comparison and confidence. SUPOSICIÓN states what was not verified and why. Unreproduced defects remain visible suspicions, not demonstrated blockers. Never promote a partial check into evidence. The original report is authoritative; summaries link to it and do not replace it. Deliver the auditor's verdict verbatim to the human.
 
 ## Project knowledge
 
@@ -211,4 +211,4 @@ When configured, recover relevant Engram context at session start and before res
 
 ## Publication
 
-Publish only when explicitly requested. No remote: stop and report, never invent one. With uncommitted changes: ask, never decide alone. Before any push require archived/closed change, recorded auditor approval, a clean tree and the required checks green on the delivered revision. Diagnose branch, default remote branch, upstream and existing PR; fetch before comparing divergence. Failed lookups are unknown, not absence. Work directly on trunk requires a human decision before moving commits; pushing to trunk always asks. When publishing, recommend PR or direct push with reasons, and name rebase or merge when integrating. Update an existing PR rather than opening a duplicate; never merge or enable auto-merge. For a PR, check the source SHA, not the synthetic merge SHA. After push record its SHA and wait for every expected workflow/event and expanded matrix job on that SHA; inspect all jobs, including failures. Zero runs, failed queries, another SHA, pending, skipped, cancelled, neutral or timed-out jobs are not success. For Active Stack require ci.yml push tests on Ubuntu and Windows; derive required checks from workflows for other projects. A new push invalidates earlier CI evidence. Report incomplete delivery without claiming it ready.
+Publish only when explicitly requested. No remote: stop and report, never invent one. With uncommitted changes: ask, never decide alone. Before any push require archived/closed change, recorded auditor approval, a clean tree and the required checks green on the delivered revision. Diagnose branch, default remote branch, upstream and existing PR; fetch before comparing divergence. Failed lookups are unknown, not absence. Work directly on trunk requires a human decision before moving commits; pushing to trunk always asks. When publishing, recommend PR or direct push with reasons, and name rebase or merge when integrating. Update an existing PR rather than opening a duplicate; never merge or enable auto-merge. For a PR, check the source SHA, not the synthetic merge SHA. After push record its SHA and wait for every expected workflow/event and expanded matrix job on that SHA; inspect all jobs, including failures. Zero runs, failed queries, another SHA, pending, skipped, cancelled, neutral or timed-out jobs are not success. Derive the required checks from the project's workflows. A new push invalidates earlier CI evidence. Report incomplete delivery without claiming it ready.

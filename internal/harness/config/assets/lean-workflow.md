@@ -58,7 +58,7 @@ Session recovery neither increments nor resets the attempt counter.
 Record what each agent received, its role, chosen execution and what was unavailable.
 Store each original report at openspec/changes/<change>/informes/<phase>-<attempt>-<role>.md and
 index it in LEEME.md with author, declared executor/provider, shared family, revision and missing
-reports. Identity without a dispatch record is ASSUMPTION. Summaries never replace originals.
+reports. Identity without a dispatch record is SUPOSICIÓN. Summaries never replace originals.
 
 ## Dispatch: bounded context
 
@@ -71,7 +71,7 @@ read or repeat it; other executors receive the universal contract below.
 Use configured plugins or delegation capabilities; this workflow implements no API transport.
 The executor may be a native subagent, a plugin such as Codex or another provider's model
 that inherits none of these instructions, so every brief is self-contained: the role contract below,
-the typed report format (EVIDENCE, JUDGMENT, ASSUMPTION, sources read, contamination by other reports)
+the typed report format (EVIDENCIA, JUICIO, SUPOSICIÓN, sources read, contamination by other reports)
 with its output path, plus the bounded context, never the whole conversation.
 Tell constructor, breaker and auditor to read the numbered lessons (L-NNN) when the knowledge
 base has them and to record the path read or its absence. When a skill registry exists, paste

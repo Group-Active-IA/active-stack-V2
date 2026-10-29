@@ -4,4 +4,4 @@ Review is active and auditor is absent. Run the senior after the breaker, once p
 
 Read numbered lessons when knowledge-base is available. If engram is active, consult recorded history; empty results mean missing records, never missing decisions. Do not invent historical context.
 
-Preserve the complete senior report alongside conformity and breaker reports. Stop closure and request Juani's written decision in tasks.md to enable auditor, accept justified degraded scope or stop. Without that written decision nothing advances. Do not wait for a verdict from an absent auditor, impersonate it or authorize an automatic return to apply. A missing required report stops closure.
+Preserve the complete senior report alongside conformity and breaker reports. Stop closure and request the human owner's written decision in tasks.md to enable auditor, accept justified degraded scope or stop. Without that written decision nothing advances. Do not wait for a verdict from an absent auditor, impersonate it or authorize an automatic return to apply. A missing required report stops closure.

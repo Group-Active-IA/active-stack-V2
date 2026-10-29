@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os/exec"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/Group-Active-IA/active-stack/internal/model"
@@ -40,8 +42,26 @@ func installNPM(ctx context.Context, h model.Harness, profile system.PlatformPro
 	// homebrew.go and the download method already reported AlreadyInstalled;
 	// npm was the only one of the three that never asked.
 	binaryName := pkgBinaryName(pkg)
+	var upgradeNote string
 	if existing, err := lookPath(binaryName); err == nil && existing != "" {
-		return Result{BinaryPath: existing, AlreadyInstalled: true}, nil
+		// Presence is not version (review 2026-10-29, 8.2): an old openspec
+		// passed as installed while lacking the subcommands the lean block
+		// uses. Without min_version the presence check stands.
+		min := h.External.MinVersion
+		if min == "" {
+			return Result{BinaryPath: existing, AlreadyInstalled: true}, nil
+		}
+		out, _ := runner(ctx, existing, "--version")
+		current, ok := parseVersion(string(out))
+		if !ok {
+			return Result{BinaryPath: existing, AlreadyInstalled: true, Notes: []string{fmt.Sprintf(
+				"could not read the %s version (minimum %s); left as is: check it with `%s --version`", binaryName, min, binaryName)}}, nil
+		}
+		required, _ := parseVersion(min)
+		if !versionLess(current, required) {
+			return Result{BinaryPath: existing, AlreadyInstalled: true}, nil
+		}
+		upgradeNote = fmt.Sprintf("%s %s is below the minimum %s", binaryName, strings.Join(current, "."), min)
 	}
 
 	var (
@@ -64,12 +84,51 @@ func installNPM(ctx context.Context, h model.Harness, profile system.PlatformPro
 	}
 
 	if out, err := runner(ctx, name, args...); err != nil {
+		if upgradeNote != "" {
+			// The old binary still works: a failed upgrade must not roll the
+			// whole install back (the 2026-09-09 sudo failure above).
+			binaryPath, _ := lookPath(binaryName)
+			return Result{BinaryPath: binaryPath, AlreadyInstalled: true, Notes: []string{fmt.Sprintf(
+				"%s; upgrade failed (%v): run `npm install -g %s` yourself", upgradeNote, err, pkg)}}, nil
+		}
 		return Result{}, fmt.Errorf("npm install -g %s: %w\n%s", pkg, err, out)
 	}
 
 	binaryPath, _ := lookPath(binaryName)
+	res := Result{BinaryPath: binaryPath}
+	if upgradeNote != "" {
+		res.Notes = []string{upgradeNote + "; upgraded with npm install -g " + pkg}
+	}
+	return res, nil
+}
 
-	return Result{BinaryPath: binaryPath}, nil
+// versionPattern finds the first dotted version in `--version` output, which
+// may carry a prefix ("openspec version 1.14.3") or a trailing newline.
+var versionPattern = regexp.MustCompile(`(\d+)\.(\d+)(?:\.(\d+))?`)
+
+// parseVersion returns major, minor and patch as strings ("0" when absent).
+func parseVersion(text string) ([]string, bool) {
+	m := versionPattern.FindStringSubmatch(text)
+	if m == nil {
+		return nil, false
+	}
+	patch := m[3]
+	if patch == "" {
+		patch = "0"
+	}
+	return []string{m[1], m[2], patch}, true
+}
+
+// versionLess compares two parsed versions numerically, part by part.
+func versionLess(a, b []string) bool {
+	for i := 0; i < 3; i++ {
+		x, _ := strconv.Atoi(a[i])
+		y, _ := strconv.Atoi(b[i])
+		if x != y {
+			return x < y
+		}
+	}
+	return false
 }
 
 // useSudo returns true when the install should be run under sudo.
