@@ -180,9 +180,10 @@ Lo que Active Stack puede instalar hoy (fuente de verdad: [`internal/catalog/har
 | Harness | Tipo | Modo | Qué hace |
 |---------|------|------|----------|
 | **OpenSpec CLI** | external | lite · full | CLI de Spec-Driven Development; fuente de verdad del estado |
-| **Engram** | external | lite · full | Memoria persistente local (SQLite + FTS) vía MCP |
+| **Engram** | external | lite · full | Memoria persistente local (SQLite + FTS) vía MCP; no se registra de nuevo si Claude ya tiene el plugin `engram@engram` |
 | **Context7** | external | lite · full | Documentación de librerías al día (MCP remoto) |
 | **SDD Orchestrator** | config | lite · full | Orquestador SDD componible por toggles (`lean-workflow` por defecto; compatibilidad: `delegation`, `model-routing`, `governance`, `evidence`, `auditor`, `roles`, `review`, `knowledge-base`, `senior`, `ship`, `engram`, `tdd`) |
+| **Role Definitions** | config | lite · full | Cinco roles de flujo (planificador, revisor del plan, constructor, rompedor, auditor) y siete especialistas opcionales, sin modelo fijo; en Claude como `role-*.md` en su directorio de agentes |
 | **Permissions** | config | lite · full | Permisos seguros por defecto (bloquea `.env`, confirma git destructivo) — **no opcional** |
 | **active-orchestrator** | skill | full | Orquestador delgado de la fase de fundación |
 | **kb-creator** | skill | full | Genera la knowledge-base canónica del dominio |
@@ -243,6 +244,13 @@ Tres garantías **no negociables** del instalador (los pasos marcados arriba en 
 - 🧩 **Inyección idempotente por markers** — reinstalar no duplica bloques.
 - ↩️ **Rollback por etapas** — si un paso falla, deshace lo hecho (sin tocar lo que ya existía).
 
+### Instalar sobre una configuración previa
+
+- Un `role-*.md` idéntico a una versión que el stack ya publicó se respalda y se actualiza. Uno desconocido (personal o editado) no se toca: la versión del stack queda al lado como `<archivo>.active-stack.md` y el conflicto se informa. Si es uno de los cinco roles del flujo, se marca **BLOQUEANTE** y el mensaje final dice que el flujo lean no puede correr hasta resolverlo (el exit code sigue en 0).
+- El instalador nunca borra archivos que no pueda probar propios.
+- El snapshot de la instalación guarda cada archivo de comandos y skills que se va a pisar, no sólo la carpeta: `active-stack uninstall --strategy restore --restore-manifest ~/.active-stack/backups/install/manifest.json` devuelve tu configuración tal como estaba. Los binarios que descargó la instalación (por ejemplo `engram` en `~/.local/bin`) quedan, y el restore lo avisa.
+- Se verificó instalando, reinstalando y restaurando en un HOME aislado, incluido un home con roles personales y una skill propia editada.
+
 ---
 
 ## De la instalación al código
@@ -270,7 +278,18 @@ flowchart TD
 
 El `active-orchestrator` coordina la fundación con lazy-loading de skills; durante el ciclo, **OpenSpec CLI es la fuente de verdad del estado** y el orquestador delega el trabajo pesado a sub-agentes.
 
-El ciclo vigente es `explore → propose → apply → verify → archive`, seguido de `ship` cuando se publica:
+El ciclo es `explore → propose → apply → verify → archive`, seguido de `ship` cuando se publica. Con `lean-workflow` (predeterminado) el orquestador tiene todos los recursos y asigna los roles dentro de cada fase:
+
+| Fase | Roles | Qué se entrega |
+|---|---|---|
+| `propose` | planificador → revisor del plan | propuesta, diseño, tareas y escenarios revisados; HIGH/CRITICAL esperan tu aprobación escrita |
+| `apply` | constructor | código con TDD: RED observado antes de producción, GREEN y evidencia en `tasks.md` |
+| `verify` | rompedor → auditor | fallos reproducidos vuelven al constructor; el auditor da APROBADO o BLOQUEANTES con deuda y lecciones |
+| `archive` | orquestador | cierre con APROBADO y actualización de la base de conocimiento y `obsidian.md` |
+
+La profundidad escala con el nivel del change: en **LOW** el orquestador puede planificar y revisar él mismo y hay una ronda del rompedor; desde **MEDIUM** corren cinco agentes separados; **HIGH** suma regresiones de consumidores y mutantes en lo clave; **CRITICAL**, mutantes en cada aserción de seguridad o datos y un recorrido real si hay login externo. Cada encargo es autosuficiente (contrato del rol, formato de informe y contexto acotado), así que cualquier rol puede ejecutarlo Claude, Codex u otro proveedor según la tabla `## Role executors` del proyecto. Detalle en la [guía del flujo](docs/lean-agent-workflow.md).
+
+**Modo legacy** (al quitar `lean-workflow`), sin cambios:
 
 - **Propose:** con governance activo, ALTO o CRÍTICO requiere informes de arquitecto, analista funcional y QA, más especialistas por capa, convocados de a uno sin leer los otros informes; el auditor lee los N originales antes de la aprobación humana escrita. La tabla `## Aprobación` registra elección, persona, fecha y alcance; ningún agente la completa. Una regla nueva necesita aprobación propia.
 - **Apply constructor:** rojo y verde por tarea en `tasks.md`, con comando, salida, hora y SHA; si el test nació verde, mutante que falle en su aserción y se revierta. Declara consumidores, conflictos y familia del modelo. En vueltas 2 y 3 corrige sólo la lista del auditor.
@@ -340,7 +359,7 @@ go test ./...                          # suite completa
 
 ## Estado del proyecto
 
-🟢 **Activo.** El núcleo del instalador (catálogo, modelo, adapters P0, backup/rollback, merge por markers, pipeline, verify y la TUI) está implementado; el verde local no acredita CI remoto completo. El roadmap interno (C-01 … C-25) está cerrado; ver [`CHANGES.md`](CHANGES.md). La fase 1 metodológica tiene ocho changes archivados con OK escrito; `instalacion-sana` continúa abierto por CONF-1 (informe 22).
+🟢 **Activo.** Desde la rama `stack-actualizado` (29/10/2026) el perfil predeterminado es `lean-workflow`: el bloque del orquestador pasa de ~115 KB a ~17 KB, sin promesa de ahorro de tokens medido todavía (falta un piloto real). Ese mismo día se instaló en la máquina de Juani con su OK escrito, después de la prueba en HOME aislado. El núcleo del instalador (catálogo, modelo, adapters P0, backup/rollback, merge por markers, pipeline, verify y la TUI) está implementado; el verde local no acredita CI remoto completo. El roadmap interno (C-01 … C-25) está cerrado; ver [`CHANGES.md`](CHANGES.md). La fase 1 metodológica tiene ocho changes archivados con OK escrito; `instalacion-sana` continúa abierto por CONF-1 (informe 22).
 
 ## Licencia
 
