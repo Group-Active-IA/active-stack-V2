@@ -121,7 +121,7 @@ Es la cadena más larga; el resto corre en paralelo o es independiente.
 
 ### `uninstall-subcommand` — Exponer `active-stack uninstall` en la CLI
 
-- **Estado**: IMPLEMENTADO (2026-06-06, rama `feat/uninstall-subcommand`). Wiring completo
+- **Estado**: ARCHIVADO (2026-10-29): verificado `active-stack uninstall` y el hub en la TUI; `go test ./internal/tui ./internal/uninstall ./cmd/active-stack` ok. Antes: IMPLEMENTADO (2026-06-06, rama `feat/uninstall-subcommand`). Wiring completo
   (flags + executor exportado + dispatch + `case "uninstall"`). **Bonus fix de engine**:
   `internal/uninstall` no manejaba `model.HarnessCommand` → `uninstall --mode lite/full`
   crasheaba con el catálogo real (`starter-add-command` es type:command). Se agregó
@@ -166,7 +166,7 @@ Es la cadena más larga; el resto corre en paralelo o es independiente.
 
 ### `tui-menu-hub` — TUI con menú descriptivo multi-opción
 
-- **Estado**: IMPLEMENTADO (pendiente de archive; el hub ya muestra sus opciones, ver `tui-update-stack` y `tui-configure-models`).
+- **Estado**: ARCHIVADO (2026-10-29): verificado `active-stack uninstall` y el hub en la TUI; `go test ./internal/tui ./internal/uninstall ./cmd/active-stack` ok.
 - **Scope**:
   - Reestructurar `internal/tui/` para convertir `ScreenWelcome` en un menú hub:
     opciones Install / Starters / Manage backups / Uninstall / Update stack / Quit.
@@ -408,9 +408,9 @@ Es la cadena más larga; el resto corre en paralelo o es independiente.
 |---|---|---|---|---|---|
 | `opencode-orchestrator-parity` | 0 (paralelo) | BAJO/MEDIO | — | — | COMPLETADO |
 | `openspec-init-cleanup` | 0 (paralelo) | BAJO | — | — | COMPLETADO |
-| `uninstall-subcommand` | 1 | **ALTO** | — | `tui-menu-hub` | IMPLEMENTADO (pend. archive) |
+| `uninstall-subcommand` | 1 | **ALTO** | — | `tui-menu-hub` | ARCHIVADO |
 | `claude-agent-switch-research` | 1+ (libre) | BAJO | — | — | PENDIENTE |
-| `tui-menu-hub` | 2 | BAJO/MEDIO | `uninstall-subcommand` | `tui-update-stack`, `tui-configure-models` | IMPLEMENTADO (pend. archive) |
+| `tui-menu-hub` | 2 | BAJO/MEDIO | `uninstall-subcommand` | `tui-update-stack`, `tui-configure-models` | ARCHIVADO |
 | `tui-update-stack` | 3 | MEDIO | `tui-menu-hub` | — | PENDIENTE |
 | `tui-configure-models` | 3 | MEDIO | `tui-menu-hub` | — | PENDIENTE |
 
@@ -419,8 +419,8 @@ Nota: `jr-orchestrator`, que aparece en fichas de junio, es el nombre anterior d
 
 **Camino crítico**: `uninstall-subcommand → tui-menu-hub → {tui-update-stack ‖ tui-configure-models}` (3 changes; los dos últimos en paralelo).
 
-**Próximo paso**: archivar `tui-menu-hub` (implementado, suite verde) y luego encarar
-en paralelo `tui-update-stack` y `tui-configure-models` (ambos cuelgan del hub).
+**Próximo paso**: encarar en paralelo `tui-update-stack` y `tui-configure-models`
+(ambos cuelgan del hub, ya archivado).
 
 ---
 

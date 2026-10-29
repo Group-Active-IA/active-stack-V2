@@ -5,7 +5,7 @@
 > sustrato (harnesses), y un único orquestador de fundación deja el proyecto
 > listo para el ciclo OPSX (`explore → propose → apply → verify → archive`).
 
-Estado: núcleo implementado; fase 1 metodológica construida y archivada parcialmente. La instalación real se hizo el 29/10/2026 con OK escrito del responsable, después de una prueba en HOME aislado (instalar, reinstalar, restaurar); falta el cierre formal de `instalacion-sana` contra la receta §3.6 (CONF-1). EVIDENCIA: `84fcf0e`, informe 22 y [base metodológica](docs/metodologia-opsx.md).
+Estado actual del proyecto: [docs/ESTADO.md](docs/ESTADO.md).
 
 ---
 
@@ -211,7 +211,7 @@ como harness `config` (la seguridad no es opcional).
 
 ## 6. Roadmap de construcción (incrementos)
 
-El núcleo y el roadmap C-01…C-32 están implementados (historial en `CHANGES.md`). La fase 1 integra constructor, verify, archive y ship en los toggles existentes. Ocho changes están archivados con autorización escrita. La instalación real se hizo el 29/10/2026 con OK escrito del responsable, después de una prueba en HOME aislado (instalar, reinstalar, restaurar); falta el cierre formal de `instalacion-sana` contra la receta §3.6 (CONF-1). Fase 2 (propuesta `2026-10-23-fase-2-pasos-1-4.md`): el paso 2a, `active-stack reports capture`, está implementado; 2b (captura automática por hooks) sigue pendiente. Desde el 29/10 el perfil lean es el predeterminado y reemplazó al ciclo anterior con etapa de historiador. Firmas criptográficas y el resto de fase 2: (TBD), sin aprobación implícita.
+El roadmap de construcción C-01…C-32 está en `CHANGES.md`. Estado actual del proyecto: [docs/ESTADO.md](docs/ESTADO.md).
 
 EVIDENCIA: propuesta firmada `4748680`, decisión `5ab0f4f`; estado detallado en `CHANGES.md`.
 

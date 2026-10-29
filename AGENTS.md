@@ -167,7 +167,7 @@ El conocimiento se actualiza en el destino declarado por el proyecto (incluido o
 
 Al desactivar explícitamente lean-workflow se usan los fragmentos legacy y su procedimiento anterior. La guía [lean-agent-workflow](docs/lean-agent-workflow.md) define precedencia y límites; el historial metodológico sigue en [docs/metodologia-opsx.md](docs/metodologia-opsx.md).
 
-`active-stack version` informa versión y SHA disponibles. El chequeo instalado valida `cmd/active-stack`, `roles --help` y contenido contra `Compose`; no acredita reinstalación real. La instalación real se hizo el 29/10/2026 con OK escrito del responsable, después de una prueba en HOME aislado (instalar, reinstalar, restaurar); falta el cierre formal de `instalacion-sana` contra la receta §3.6 (CONF-1).
+`active-stack version` informa versión y SHA disponibles. Estado actual del proyecto: [docs/ESTADO.md](docs/ESTADO.md).
 
 EVIDENCIA: `84fcf0e`, `c325955` y [base metodológica](docs/metodologia-opsx.md) (commits por fase, decisiones, lecciones y deuda; informe 22 autoriza sólo ocho archives).
 

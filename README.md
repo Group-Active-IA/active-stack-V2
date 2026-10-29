@@ -291,7 +291,7 @@ La profundidad escala con el nivel del change: en **LOW** el orquestador puede p
 
 Si falta un toggle se declara la degradación; sin review no hay rompedor ni bucle. Sin auditor se necesita decisión escrita de la persona responsable para cerrar con alcance degradado. Un informe obligatorio faltante detiene el cierre.
 
-**EVIDENCIA:** commits y límites de fase 1 en la [base metodológica](docs/metodologia-opsx.md), con decisiones, lecciones y deuda. `active-stack version` informa versión y SHA disponibles; los checks validan identidad del binario, `roles --help` y entrega contra `Compose`. La instalación real se hizo el 29/10/2026; falta el cierre formal de `instalacion-sana` (CONF-1). Fuentes: `84fcf0e`, `c325955`, informe 22.
+**EVIDENCIA:** commits y límites de fase 1 en la [base metodológica](docs/metodologia-opsx.md), con decisiones, lecciones y deuda. `active-stack version` informa versión y SHA disponibles; los checks validan identidad del binario, `roles --help` y entrega contra `Compose`. Estado actual del proyecto: [docs/ESTADO.md](docs/ESTADO.md).
 
 
 ---
@@ -374,7 +374,7 @@ go test ./...                          # suite completa
 
 ## Estado del proyecto
 
-🟢 **Activo.** Desde la rama `stack-actualizado` (29/10/2026) el perfil predeterminado es `lean-workflow`: el bloque del orquestador pasa de ~115 KB a ~17 KB, sin promesa de ahorro de tokens medido todavía (falta un piloto real). Ese mismo día se instaló en una máquina real con OK escrito del responsable, después de la prueba en HOME aislado. El núcleo del instalador (catálogo, modelo, adapters P0, backup/rollback, merge por markers, pipeline, verify y la TUI) está implementado; el verde local no acredita CI remoto completo. El roadmap interno (C-01 … C-32) está cerrado; ver [`CHANGES.md`](CHANGES.md). La fase 1 metodológica tiene ocho changes archivados con OK escrito; `instalacion-sana` continúa abierto por CONF-1 (informe 22).
+🟢 **Activo.** El estado completo y actualizado vive en [docs/ESTADO.md](docs/ESTADO.md).
 
 ## Licencia
 

@@ -337,3 +337,33 @@ func TestRootDocs_QuotedRepoPathsExist(t *testing.T) {
 		}
 	}
 }
+
+// Review 2026-10-29 (prevención 3): the project status was copied into four
+// documents and drifted (the README said the real install was done and
+// pending at once). Status lives only in docs/ESTADO.md; the governance docs
+// link it instead of restating it.
+func TestRootDocs_StatusLivesInOnePlace(t *testing.T) {
+	estado, err := os.ReadFile(filepath.Join("..", "..", "..", "docs", "ESTADO.md"))
+	if err != nil {
+		t.Fatalf("docs/ESTADO.md is the single status document: %v", err)
+	}
+	for _, fact := range []string{"instalacion-sana", "CONF-1"} {
+		if !strings.Contains(string(estado), fact) {
+			t.Errorf("docs/ESTADO.md does not carry %q", fact)
+		}
+	}
+	for _, name := range docsThatEnumerateToggles {
+		raw, err := os.ReadFile(filepath.Join("..", "..", "..", name))
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, fact := range []string{"instalacion-sana", "CONF-1"} {
+			if strings.Contains(string(raw), fact) {
+				t.Errorf("%s restates the status (%q): link docs/ESTADO.md instead", name, fact)
+			}
+		}
+		if !strings.Contains(string(raw), "docs/ESTADO.md") {
+			t.Errorf("%s does not link docs/ESTADO.md", name)
+		}
+	}
+}
