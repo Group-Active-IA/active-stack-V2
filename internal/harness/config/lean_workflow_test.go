@@ -319,3 +319,27 @@ func TestLeanWorkflow_FocusedTestsAndOneFullSuite(t *testing.T) {
 		}
 	}
 }
+
+// Review 2026-10-30 (PropTech PR #4): every constructor round ran the 18-minute
+// suite again for small fixes on a revision already green, and the human had to
+// stop it by hand. The orchestrator owns that call: each brief states which checks
+// run and why, a broad diff or the final audit gets the full suite, a local fix
+// over a green revision gets focused tests, and the decision lands in tasks.md.
+func TestLeanWorkflow_OrchestratorDecidesTestScope(t *testing.T) {
+	body, err := config.Compose([]string{"lean-workflow"}, "generic")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, required := range []string{
+		"The orchestrator decides the check scope of every constructor and breaker round",
+		"without asking the human",
+		"a broad diff (trunk merge, migrations, shared code)",
+		"a local fix over a revision whose full suite is green runs focused tests",
+		"The auditor runs the full suite once on the final revision",
+		"record the scope decision in tasks.md",
+	} {
+		if !strings.Contains(body, required) {
+			t.Errorf("missing orchestrator test-scope rule %q", required)
+		}
+	}
+}

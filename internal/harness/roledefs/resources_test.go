@@ -183,8 +183,8 @@ func TestWorkflowResources_CurrentLeanContracts(t *testing.T) {
 	contracts := map[string][]string{
 		"role-planner.md":       {"En LOW el orquestador puede"},
 		"role-plan-reviewer.md": {"En LOW el orquestador puede"},
-		"role-constructor.md":   {"lecciones numeradas (L-NNN)", "sólo la lista del auditor", "agrupadas por archivo", "sólo los tests enfocados", "la suite completa una vez"},
-		"role-breaker.md":       {"lecciones numeradas (L-NNN)", "En LOW, una sola ronda", "reutilizá el resultado vigente de la suite completa"},
+		"role-constructor.md":   {"lecciones numeradas (L-NNN)", "sólo la lista del auditor", "agrupadas por archivo", "sólo los tests enfocados", "la suite completa una vez", "lo decide el orquestador en el brief", "No amplíes ese alcance por tu cuenta"},
+		"role-breaker.md":       {"lecciones numeradas (L-NNN)", "En LOW, una sola ronda", "reutilizá el resultado vigente de la suite completa", "Si el brief del orquestador fija otro alcance de pruebas, seguí el brief"},
 		"role-auditor.md":       {"lecciones numeradas (L-NNN)", "openspec/changes/archive/", "Engram", "qué fuentes usaste", "reescribe algo que ya existe", "recorrido real"},
 	}
 	phases := map[string]string{

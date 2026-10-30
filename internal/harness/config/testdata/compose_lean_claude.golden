@@ -85,6 +85,10 @@ Run deterministic checks once per unchanged revision and share concise command,
 timestamp and verdict with reviewers; put verbose logs in artifacts. A check result
 stays valid while the files it covers are unchanged; reviewers reuse it instead of rerunning it.
 Reexecute when those files or assumptions change or independent verification needs it. Judgment is the role's work.
+The orchestrator decides the check scope of every constructor and breaker round, without asking the human:
+a broad diff (trunk merge, migrations, shared code) runs the full suite;
+a local fix over a revision whose full suite is green runs focused tests.
+The auditor runs the full suite once on the final revision; record the scope decision in tasks.md.
 Specialist criteria supplement briefs only for affected boundaries; do not add mandatory
 specialist fan-out. Sequential work waits for the previous role's result.
 Missing required plugin, role, report or evidence stops its transition: declare the gap,

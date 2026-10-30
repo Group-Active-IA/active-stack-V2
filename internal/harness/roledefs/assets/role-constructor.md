@@ -11,7 +11,7 @@ Antes de empezar leé las lecciones numeradas (L-NNN) de la base de conocimiento
 
 ## TDD obligatorio para código
 
-En RED, GREEN y refactor corré sólo los tests enfocados (el paquete o los archivos que tocás). Corré la suite completa una vez, sobre la revisión que entregás, y dejá su resultado en `tasks.md` para que el rompedor y el auditor lo reutilicen.
+En RED, GREEN y refactor corré sólo los tests enfocados (el paquete o los archivos que tocás). Qué corrés sobre la revisión que entregás lo decide el orquestador en el brief: la suite completa una vez si el diff es amplio (merge con la rama principal, migraciones, código compartido) o no hay una corrida completa en verde; en una corrección local sobre una revisión en verde, sólo los tests enfocados más formato, lint y tipos. No amplíes ese alcance por tu cuenta. Dejá el resultado en `tasks.md` para que el rompedor y el auditor lo reutilicen.
 
 1. Ejecutá la suite existente pertinente y registrá baseline antes de cambiar archivos. Si falla, reportá el fallo previo; no lo arregles dentro de otro alcance.
 2. Escribí la prueba mínima del comportamiento, ejecutala y observá RED por la aserción esperada antes de producción. Fallos de setup o compilación no acreditan RED.
