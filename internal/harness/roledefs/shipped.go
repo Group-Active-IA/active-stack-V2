@@ -46,11 +46,13 @@ var shippedRoleHashes = map[string][]string{
 		"081f137064b09c1c122d112d3aea7e0c9abeefa2caa05d6a786e39320686c2b9", // fab5966
 		"336ec5cba7898f2b388bfa8c1c8e5f00a4a2a1bb509d2943cb87f3512093e84c", // 89add58
 		"9c5beb93689e6b4ed8ebd4d6e2463a2f2d31c9948029c4f0573484edf2825d48", // stack-actualizado: informe con un dueño
+		"e139ae5084099065dbe792e3688800c6ba73f2eb84dfa152242544891123d1f4", // 898f0b9
 	},
 	"role-constructor.md": {
 		"ff1026a02c5badc0a0a63630dbc1fcedf466f8dd196fe2348cd582250c08a368", // fab5966
 		"fee534fe45ceb91075a363ee85b4b60a6eef980ea6368e263659a5516ad3bd20", // 89add58
 		"d83a0b9bf970534eca50dd315ba964cda9d8779bd8f1322263de9ae45b8a5693", // stack-actualizado: informe con un dueño
+		"4cbbe08a83c2ea0aead96b0108f3e64a9a3c057951fa43b8ddaa119b42aa3483", // 898f0b9
 	},
 	"role-dba.md": {
 		"9cadb7eb8fc1eed1dce6c8a04543978959a53589ba328be130663c3bac0b0f21", // 2526eee
